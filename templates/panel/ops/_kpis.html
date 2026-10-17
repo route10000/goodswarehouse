@@ -1,0 +1,35 @@
+{% load gw_format ops_tags %}
+<section class="kpi-row" id="ops-kpis" hx-get="{% url 'panel:ops_live' %}" hx-trigger="every 30s" hx-include="#ops-selected" hx-swap="outerHTML" aria-label="Показатели дня">
+  <article class="kpi">
+    <span class="kpi__icon">{% include "panel/ops/_icon.html" with name="ready" %}</span>
+    <div class="kpi__body">
+      <span class="kpi__label">Ждут выдачи</span>
+      <span class="kpi__line"><span class="kpi__value">{{ kpis.awaiting_places|ru_number }}</span><span class="kpi__unit">{{ kpis.awaiting_places|ru_plural:"место,места,мест" }}</span>{% if kpis.awaiting_delta %}<span class="kpi__delta" title="Прибыло на склад сегодня">↑ {{ kpis.awaiting_delta|ru_number }}</span>{% endif %}</span>
+    </div>
+    <span class="kpi__note">{% if kpis.awaiting_cargo %}{{ kpis.awaiting_cargo|ru_number }} {{ kpis.awaiting_cargo|ru_plural:"груз,груза,грузов" }} на складе{% else %}Склад пуст{% endif %}</span>
+  </article>
+  <article class="kpi">
+    <span class="kpi__icon">{% include "panel/ops/_icon.html" with name="in_transit" %}</span>
+    <div class="kpi__body">
+      <span class="kpi__label">Машин в пути</span>
+      <span class="kpi__line"><span class="kpi__value">{{ kpis.trucks_in_transit }}</span><span class="kpi__of">/{{ kpis.trucks_active }}</span></span>
+    </div>
+    <span class="kpi__note">из {{ kpis.trucks_active }} {{ kpis.trucks_active|ru_plural:"активного рейса,активных рейсов,активных рейсов" }}</span>
+  </article>
+  <article class="kpi">
+    <span class="kpi__icon">{% include "panel/ops/_icon.html" with name="order" %}</span>
+    <div class="kpi__body">
+      <span class="kpi__label">Ордер на сегодня</span>
+      <span class="kpi__line"><span class="kpi__value">{{ kpis.order_pending }}</span><span class="kpi__of">/{{ kpis.order_total }}</span></span>
+    </div>
+    <span class="kpi__note">{% if kpis.order_built %}осталось позвонить{% else %}Ордер ещё не сформирован{% endif %} · <a href="/panel/order/">Открыть</a></span>
+  </article>
+  <article class="kpi">
+    <span class="kpi__icon">{% include "panel/ops/_icon.html" with name="picked_up" %}</span>
+    <div class="kpi__body">
+      <span class="kpi__label">Выдано сегодня</span>
+      <span class="kpi__line"><span class="kpi__value">{{ kpis.picked_up_today|ru_number }}</span><span class="kpi__unit">{{ kpis.picked_up_today|ru_plural:"груз,груза,грузов" }}</span></span>
+    </div>
+    <span class="kpi__note">{{ kpis.picked_up_places|ru_number }} {{ kpis.picked_up_places|ru_plural:"место,места,мест" }}</span>
+  </article>
+</section>

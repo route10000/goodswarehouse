@@ -1,0 +1,89 @@
+{% load panel_tags gw_format %}
+{% if result %}
+{% with client=result.client %}
+<section class="pickup-client" aria-label="Клиент">
+  <div class="pickup-client__main">
+    <h2 class="pickup-client__name">{{ client.name|default:"Без имени" }}</h2>
+    <span class="pickup-client__meta"><span class="mono">{{ client.code }}</span> · <a class="mono" href="tel:{{ client.phone }}">{{ client.phone|phone }}</a></span>
+  </div>
+  <a class="btn btn--quiet btn--sm" href="{% url 'panel:client' client.pk %}">Карточка клиента</a>
+</section>
+
+{% if result.ready %}
+<form class="pickup-form" method="post" action="{% url 'panel:pickup_issue' %}" data-pickup>
+  {% csrf_token %}
+  <input type="hidden" name="client" value="{{ client.pk }}">
+  <div class="pickup-cards">
+    {% for cargo in result.ready %}
+    <label class="pickup-card">
+      <input class="pickup-card__check" type="checkbox" name="cargo" value="{{ cargo.pk }}" checked data-places="{{ cargo.places }}" data-amount="{{ cargo.amount_due|stringformat:'s' }}">
+      <span class="pickup-card__body">
+        <span class="pickup-card__top">
+          <span class="mono strong pickup-card__article">{{ cargo.article }}</span>
+          <span class="pill st-ready">На складе</span>
+        </span>
+        {% if cargo.description %}<span class="pickup-card__desc">{{ cargo.description }}</span>{% endif %}
+        <span class="pickup-card__facts">
+          <span><span class="caption">Мест</span><span class="mono">{{ cargo.places }}</span></span>
+          <span><span class="caption">Вес, кг</span><span class="mono">{{ cargo.weight_kg|ru_number|default:"—" }}</span></span>
+          <span><span class="caption">К оплате</span><span class="mono nowrap">{{ cargo.amount_due|rub }}</span></span>
+          <span><span class="caption">На складе</span><span class="mono">{{ cargo.days }} дн</span></span>
+          <span class="{% if cargo.overdue %}is-overdue{% endif %}"><span class="caption">Хранение до</span><span class="mono">{{ cargo.free_storage_until|date:"d.m.Y"|default:"—" }}</span></span>
+        </span>
+      </span>
+    </label>
+    {% endfor %}
+  </div>
+  <div class="pickup-footer">
+    <div class="pickup-footer__totals">
+      <span><span class="caption">Мест</span> <span class="mono" data-total-places>{{ result.places }}</span></span>
+      <span><span class="caption">К оплате</span> <span class="mono nowrap" data-total-amount>{{ result.amount|rub }}</span></span>
+    </div>
+    <label class="check pickup-footer__paid"><input type="checkbox" name="paid"> Оплачено</label>
+    <button class="btn btn--primary btn--lg pickup-footer__submit" type="submit" data-issue>Выдать ({{ result.ready|length }})</button>
+  </div>
+</form>
+{% else %}
+<p class="panel empty muted">У клиента нет грузов, готовых к выдаче.</p>
+{% endif %}
+
+{% if result.other %}
+<section class="pickup-other" aria-label="Пока нельзя выдать">
+  <h3 class="pickup-other__title">Пока нельзя выдать</h3>
+  <div class="pickup-cards">
+    {% for cargo in result.other %}
+    <div class="pickup-card is-disabled">
+      <span class="pickup-card__body">
+        <span class="pickup-card__top">
+          <span class="mono strong pickup-card__article">{{ cargo.article }}</span>
+          <span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span>
+        </span>
+        {% if cargo.description %}<span class="pickup-card__desc">{{ cargo.description }}</span>{% endif %}
+        <span class="pickup-card__why">{{ cargo.explanation }}</span>
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+{% elif clients %}
+<section class="panel pickup-choose">
+  <h2 class="panel__title">Нашли несколько клиентов — выберите</h2>
+  <ul class="pickup-clients">
+    {% for item in clients %}
+    <li>
+      <a class="pickup-clients__item" href="{% url 'panel:pickup' %}?client={{ item.pk }}" hx-get="{% url 'panel:pickup' %}?client={{ item.pk }}" hx-target="#pickup-results" hx-replace-url="true">
+        <span class="strong">{{ item.name|default:"Без имени" }}</span>
+        <span class="mono caption">{{ item.code }}</span>
+        <span class="mono caption">{{ item.phone|phone }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% elif searched %}
+<p class="panel empty muted">Ничего не нашли. Проверьте артикул, телефон или код клиента.</p>
+{% else %}
+<p class="caption pickup-hint">Отсканируйте или введите артикул, телефон клиента или код GW-…</p>
+{% endif %}

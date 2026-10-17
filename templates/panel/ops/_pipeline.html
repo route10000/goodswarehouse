@@ -1,0 +1,13 @@
+{% load gw_format %}
+<ol class="pipeline" id="ops-pipeline"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% for stage in pipeline %}
+  <li class="pipeline__stage pipeline__stage--{{ stage.key }}">
+    <span class="pipeline__icon">{% include "panel/ops/_icon.html" with name=stage.key %}</span>
+    <span class="pipeline__text">
+      <span class="pipeline__label">{{ stage.label }}</span>
+      <span class="pipeline__caption">{{ stage.caption }}</span>
+    </span>
+    <span class="pipeline__value"><span class="pipeline__num">{{ stage.value|ru_number }}</span><span class="pipeline__unit">{{ stage.unit }}</span></span>
+  </li>
+  {% endfor %}
+</ol>

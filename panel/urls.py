@@ -1,8 +1,9 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from . import views
-from .views import cargo, clients, imports, lookup, search, trucks
+from .views import cargo, clients, imports, lookup, ops, search, trucks
+from .views import order as order_views
+from .views import pickup as pickup_views
 
 app_name = "panel"
 
@@ -15,7 +16,10 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-    path("", views.ops_center, name="ops"),
+    path("", ops.ops_center, name="ops"),
+    path("ops/live/", ops.ops_live, name="ops_live"),
+    path("ops/truck/<int:pk>/", ops.ops_truck, name="ops_truck"),
+    path("api/scene/", ops.scene_api, name="ops_scene"),
     path("search/", search.search, name="search"),
     # trucks
     path("trucks/", trucks.truck_list, name="trucks"),
@@ -35,4 +39,20 @@ urlpatterns = [
     path("clients/lookup/", lookup.client_lookup, name="client_lookup"),
     path("clients/<int:pk>/", clients.client_detail, name="client"),
     path("clients/<int:pk>/edit/", clients.client_edit, name="client_edit"),
+    # daily call order (T7)
+    path("order/", order_views.order_today, name="order"),
+    path("order/<str:day>/", order_views.order_day, name="order_day"),
+    path("order/<str:day>/build/", order_views.order_build, name="order_build"),
+    path("order/<str:day>/add/", order_views.order_add, name="order_add"),
+    path("order/<str:day>/candidates/", order_views.order_candidates, name="order_candidates"),
+    path("order/<str:day>/print/", order_views.order_print, name="order_print"),
+    path("order/<str:day>/export.xlsx", order_views.order_export, name="order_export"),
+    path("order/<str:day>/line/<int:pk>/", order_views.line_row, name="order_line"),
+    path("order/<str:day>/line/<int:pk>/mark/", order_views.line_mark, name="order_line_mark"),
+    path(
+        "order/<str:day>/line/<int:pk>/remove/", order_views.line_remove, name="order_line_remove"
+    ),
+    # pickup (T7)
+    path("pickup/", pickup_views.pickup, name="pickup"),
+    path("pickup/issue/", pickup_views.pickup_issue, name="pickup_issue"),
 ]

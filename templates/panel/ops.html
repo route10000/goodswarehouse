@@ -1,12 +1,64 @@
 {% extends "panel/base.html" %}
+{% load static %}
 {% block title %}Ops-центр · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-ops.css' %}">
+{% endblock %}
 {% block content %}
-<h1 class="page-title">Ops-центр</h1>
-<section class="panel">
-  <div class="panel__head">
-    <h2 class="panel__title">Скоро здесь</h2>
-    <span class="live">LIVE</span>
+<h1 class="visually-hidden">Ops-центр</h1>
+<div class="ops" data-ops data-truck-url="{% url 'panel:ops_truck' 0 %}">
+  <input type="hidden" id="ops-selected" name="truck" value="{{ selected.id|default:'' }}">
+
+  {% include "panel/ops/_kpis.html" %}
+
+  <div class="ops__stage">
+    {# Mount point for the 3D scene (T9). The flat route map below is the fallback. #}
+    <div class="ops-scene" id="ops-scene" data-scene-url="{% url 'panel:ops_scene' %}" data-mode="fallback">
+      <div class="route-map" data-route-map role="group" aria-label="Схема маршрута Уссурийск — Владивосток">
+        <noscript><p class="route-map__noscript">Схема маршрута появится при включённом JavaScript.</p></noscript>
+      </div>
+    </div>
+
+    <section class="ops__pipeline panel" aria-labelledby="ops-pipeline-title">
+      <div class="panel__head">
+        <h2 class="panel__title" id="ops-pipeline-title">Конвейер</h2>
+      </div>
+      {% include "panel/ops/_pipeline.html" %}
+    </section>
+
+    <aside class="ops__drawer" id="ops-drawer-slot" aria-label="Выбранная машина">
+      {% include "panel/ops/_drawer.html" %}
+    </aside>
   </div>
-  <p class="muted">KPI, конвейер статусов, 3D-сцена и список машин появятся в следующих задачах.</p>
-</section>
+
+  <div class="ops__bottom">
+    <section class="ops__tabs panel" aria-label="Машина и день">
+      <div class="tabs" role="tablist">
+        <button class="tabs__tab" type="button" role="tab" id="ops-tab-tracker-btn" aria-selected="true" aria-controls="ops-tab-tracker" data-ops-tab>Отслеживание машины</button>
+        <button class="tabs__tab" type="button" role="tab" id="ops-tab-timeline-btn" aria-selected="false" aria-controls="ops-tab-timeline" tabindex="-1" data-ops-tab>Таймлайн дня</button>
+      </div>
+      <div class="tabs__panel" role="tabpanel" id="ops-tab-tracker" aria-labelledby="ops-tab-tracker-btn">
+        {% include "panel/ops/_tracker.html" %}
+      </div>
+      <div class="tabs__panel" role="tabpanel" id="ops-tab-timeline" aria-labelledby="ops-tab-timeline-btn" hidden>
+        {% include "panel/ops/_timeline.html" %}
+      </div>
+    </section>
+
+    <section class="ops__fleet panel" aria-labelledby="ops-fleet-title">
+      <div class="panel__head">
+        <h2 class="panel__title" id="ops-fleet-title">Машины</h2>
+        <a class="ops__more" href="{% url 'panel:trucks' %}">Все машины</a>
+      </div>
+      {% include "panel/ops/_fleet.html" %}
+    </section>
+  </div>
+</div>
+<div class="ops-backdrop" data-ops-close hidden></div>
+{{ scene|json_script:"ops-scene-data" }}
+{% endblock %}
+{% block scripts %}{{ block.super }}
+<script type="module" src="{% static 'js/ops/route-map.js' %}"></script>
+<script type="module" src="{% static 'js/ops/page.js' %}"></script>
+<script type="module" src="{% static 'js/ops/data.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,7 @@
+{# HTMX response for a line: the row (swapped in place) plus out-of-band counters, badge and toast. #}
+{% if not deleted %}{% include "panel/order/_row.html" %}{% endif %}
+{% if oob %}
+<template>{% include "panel/order/_counters.html" %}</template>
+<template>{% include "panel/order/_badge.html" with remaining=remaining %}</template>
+{% if toast %}<template><div hx-swap-oob="beforeend:#toasts"><div class="toast{% if error %} st-error{% endif %}" data-toast>{{ toast }}</div></div></template>{% endif %}
+{% endif %}

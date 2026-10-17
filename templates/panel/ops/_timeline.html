@@ -1,0 +1,30 @@
+{% load l10n %}
+<div class="timeline" id="ops-timeline"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <ul class="timeline__legend" aria-label="Легенда">
+    <li><span class="timeline__swatch timeline__swatch--loading"></span>Погрузка</li>
+    <li><span class="timeline__swatch timeline__swatch--transit"></span>В пути</li>
+    <li><span class="timeline__swatch timeline__swatch--arrival"></span>Прибытие</li>
+  </ul>
+  <div class="timeline__chart">
+    <div class="timeline__scale" aria-hidden="true">
+      {% for hour in timeline.hours %}<span class="timeline__hour" style="left: {{ hour.pct|unlocalize }}%">{{ hour.label }}</span>{% endfor %}
+    </div>
+    <div class="timeline__rows">
+      <div class="timeline__plot" aria-hidden="true">
+        {% for hour in timeline.hours %}<span class="timeline__tick" style="left: {{ hour.pct|unlocalize }}%"></span>{% endfor %}
+        {% if timeline.now_pct is not None %}<span class="timeline__now" style="left: {{ timeline.now_pct|unlocalize }}%"></span>{% endif %}
+      </div>
+      {% for row in timeline.rows %}
+      <div class="timeline__row">
+        <span class="timeline__label">{{ row.item.short_number }}</span>
+        <span class="timeline__track">
+          {% for bar in row.bars %}<span class="timeline__bar timeline__bar--{{ bar.kind }}{% if bar.late %} is-late{% endif %}{% if bar.planned %} is-planned{% endif %}" style="left: {{ bar.left|unlocalize }}%; width: {{ bar.width|unlocalize }}%" title="{{ bar.title }}"></span>{% endfor %}
+          {% if row.planned_departure %}<span class="timeline__note">отправка сегодня, время не указано</span>{% endif %}
+        </span>
+      </div>
+      {% empty %}
+      <p class="timeline__empty">Сегодня нет отправок и прибытий</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>

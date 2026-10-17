@@ -1,0 +1,6 @@
+{% include "panel/ops/_kpis.html" %}
+{% include "panel/ops/_pipeline.html" with oob=True %}
+{% include "panel/ops/_fleet.html" with oob=True %}
+{% include "panel/ops/_timeline.html" with oob=True %}
+{% if selected %}{% include "panel/ops/_drawer.html" with oob=True %}
+{% include "panel/ops/_tracker.html" with oob=True %}{% endif %}

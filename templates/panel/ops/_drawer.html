@@ -1,0 +1,41 @@
+{% load gw_format panel_tags %}
+<div class="drawer" id="ops-drawer"{% if oob %} hx-swap-oob="true"{% endif %}{% if selected %} data-truck-id="{{ selected.id }}"{% endif %}>
+  {% if selected %}{% with truck=selected.truck %}
+  <header class="drawer__head">
+    <div class="drawer__title">
+      <span class="drawer__type">Рейс · фура</span>
+      <h2 class="drawer__number">{{ truck.number }}</h2>
+    </div>
+    <span class="pill {{ truck.status|truck_pill }}">{{ selected.status_label }}</span>
+    <button class="drawer__close" type="button" data-ops-close aria-label="Закрыть">{% include "panel/ops/_icon.html" with name="close" %}</button>
+  </header>
+  <dl class="kv">
+    <div class="kv__row"><dt>Маршрут</dt><dd>{{ truck.route }}</dd></div>
+    <div class="kv__row"><dt>Госномер</dt><dd class="mono">{{ truck.plate|default:"—" }}</dd></div>
+    <div class="kv__row"><dt>Места</dt><dd class="mono">{{ selected.places_text }}</dd></div>
+    <div class="kv__row"><dt>Клиентов</dt><dd class="mono">{{ selected.clients }}</dd></div>
+    <div class="kv__row"><dt>Вес</dt><dd class="mono">{{ selected.weight_kg|ru_number }} кг</dd></div>
+    <div class="kv__row"><dt>Отправка</dt><dd class="mono">{% if truck.departed_at %}{{ truck.departed_at|ru_datetime }}{% elif truck.departure_date %}план {{ truck.departure_date|ru_date }}{% else %}—{% endif %}</dd></div>
+    <div class="kv__row"><dt>{% if truck.arrived_at %}Прибыла{% else %}ETA{% endif %}</dt><dd class="mono">{% if truck.arrived_at %}{{ truck.arrived_at|ru_datetime }}{% elif truck.eta %}{{ truck.eta|ru_datetime }}{% else %}—{% endif %}</dd></div>
+    <div class="kv__row"><dt>Сейчас</dt><dd{% if selected.is_late %} class="is-late"{% endif %}>{{ selected.when_text|capfirst }}</dd></div>
+  </dl>
+  <h3 class="drawer__subtitle">Путь груза</h3>
+  <ol class="journey">
+    {% for step in steps %}
+    <li class="journey__step is-{{ step.state }}"{% if step.state == "current" %} aria-current="step"{% endif %}>
+      <span class="journey__dot" aria-hidden="true">{{ step.number }}</span>
+      <span class="journey__body">
+        <span class="journey__row"><span class="journey__label">{{ step.label }}</span><span class="journey__time">{{ step.time }}</span></span>
+        <span class="journey__text">{{ step.text }}</span>
+      </span>
+    </li>
+    {% endfor %}
+  </ol>
+  <a class="btn btn--quiet btn--sm drawer__link" href="{% url 'panel:truck' truck.pk %}">Открыть карточку машины</a>
+  {% endwith %}{% else %}
+  <div class="drawer__empty">
+    <p class="drawer__empty-title">Нет машин в работе</p>
+    <p class="caption">Когда появится рейс, здесь будут его детали.</p>
+  </div>
+  {% endif %}
+</div>

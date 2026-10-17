@@ -1,0 +1,24 @@
+{% load panel_tags %}
+{% if q|length < 2 %}
+  <p class="caption">Введите хотя бы два символа.</p>
+{% elif not cargos %}
+  <p class="muted">Готовых грузов вне ордера не нашли.</p>
+{% else %}
+  <ul class="order-candidates__list">
+    {% for cargo in cargos %}
+    <li class="order-candidate">
+      <span class="order-candidate__main">
+        <span class="mono strong">{{ cargo.article }}</span>
+        <span>{{ cargo.client.name|default:"Без имени" }}</span>
+        <span class="caption mono">{{ cargo.client.code }} · {{ cargo.client.phone|phone }}</span>
+      </span>
+      <form method="post" action="{% url 'panel:order_add' day|date:'Y-m-d' %}">
+        {% csrf_token %}
+        <input type="hidden" name="cargo" value="{{ cargo.pk }}">
+        <button class="btn btn--sm btn--quiet" type="submit">Добавить</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% if cargos|length >= limit %}<p class="caption">Показаны первые {{ limit }}. Уточните запрос.</p>{% endif %}
+{% endif %}

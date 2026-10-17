@@ -1,0 +1,25 @@
+{% load panel_tags %}
+<div class="fleet" id="ops-fleet"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% if fleet %}
+  <ul class="fleet__list">
+    {% for item in fleet %}
+    <li>
+      <a class="fleet__row" href="{% url 'panel:truck' item.id %}" data-ops-truck="{{ item.id }}"{% if selected and item.id == selected.id %} aria-current="true"{% endif %}>
+        <span class="fleet__id">
+          <span class="fleet__number">{{ item.number }}</span>
+          <span class="fleet__route">{{ item.truck.route }}</span>
+        </span>
+        <span class="pill {{ item.status|truck_pill }}">{{ item.status_label }}</span>
+        <span class="fleet__progress">
+          <span class="meter" aria-hidden="true"><span class="meter__fill meter__fill--{{ item.status }}" style="width: {{ item.progress_pct }}%"></span></span>
+          <span class="fleet__places">{{ item.places_text }}</span>
+        </span>
+        <span class="fleet__when{% if item.is_late %} is-late{% endif %}">{{ item.when_text }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="fleet__empty">Машин пока нет. <a href="{% url 'panel:truck_new' %}">Добавить машину</a></p>
+  {% endif %}
+</div>

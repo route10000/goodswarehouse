@@ -1,0 +1,58 @@
+{% load static gw_format panel_tags %}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ордер на обзвон · {{ day|date:"d.m.Y" }} · GoodsWarehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Onest:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/panel-order.css' %}">
+</head>
+<body class="print-page">
+  <header class="print-head">
+    <h1 class="print-title">Ордер на обзвон · {{ day|date:"d.m.Y" }} · GoodsWarehouse</h1>
+    <div class="print-tools">
+      <span class="print-meta">Строк: {{ lines|length }}</span>
+      <button class="print-btn" type="button" onclick="window.print()">Печать</button>
+    </div>
+  </header>
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th class="num">№</th>
+        <th>Артикул</th>
+        <th>Клиент</th>
+        <th>Телефон</th>
+        <th class="num">Вес, кг</th>
+        <th class="num">Мест</th>
+        <th class="num">К оплате</th>
+        <th>Статус</th>
+        <th class="print-check">Дозвонился</th>
+        <th class="print-check">Не дозвонился</th>
+        <th class="print-comment">Комментарий</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in lines %}
+      <tr>
+        <td class="num">{{ line.number }}</td>
+        <td class="mono">{{ line.article }}</td>
+        <td>{{ line.client_name|default:"Без имени" }} <span class="mono">{{ line.cargo.client.code }}</span> · {{ line.days_waiting }} дн</td>
+        <td class="mono nowrap">{{ line.phone|phone }}</td>
+        <td class="num">{{ line.weight_kg|ru_number|default:"—" }}</td>
+        <td class="num">{{ line.places }}</td>
+        <td class="num nowrap">{{ line.amount_due|rub }}</td>
+        <td>{% if line.is_picked_up %}Выдан{% else %}{{ line.get_call_status_display }}{% if line.promised_date %}, приедет {{ line.promised_date|date:"d.m" }}{% endif %}{% endif %}</td>
+        <td class="print-check">{% if line.call_status == "reached" %}☒{% else %}☐{% endif %}</td>
+        <td class="print-check">{% if line.call_status == "no_answer" %}☒{% else %}☐{% endif %}</td>
+        <td class="print-comment">{{ line.comment }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="11">В ордере нет строк.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

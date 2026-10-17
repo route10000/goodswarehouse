@@ -39,7 +39,7 @@
 - `static/css/public.css` — public page styles (hero, track card, steps, truck list, cargo cards, contacts)
 - `templates/panel/base.html` — panel shell: topbar, command search, live clock, three.js importmap
 - `templates/panel/includes/sidebar.html` — icon sidebar / mobile bottom tab bar
-- `templates/panel/ops.html` — `/panel/` Ops-центр placeholder
+- `templates/panel/ops.html` — Ops-центр dashboard (`#ops-scene` mount point)
 - `templates/panel/login.html` — panel-styled login form
 - `static/css/tokens.css` — design tokens (verbatim from DESIGN.md); the only place for hex colors
 - `static/css/app.css` — base styles, themes, components (btn, pill, live, field, panel, kpi, table, toast), public and panel shells
@@ -68,3 +68,17 @@
 - `panel/tests/` — panel view tests
 - `templates/panel/{trucks,cargo,clients}/`, `search.html`, `403.html`, `includes/*` — panel screens
 - `static/css/panel.css` — panel screen styles
+- `panel/views/order.py` — Ордер на день: page, filters, HTMX marks (row + OOB counters/badge/toast), add/remove, print, xlsx
+- `panel/views/pickup.py` — Выдача: search by article/phone/code, client cards, atomic `cargo_pickup` of selected
+- `panel/context_processors.py` — `order_badge`: remaining lines in today's order for the sidebar
+- `templates/panel/order/` — day, row partials, counters, badge, candidates, print (A4)
+- `templates/panel/pickup/` — `page.html`, `_results.html`
+- `static/css/panel-order.css` — order, print view and pickup styles
+- `static/js/panel-order.js` — date auto-submit, HTMX toasts, pickup totals
+- `panel/ops_data.py` — Ops-центр aggregations: KPI, pipeline, fleet, journey, day timeline, warehouse blocks, scene JSON
+- `panel/views/ops.py` — Ops-центр page, `ops/live/` (30s refresh), `ops/truck/<id>/` (drawer + tracker), `api/scene/`
+- `panel/templatetags/ops_tags.py` — `ru_plural` filter
+- `templates/panel/ops/` — Ops-центр partials: kpis, pipeline, drawer, tracker, timeline, fleet, icon, truck, live
+- `static/css/panel-ops.css` — Ops-центр styles (stage, route map, drawer/bottom sheet, tracker, timeline, fleet)
+- `static/js/ops/` — `data.js` (scene polling, `ops:data`), `page.js` (selection, tabs, bottom sheet), `route-map.js` (SVG fallback)
+- `docs/SCENE_API.md` — scene JSON contract and page events for the 3D scene

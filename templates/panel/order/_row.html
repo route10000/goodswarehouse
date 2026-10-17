@@ -1,0 +1,49 @@
+{% load gw_format panel_tags %}
+<tr id="line-{{ line.pk }}" class="order-row{% if line.is_picked_up %} is-picked{% elif line.call_status != 'pending' %} is-marked{% endif %}{% if editing %} is-editing{% endif %}">
+  <td class="num order-row__n" data-label="№">{{ line.number }}</td>
+  <td class="mono strong order-row__article" data-label="Артикул">{{ line.article }}</td>
+  <td class="order-row__client" data-label="Клиент"><span class="cell-client"><span>{{ line.client_name|default:"Без имени" }}</span> <span class="caption"><span class="mono">{{ line.cargo.client.code }}</span> · {{ line.days_waiting }} дн</span></span></td>
+  <td data-label="Телефон"><a class="mono nowrap" href="tel:{{ line.phone }}">{{ line.phone|phone }}</a></td>
+  <td class="num" data-label="Вес, кг">{{ line.weight_kg|ru_number|default:"—" }}</td>
+  <td class="num" data-label="Мест">{{ line.places }}</td>
+  <td class="num nowrap" data-label="К оплате">{{ line.amount_due|rub }}</td>
+  <td data-label="Статус">
+    <span class="order-status">
+      {% if line.is_picked_up %}<span class="pill st-done">Выдан</span>
+      {% elif line.call_status == "reached" %}<span class="pill st-ready">Позвонили{% if line.promised_date %} · приедет {{ line.promised_date|date:"d.m" }}{% endif %}</span>
+      {% elif line.call_status == "no_answer" %}<span class="pill st-error">Не дозвонились</span>
+      {% else %}<span class="pill">Не звонили</span>{% endif %}
+      {% if line.comment %}<span class="caption order-status__comment">{{ line.comment }}</span>{% endif %}
+    </span>
+  </td>
+  {% if not read_only %}
+  <td class="order-row__actions">
+    {% if line.is_picked_up %}
+      <span class="caption">Груз выдан</span>
+    {% elif editing %}
+      <form class="order-reach" hx-post="{% url 'panel:order_line_mark' day|date:'Y-m-d' line.pk %}">
+        <input type="hidden" name="status" value="reached">
+        <label class="order-reach__field">
+          <span class="caption">Приедет</span>
+          <input class="input order-input" type="date" name="promised_date" value="{{ line.promised_date|date:'Y-m-d' }}" min="{{ day|date:'Y-m-d' }}">
+        </label>
+        <label class="order-reach__field order-reach__field--grow">
+          <span class="caption">Комментарий</span>
+          <input class="input order-input" type="text" name="comment" value="{{ line.comment }}" maxlength="500" autocomplete="off">
+        </label>
+        <span class="order-reach__buttons">
+          <button class="btn btn--sm btn--call" type="submit">Сохранить</button>
+          <button class="btn btn--sm btn--quiet" type="button" hx-get="{% url 'panel:order_line' day|date:'Y-m-d' line.pk %}">Отмена</button>
+        </span>
+      </form>
+    {% else %}
+      <span class="order-actions">
+        <button class="btn btn--sm btn--call" type="button" hx-get="{% url 'panel:order_line' day|date:'Y-m-d' line.pk %}?form=reached">Позвонили</button>
+        <button class="btn btn--sm btn--miss" type="button" hx-post="{% url 'panel:order_line_mark' day|date:'Y-m-d' line.pk %}" hx-vals='{"status": "no_answer"}' hx-include="closest td">Не дозвонились</button>
+        <input class="input order-input order-actions__note" type="text" name="comment" maxlength="500" placeholder="Комментарий" aria-label="Комментарий к звонку" autocomplete="off">
+        {% if manager and line.call_status == "pending" %}<button class="btn btn--sm order-remove" type="button" hx-post="{% url 'panel:order_line_remove' day|date:'Y-m-d' line.pk %}" hx-confirm="Убрать строку {{ line.article }} из ордера?">Убрать</button>{% endif %}
+      </span>
+    {% endif %}
+  </td>
+  {% endif %}
+</tr>

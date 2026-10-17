@@ -1,0 +1,22 @@
+{% load panel_tags %}
+<div class="tracker" id="ops-tracker"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% if selected %}
+  <ol class="tracker__steps" aria-label="Отслеживание {{ selected.number }}">
+    {% for step in steps %}
+    <li class="tracker__step is-{{ step.state }}"{% if step.state == "current" %} aria-current="step"{% endif %}>
+      <span class="tracker__dot" aria-hidden="true">{% if step.state == "done" %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>{% else %}{{ step.number }}{% endif %}</span>
+      <span class="tracker__label">{{ step.label }}</span>
+      <span class="tracker__caption">{{ step.caption }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+  <div class="tracker__trip">
+    <span class="tracker__number">{{ selected.number }}</span>
+    <span class="tracker__route">{{ selected.truck.route }}</span>
+    <span class="pill {{ selected.status|truck_pill }}">{{ selected.status_label }}</span>
+    <span class="tracker__left{% if selected.is_late %} is-late{% endif %}">{{ selected.left_text }}</span>
+  </div>
+  {% else %}
+  <p class="tracker__empty">Выберите машину, чтобы видеть её путь.</p>
+  {% endif %}
+</div>

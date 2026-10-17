@@ -1,0 +1,94 @@
+{% extends "panel/base.html" %}
+{% load static gw_format %}
+{% block title %}Ордер на {{ day|ru_date }} · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-order.css' %}">
+  <script src="{% static 'js/panel-order.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+<div class="page-head order-head">
+  <div class="order-head__title">
+    <h1 class="page-title">Ордер на {{ day|ru_date }}</h1>
+    <nav class="order-dates" aria-label="Другой день">
+      <a class="btn btn--quiet btn--sm" href="{% url 'panel:order_day' prev_day|date:'Y-m-d' %}" aria-label="Предыдущий день">← <span class="order-dates__label">{{ prev_day|ru_date }}</span></a>
+      <form class="order-dates__pick" method="get" action="{% url 'panel:order' %}">
+        <label class="visually-hidden" for="order-date">Дата ордера</label>
+        <input class="input order-input" id="order-date" type="date" name="date" value="{{ day|date:'Y-m-d' }}" data-autosubmit>
+        <noscript><button class="btn btn--quiet btn--sm" type="submit">Открыть</button></noscript>
+      </form>
+      <a class="btn btn--quiet btn--sm" href="{% url 'panel:order_day' next_day|date:'Y-m-d' %}" aria-label="Следующий день"><span class="order-dates__label">{{ next_day|ru_date }}</span> →</a>
+      {% if not is_today %}<a class="btn btn--quiet btn--sm" href="{% url 'panel:order' %}">Сегодня</a>{% endif %}
+    </nav>
+  </div>
+  {% if order %}
+  <div class="order-head__actions">
+    {% if not read_only %}
+      {% if manager %}<button class="btn btn--quiet" type="button" data-dialog-open="order-add">Добавить груз</button>{% endif %}
+      <form method="post" action="{% url 'panel:order_build' day|date:'Y-m-d' %}">
+        {% csrf_token %}
+        <button class="btn btn--primary" type="submit">Обновить ордер</button>
+      </form>
+    {% endif %}
+    <a class="btn btn--quiet" href="{% url 'panel:order_print' day|date:'Y-m-d' %}" target="_blank" rel="noopener">Печать</a>
+    <a class="btn btn--quiet" href="{% url 'panel:order_export' day|date:'Y-m-d' %}">Excel</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if read_only and order %}
+<p class="order-banner" role="note">Ордер за прошедший день — только просмотр</p>
+{% endif %}
+
+{% if not order %}
+<section class="panel empty-state">
+  {% if is_past %}
+    <h2 class="page-title">Ордера за {{ day|ru_date }} нет</h2>
+    <p class="muted">В этот день ордер на обзвон не формировали.</p>
+  {% else %}
+    <h2 class="page-title">{% if is_today %}Ордер на сегодня ещё не сформирован{% else %}Ордер на {{ day|ru_date }} ещё не сформирован{% endif %}</h2>
+    <p class="muted">В ордер попадут готовые грузы клиентов без Telegram, грузы, которые давно лежат на складе, и недозвоны из прошлого ордера.</p>
+    <form method="post" action="{% url 'panel:order_build' day|date:'Y-m-d' %}">
+      {% csrf_token %}
+      <button class="btn btn--primary btn--lg" type="submit">Сформировать ордер</button>
+    </form>
+  {% endif %}
+</section>
+{% else %}
+{% include "panel/order/_counters.html" %}
+<section class="panel panel--flush order-panel">
+  {% if lines %}
+  <table class="table order-table">
+    <thead>
+      <tr>
+        <th class="num">№</th><th>Артикул</th><th>Клиент</th><th>Телефон</th><th class="num">Вес, кг</th><th class="num">Мест</th><th class="num">К оплате</th><th>Статус</th>{% if not read_only %}<th>Действия</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody id="order-rows" hx-target="closest tr" hx-swap="outerHTML" hx-vals='{"filter": "{{ status }}"}'>
+      {% for line in lines %}{% include "panel/order/_row.html" %}{% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty muted">{% if status %}Строк с таким статусом нет.{% else %}В ордере пока нет строк.{% endif %}</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if order and manager and not read_only %}
+<dialog id="order-add" class="dialog order-add" aria-labelledby="order-add-title">
+  <div class="order-add__body">
+    <h2 id="order-add-title" class="dialog__title">Добавить груз в ордер</h2>
+    <div class="field">
+      <label for="order-add-q">Артикул, телефон или код клиента</label>
+      <input id="order-add-q" type="search" name="q" autocomplete="off" placeholder="Например, A1 или 914 123-45-67"
+        hx-get="{% url 'panel:order_candidates' day|date:'Y-m-d' %}" hx-trigger="input changed delay:300ms, search" hx-target="#order-candidates" hx-swap="innerHTML">
+    </div>
+    <div id="order-candidates" class="order-candidates" aria-live="polite">
+      <p class="caption">Покажем готовые грузы, которых ещё нет в ордере.</p>
+    </div>
+    <div class="dialog__actions">
+      <button class="btn btn--quiet" type="button" data-dialog-close>Закрыть</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

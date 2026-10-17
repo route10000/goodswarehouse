@@ -19,6 +19,8 @@
     <span class="badge">Ops center</span>
     <form class="cmd-search" role="search" method="get" action="{% url 'panel:search' %}">
       <label class="visually-hidden" for="cmd-search">Поиск</label>
+      {# Under 600px only this icon shows; focusing the input expands it over the topbar. #}
+      <label class="cmd-search__toggle" for="cmd-search" title="Поиск" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></label>
       <input id="cmd-search" type="search" name="q" value="{{ search_query|default:'' }}" placeholder="Артикул, телефон или рейс…" autocomplete="off" enterkeyhint="search" data-cmd-search>
       <kbd>/</kbd>
     </form>

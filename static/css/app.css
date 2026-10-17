@@ -922,7 +922,6 @@ dialog {
   }
 
   .topbar .badge,
-  .topbar .live,
   .topbar__username,
   .cmd-search kbd {
     display: none;
@@ -949,6 +948,65 @@ dialog {
 
   .main {
     padding: var(--s-4) var(--s-4) calc(64px + var(--s-4));
+  }
+}
+
+/* Command search: hidden toggle on wide screens; under 600px only the icon shows and
+   focusing the input (icon tap or "/") expands it over the whole topbar. */
+.cmd-search__toggle {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .topbar .live {
+    display: none;
+  }
+
+  .cmd-search {
+    position: static;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .topbar__right {
+    margin-left: 0;
+  }
+
+  .cmd-search__toggle {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--d-line);
+    border-radius: var(--r-sm);
+    color: var(--d-text);
+    cursor: pointer;
+  }
+
+  .cmd-search__toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cmd-search input {
+    position: absolute;
+    top: 10px;
+    left: var(--s-3);
+    width: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cmd-search:focus-within input {
+    right: var(--s-3);
+    width: auto;
+    z-index: 2;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .cmd-search:focus-within .cmd-search__toggle {
+    visibility: hidden;
   }
 }
 
