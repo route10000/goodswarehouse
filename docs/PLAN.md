@@ -14,7 +14,7 @@ Django 5.1 проект `config` с приложениями `logistics`, `notif
 `notify/telegram.py` (httpx, 403/429/5xx, dry-run). `notify/messages.py` (тексты по DESIGN.md). Команды `send_notifications`, `daily_reminders`. `logistics/orders.py`: `build_daily_order(date, user=None)` по SPEC §7 (включения, исключения, перенос `no_answer`/`pending`, повторное формирование не трогает отмеченные), `mark_line(line, status, user, promised_date, comment)` пишет ContactAttempt. Команда `build_daily_order`.
 **Проверка:** тесты с моком httpx на все ветки, идемпотентность reminders, каждое правило ордера, повторное формирование.
 
-## T4. Telegram-бот — Medium — ☐ (после T3)
+## T4. Telegram-бот — Medium — ☑ (после T3)
 `run_bot` (long polling), обработчики по SPEC §8 как чистые функции в `bot/handlers.py`.
 **Проверка:** тесты обработчиков на фикстурах апдейтов.
 

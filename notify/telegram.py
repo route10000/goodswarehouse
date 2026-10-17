@@ -1,8 +1,10 @@
-"""Minimal Telegram Bot API client for ``sendMessage`` (HTML parse mode).
+"""Minimal Telegram Bot API client: ``sendMessage`` (HTML parse mode) and ``getUpdates``.
 
-Only ``notify.services.send_pending`` uses it; web requests never talk to Telegram.
+Only ``notify.services.send_pending`` and the ``run_bot`` poller use it; web requests
+never talk to Telegram.
 Without ``TELEGRAM_BOT_TOKEN`` the client runs in dry-run: it logs the message and
-returns a dry-run result without touching the network (SPEC §11).
+returns a dry-run result without touching the network (SPEC §11); ``get_updates``
+raises ``BotTokenMissing`` instead, since polling without a token makes no sense.
 
 Errors are typed so the sender can decide what happens to a notification:
 ``BotBlocked`` (403), ``RetryLater`` (429), ``TemporaryError`` (5xx, network, timeout),
@@ -45,6 +47,10 @@ class PermanentError(TelegramError):
     """Any other 4xx (e.g. chat not found): retrying will not help."""
 
 
+class BotTokenMissing(TelegramError):
+    """``getUpdates`` cannot run in dry-run: the operator has to configure the token."""
+
+
 @dataclass(frozen=True)
 class SendResult:
     ok: bool
@@ -84,20 +90,41 @@ class TelegramClient:
     def __exit__(self, *exc):
         self.close()
 
-    def send_message(self, chat_id: int, text: str) -> SendResult:
+    def send_message(self, chat_id: int, text: str, reply_markup: dict | None = None) -> SendResult:
         if self.dry_run:
             logger.info("dry-run sendMessage chat_id=%s\n%s", chat_id, text)
             return SendResult(ok=True, dry_run=True)
 
-        url = f"{API_BASE}/bot{self.token}/sendMessage"
         body = {
             "chat_id": chat_id,
             "text": text,
             "parse_mode": "HTML",
             "disable_web_page_preview": True,
         }
+        if reply_markup is not None:
+            body["reply_markup"] = reply_markup
+        result = self._call("sendMessage", body) or {}
+        return SendResult(ok=True, message_id=result.get("message_id"))
+
+    def get_updates(self, offset: int | None, timeout: int) -> list[dict]:
+        """Long-poll ``getUpdates`` for messages; ``timeout`` is the poll time in seconds."""
+        if self.dry_run:
+            raise BotTokenMissing(
+                "TELEGRAM_BOT_TOKEN is not set: the bot cannot receive messages. "
+                "Set TELEGRAM_BOT_TOKEN in the environment and restart run_bot."
+            )
+        body: dict = {"timeout": timeout, "allowed_updates": ["message"]}
+        if offset is not None:
+            body["offset"] = offset
+        result = self._call("getUpdates", body, timeout=timeout + DEFAULT_TIMEOUT)
+        return result if isinstance(result, list) else []
+
+    def _call(self, method: str, body: dict, *, timeout: float | None = None):
+        """POST a Bot API method and return ``result``; map failures to typed errors."""
+        url = f"{API_BASE}/bot{self.token}/{method}"
+        extra = {} if timeout is None else {"timeout": timeout}
         try:
-            response = self._http.post(url, json=body)
+            response = self._http.post(url, json=body, **extra)
         except httpx.TimeoutException as exc:
             raise TemporaryError(f"timeout: {type(exc).__name__}") from None
         except httpx.TransportError as exc:
@@ -108,8 +135,7 @@ class TelegramClient:
         description = str(data.get("description") or response.reason_phrase or "")
         status = response.status_code
         if status == 200 and data.get("ok") is True:
-            result = data.get("result") or {}
-            return SendResult(ok=True, message_id=result.get("message_id"))
+            return data.get("result")
         if status == 403:
             raise BotBlocked(f"403 {description}")
         if status == 429:

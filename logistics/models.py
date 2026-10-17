@@ -60,6 +60,14 @@ class Client(models.Model):
         verbose_name = "клиент"
         verbose_name_plural = "клиенты"
         ordering = ["code"]
+        constraints = [
+            # One chat belongs to one client; many clients may have no Telegram yet.
+            models.UniqueConstraint(
+                fields=["telegram_chat_id"],
+                condition=models.Q(telegram_chat_id__isnull=False),
+                name="client_unique_telegram_chat",
+            )
+        ]
 
     def __str__(self) -> str:
         return f"{self.code} {self.name}".strip()

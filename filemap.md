@@ -25,7 +25,7 @@
 - `notify/services.py` — `enqueue_departed`, `enqueue_arrived`: one aggregated notification per client, `pending` / `skipped`, same-day dedupe
 - `notify/admin.py` — Notification admin, delivery fields read-only
 - `notify/tests/` — tests: messages, enqueue services
-- `bot/` — app: Telegram bot `run_bot` (empty in T1)
+- `bot/` — app: Telegram bot
 - `public/` — app: public site; `urls.py`, `views.py` (home, schedule, track with cache rate limit, contacts), `forms.py` (`TrackForm`)
 - `public/templatetags/gw_format.py` — filters `ru_date`, `ru_datetime`, `rub`, `ru_number` (reuse in panel)
 - `public/tests/` — view tests (home, schedule, track, rate limit, contacts) and format filter tests
@@ -48,9 +48,15 @@
 - `static/vendor/htmx.min.js` — htmx 2.0.3
 - `static/vendor/three/three.module.min.js` — three.js r160 ES module
 - `static/vendor/three/addons/renderers/CSS2DRenderer.js` — three.js r160 CSS2DRenderer addon
-- `notify/telegram.py` — Bot API sendMessage client (httpx, HTML), typed errors, dry-run without token
+- `notify/telegram.py` — Bot API client: sendMessage (+reply_markup), getUpdates; typed errors, `BotTokenMissing`, dry-run send without token
 - `notify/services.py` — enqueue_departed/arrived, `send_pending`, `enqueue_reminders`
 - `notify/messages.py` — bot texts for all 4 kinds, `format_date` (narrow NBSP money)
 - `notify/management/commands/` — `send_notifications` (`--loop --interval`), `daily_reminders` (`--date`)
 - `logistics/orders.py` — daily order: `build_daily_order`, `add_line`, `remove_line`, `mark_line` (only writer of lines/ContactAttempt)
 - `logistics/management/commands/build_daily_order.py` — `build_daily_order [--date]`
+- `bot/handlers.py` — pure bot logic: `handle_update(update) -> list[Reply]`, menu texts, link/unlink chat
+- `bot/links.py` — `deep_link(client)`: t.me deep link, creates the link token once
+- `bot/models.py` — BotState (key/value; getUpdates offset)
+- `bot/management/commands/run_bot.py` — long polling `run_bot [--once]`
+- `bot/tests/` — handlers, links, polling client, run_bot
+- `logistics/migrations/0003_client_unique_telegram_chat.py` — unique chat id when set (clears duplicates first)
