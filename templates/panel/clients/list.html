@@ -1,0 +1,41 @@
+{% extends "panel/base.html" %}
+{% load panel_tags %}
+{% block title %}Клиенты · GoodsWarehouse{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Клиенты</h1>
+</div>
+<form class="toolbar" method="get" role="search">
+  <div class="field toolbar__grow">
+    <label for="client-q">Поиск</label>
+    <input id="client-q" type="search" name="q" value="{{ q }}" placeholder="Телефон, код GW-… или имя" autocomplete="off">
+  </div>
+  <button class="btn btn--quiet toolbar__btn" type="submit">Найти</button>
+  {% if q %}<a class="btn btn--quiet toolbar__btn" href="{% url 'panel:clients' %}">Сбросить</a>{% endif %}
+</form>
+<section class="panel panel--flush">
+  {% if page.object_list %}
+  <table class="table">
+    <thead>
+      <tr><th>Код</th><th>Имя</th><th>Телефон</th><th class="num">Грузов</th><th class="num">Не выдано</th><th>Telegram</th></tr>
+    </thead>
+    <tbody>
+      {% for client in page.object_list %}
+      <tr>
+        <td data-label="Код"><a class="mono strong" href="{% url 'panel:client' client.pk %}">{{ client.code }}</a></td>
+        <td data-label="Имя">{{ client.name|default:"Без имени" }}</td>
+        <td data-label="Телефон"><a class="mono nowrap" href="tel:{{ client.phone }}">{{ client.phone|phone }}</a></td>
+        <td data-label="Грузов" class="num">{{ client.cargo_total }}</td>
+        <td data-label="Не выдано" class="num">{{ client.cargo_active }}</td>
+        <td data-label="Telegram">{% if client.has_telegram %}<span class="pill st-ready">Telegram</span>{% else %}<span class="pill st-done">Нет</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty muted">Клиентов не нашли. Проверьте телефон или код.</p>
+  {% endif %}
+</section>
+<p class="caption list-count">Найдено: <span class="mono">{{ page.paginator.count }}</span></p>
+{% include "panel/includes/pagination.html" %}
+{% endblock %}

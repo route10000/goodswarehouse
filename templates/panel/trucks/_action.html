@@ -1,0 +1,29 @@
+{# Next status step: action bar with consequence text and the native confirm <dialog>. #}
+<div id="truck-action" class="truck-action"{% if oob %} hx-swap-oob="true"{% endif %}>
+{% if action %}
+<section class="action-bar" aria-label="Следующий шаг">
+  <div class="action-bar__text">
+    <p class="action-bar__title">Следующий шаг: {{ action.label|lower }}</p>
+    <p class="action-bar__note">{{ action.consequence }}</p>
+  </div>
+  <button class="btn btn--primary btn--lg" type="button" data-dialog-open="confirm-action">{{ action.label }}</button>
+</section>
+<dialog id="confirm-action" class="dialog" aria-labelledby="confirm-action-title">
+  <form method="post" action="{{ action.url }}">
+    {% csrf_token %}
+    <h2 id="confirm-action-title" class="dialog__title">{{ action.label }} <span class="mono">{{ truck.number }}</span>?</h2>
+    <p class="dialog__text">{{ action.consequence }}</p>
+    {% if action.key != "close" %}
+    <ul class="dialog__counts">
+      <li><span class="dialog__num mono">{{ action.telegram_clients }}</span><span class="caption">в Telegram</span></li>
+      <li><span class="dialog__num mono">{{ action.call_cargo }}</span><span class="caption">в ордер на звонок</span></li>
+    </ul>
+    {% endif %}
+    <div class="dialog__actions">
+      <button class="btn btn--quiet" type="button" data-dialog-close>Отмена</button>
+      <button class="btn btn--primary" type="submit">{{ action.label }}</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
+</div>

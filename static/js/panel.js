@@ -1,4 +1,4 @@
-// Panel shell: live clock (Vladivostok time) and "/" hotkey for the command search.
+// Panel shell: live clock (Vladivostok), "/" search hotkey, dialogs, copy buttons, toasts.
 document.addEventListener("DOMContentLoaded", () => {
   const clock = document.querySelector("[data-live-clock]");
   if (clock) {
@@ -24,4 +24,57 @@ document.addEventListener("DOMContentLoaded", () => {
       search.focus();
     });
   }
+});
+
+// Confirm dialogs: [data-dialog-open="<id>"] opens a native <dialog>, [data-dialog-close] closes it.
+document.addEventListener("click", (event) => {
+  const opener = event.target.closest("[data-dialog-open]");
+  if (opener) {
+    const dialog = document.getElementById(opener.dataset.dialogOpen);
+    if (dialog && typeof dialog.showModal === "function") dialog.showModal();
+    return;
+  }
+  const closer = event.target.closest("[data-dialog-close]");
+  if (closer) {
+    const dialog = closer.closest("dialog");
+    if (dialog) dialog.close();
+    return;
+  }
+  // Click on the backdrop (outside the dialog box) closes it.
+  if (event.target instanceof HTMLDialogElement && event.target.open) {
+    const box = event.target.getBoundingClientRect();
+    const inside =
+      event.clientX >= box.left && event.clientX <= box.right &&
+      event.clientY >= box.top && event.clientY <= box.bottom;
+    if (!inside) event.target.close();
+  }
+});
+
+// Copy buttons: [data-copy="<selector of an input>"]; the label changes for a moment.
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-copy]");
+  if (!button) return;
+  const source = document.querySelector(button.dataset.copy);
+  if (!source) return;
+  const text = source.value || source.textContent || "";
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    source.select?.();
+    document.execCommand("copy");
+  }
+  const label = button.textContent;
+  button.textContent = button.dataset.copiedText || "Скопировано";
+  setTimeout(() => {
+    button.textContent = label;
+  }, 1600);
+});
+
+// Toasts (Django messages): hide on click; success toasts also hide after a few seconds.
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-toast]").forEach((toast, index) => {
+    const hide = () => toast.remove();
+    toast.addEventListener("click", hide);
+    if (!toast.classList.contains("st-error")) setTimeout(hide, 6000 + index * 800);
+  });
 });

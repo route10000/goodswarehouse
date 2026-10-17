@@ -1,0 +1,29 @@
+{% extends "panel/base.html" %}
+{% block title %}{% if truck %}{{ truck.number }} · редактирование{% else %}Новая машина{% endif %} · GoodsWarehouse{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    {% if truck %}<a class="back-link" href="{% url 'panel:truck' truck.pk %}">← {{ truck.number }}</a>{% else %}<a class="back-link" href="{% url 'panel:trucks' %}">← Машины</a>{% endif %}
+    <h1 class="page-title">{% if truck %}Машина <span class="mono">{{ truck.number }}</span>{% else %}Новая машина{% endif %}</h1>
+  </div>
+</div>
+<form class="panel form-panel" method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="field__error">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+  <div class="form-grid">
+    {% include "panel/includes/field.html" with field=form.route wide=True %}
+    {% include "panel/includes/field.html" with field=form.plate %}
+    {% include "panel/includes/field.html" with field=form.driver_phone %}
+    {% include "panel/includes/field.html" with field=form.loading_starts %}
+    {% include "panel/includes/field.html" with field=form.departure_date %}
+    {% include "panel/includes/field.html" with field=form.eta %}
+    <label class="check field--wide">{{ form.is_public }} <span>Показывать в публичном расписании</span></label>
+    {% include "panel/includes/field.html" with field=form.comment wide=True %}
+  </div>
+  <p class="caption">Статус машины меняется кнопками в карточке, а не здесь.</p>
+  <div class="form-actions">
+    <button class="btn btn--primary" type="submit">{% if truck %}Сохранить{% else %}Создать машину{% endif %}</button>
+    <a class="btn btn--quiet" href="{% if truck %}{% url 'panel:truck' truck.pk %}{% else %}{% url 'panel:trucks' %}{% endif %}">Отмена</a>
+  </div>
+</form>
+{% endblock %}

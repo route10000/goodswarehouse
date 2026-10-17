@@ -1,0 +1,99 @@
+{% extends "panel/base.html" %}
+{% load panel_tags gw_format %}
+{% block title %}{{ client.code }} · Клиенты · GoodsWarehouse{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back-link" href="{% url 'panel:clients' %}">← Клиенты</a>
+    <h1 class="page-title">{{ client.name|default:"Без имени" }} <span class="mono muted">{{ client.code }}</span></h1>
+    <p class="page-meta">
+      <a class="mono" href="tel:{{ client.phone }}">{{ client.phone|phone }}</a>
+      {% if client.has_telegram %}<span class="pill st-ready">Telegram подключён</span>{% else %}<span class="pill st-done">Telegram не подключён</span>{% endif %}
+    </p>
+  </div>
+  {% if request.user|is_manager %}<a class="btn btn--quiet" href="{% url 'panel:client_edit' client.pk %}">Изменить</a>{% endif %}
+</div>
+
+<div class="card-grid">
+  <section class="panel" aria-labelledby="bot-title">
+    <div class="panel__head"><h2 id="bot-title" class="panel__title">Привязка Telegram</h2></div>
+    {% if bot_link %}
+      <p class="caption">Отправьте клиенту ссылку: после нажатия «Старт» бот привяжет его чат.</p>
+      <div class="copy-row">
+        <input class="input mono" type="text" value="{{ bot_link }}" readonly aria-label="Ссылка на бота" id="bot-link">
+        <button class="btn btn--outline" type="button" data-copy="#bot-link" data-copied-text="Скопировано">Копировать</button>
+      </div>
+    {% else %}
+      <p class="muted">Бот ещё не настроен. Ссылка появится, когда администратор укажет имя бота.</p>
+    {% endif %}
+  </section>
+  <section class="panel" aria-labelledby="notes-title">
+    <div class="panel__head"><h2 id="notes-title" class="panel__title">Заметки</h2></div>
+    {% if client.notes %}<p class="pre">{{ client.notes }}</p>{% else %}<p class="muted">Заметок нет.</p>{% endif %}
+    <p class="caption">Клиент с {{ client.created_at|ru_date }}</p>
+  </section>
+</div>
+
+<section class="panel panel--flush" aria-labelledby="cargo-title">
+  <div class="panel__head panel__head--pad"><h2 id="cargo-title" class="panel__title">Грузы <span class="mono muted">{{ cargos|length }}</span></h2></div>
+  {% if cargos %}
+  <table class="table">
+    <thead><tr><th>Артикул</th><th>Описание</th><th>Машина</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">К оплате</th><th>Статус</th><th>Принят</th></tr></thead>
+    <tbody>
+      {% for cargo in cargos %}
+      <tr>
+        <td data-label="Артикул" class="mono">{{ cargo.article }}</td>
+        <td data-label="Описание">{{ cargo.description|default:"—" }}</td>
+        <td data-label="Машина">{% if cargo.truck %}<a class="mono" href="{% url 'panel:truck' cargo.truck.pk %}">{{ cargo.truck.number }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td data-label="Мест" class="num">{{ cargo.places }}</td>
+        <td data-label="Вес, кг" class="num">{{ cargo.weight_kg|ru_number|default:"—" }}</td>
+        <td data-label="К оплате" class="num nowrap">{{ cargo.amount_due|rub }}</td>
+        <td data-label="Статус"><span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span></td>
+        <td data-label="Принят">{{ cargo.created_at|ru_date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty muted">Грузов пока нет.</p>{% endif %}
+</section>
+
+<div class="card-grid">
+  <section class="panel panel--flush" aria-labelledby="notif-title">
+    <div class="panel__head panel__head--pad"><h2 id="notif-title" class="panel__title">Уведомления</h2><span class="caption">последние 20</span></div>
+    {% if notifications %}
+    <table class="table">
+      <thead><tr><th>Когда</th><th>Тип</th><th>Статус</th><th>Ошибка</th></tr></thead>
+      <tbody>
+        {% for n in notifications %}
+        <tr>
+          <td data-label="Когда" class="nowrap">{{ n.created_at|ru_datetime }}</td>
+          <td data-label="Тип">{{ n.get_kind_display }}{% if n.truck %} <span class="caption mono">{{ n.truck.number }}</span>{% endif %}</td>
+          <td data-label="Статус"><span class="pill {{ n.status|notification_pill }}">{{ n.get_status_display }}</span></td>
+          <td data-label="Ошибка" class="error-text">{{ n.last_error }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="empty muted">Уведомлений не было.</p>{% endif %}
+  </section>
+  <section class="panel panel--flush" aria-labelledby="calls-title">
+    <div class="panel__head panel__head--pad"><h2 id="calls-title" class="panel__title">Звонки</h2><span class="caption">последние 20</span></div>
+    {% if attempts %}
+    <table class="table">
+      <thead><tr><th>Когда</th><th>Результат</th><th>Груз</th><th>Сотрудник</th><th>Комментарий</th></tr></thead>
+      <tbody>
+        {% for a in attempts %}
+        <tr>
+          <td data-label="Когда" class="nowrap">{{ a.created_at|ru_datetime }}</td>
+          <td data-label="Результат"><span class="pill {{ a.outcome|attempt_pill }}">{{ a.get_outcome_display }}</span>{% if a.promised_date %} <span class="caption">приедет {{ a.promised_date|ru_date }}</span>{% endif %}</td>
+          <td data-label="Груз" class="mono">{{ a.cargo.article|default:"—" }}</td>
+          <td data-label="Сотрудник">{{ a.staff.get_full_name|default:a.staff.get_username }}</td>
+          <td data-label="Комментарий">{{ a.comment }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="empty muted">Звонков не было.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

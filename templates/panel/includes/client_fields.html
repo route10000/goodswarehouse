@@ -1,0 +1,10 @@
+{# Phone with a debounced live lookup; the slot shows «Найден: …» or the new-client name field. #}
+<div class="field{% if form.phone.errors %} field--invalid{% endif %}">
+  <label for="id_phone">Телефон клиента <span class="muted" aria-hidden="true">*</span></label>
+  <input id="id_phone" type="text" name="phone" inputmode="tel" autocomplete="off" maxlength="32"
+         value="{{ form.phone.value|default:'' }}" placeholder="+7 914 123-45-67"
+         hx-get="{% url 'panel:client_lookup' %}" hx-trigger="input changed delay:300ms"
+         hx-target="#client-lookup" hx-swap="innerHTML" hx-include="#id_name" hx-sync="this:replace">
+  {% for error in form.phone.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+</div>
+<div id="client-lookup" class="lookup-slot" aria-live="polite">{% include "panel/includes/client_lookup.html" %}</div>

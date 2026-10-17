@@ -1,0 +1,38 @@
+{% extends "panel/base.html" %}
+{% load panel_tags gw_format %}
+{% block title %}Машины · GoodsWarehouse{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Машины</h1>
+  {% if request.user|is_manager %}<a class="btn btn--primary" href="{% url 'panel:truck_new' %}">Новая машина</a>{% endif %}
+</div>
+{% include "panel/includes/status_filters.html" %}
+<section class="panel panel--flush">
+  {% if trucks %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Рейс</th><th>Маршрут</th><th>Статус</th><th class="num">Мест</th><th class="num">Клиентов</th><th>Отправка</th><th>ETA</th><th>Прибыла</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for truck in trucks %}
+      <tr class="row-link">
+        <td data-label="Рейс"><a class="mono strong" href="{% url 'panel:truck' truck.pk %}">{{ truck.number }}</a></td>
+        <td data-label="Маршрут"><span class="cell-client">{{ truck.route }}{% if truck.plate %} <span class="caption mono nowrap">{{ truck.plate }}</span>{% endif %}</span></td>
+        <td data-label="Статус"><span class="pill {{ truck.status|truck_pill }}">{{ truck.get_status_display }}</span></td>
+        <td data-label="Мест" class="num">{{ truck.places_total }}</td>
+        <td data-label="Клиентов" class="num">{{ truck.clients_total }}</td>
+        <td data-label="Отправка">{% if truck.departed_at %}{{ truck.departed_at|ru_datetime }}{% elif truck.departure_date %}<span class="muted">план {{ truck.departure_date|ru_date }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td data-label="ETA">{% if truck.eta %}{{ truck.eta|ru_datetime }}{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td data-label="Прибыла">{% if truck.arrived_at %}{{ truck.arrived_at|ru_datetime }}{% else %}<span class="muted">—</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty muted">Машин с таким статусом нет.</p>
+  {% endif %}
+</section>
+{% include "panel/includes/pagination.html" %}
+{% endblock %}

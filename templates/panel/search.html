@@ -1,0 +1,34 @@
+{% extends "panel/base.html" %}
+{% load panel_tags %}
+{% block title %}Поиск · GoodsWarehouse{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Поиск{% if search_query %}: <span class="mono">{{ search_query }}</span>{% endif %}</h1>
+</div>
+{% if not search_query %}
+  <section class="panel"><p class="muted">Введите артикул, телефон, код клиента GW-… или номер рейса R-… в строке поиска сверху. Горячая клавиша <kbd class="kbd">/</kbd>.</p></section>
+{% elif not found %}
+  <section class="panel"><p class="muted">Ничего не нашли. Проверьте артикул, телефон или номер рейса.</p></section>
+{% else %}
+<div class="results">
+  <section class="panel panel--flush" aria-labelledby="r-clients">
+    <div class="panel__head panel__head--pad"><h2 id="r-clients" class="panel__title">Клиенты <span class="mono muted">{{ clients|length }}</span></h2></div>
+    {% for client in clients %}
+      <a class="result" href="{% url 'panel:client' client.pk %}"><span class="mono strong">{{ client.code }}</span><span class="result__main">{{ client.name|default:"Без имени" }}</span><span class="mono muted">{{ client.phone|phone }}</span></a>
+    {% empty %}<p class="empty muted">Нет совпадений.</p>{% endfor %}
+  </section>
+  <section class="panel panel--flush" aria-labelledby="r-cargo">
+    <div class="panel__head panel__head--pad"><h2 id="r-cargo" class="panel__title">Грузы <span class="mono muted">{{ cargos|length }}</span></h2></div>
+    {% for cargo in cargos %}
+      <a class="result" href="{% url 'panel:client' cargo.client.pk %}"><span class="mono strong">{{ cargo.article }}</span><span class="result__main">{{ cargo.description|default:cargo.client.name }}</span><span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span></a>
+    {% empty %}<p class="empty muted">Нет совпадений.</p>{% endfor %}
+  </section>
+  <section class="panel panel--flush" aria-labelledby="r-trucks">
+    <div class="panel__head panel__head--pad"><h2 id="r-trucks" class="panel__title">Машины <span class="mono muted">{{ trucks|length }}</span></h2></div>
+    {% for truck in trucks %}
+      <a class="result" href="{% url 'panel:truck' truck.pk %}"><span class="mono strong">{{ truck.number }}</span><span class="result__main">{{ truck.route }}</span><span class="pill {{ truck.status|truck_pill }}">{{ truck.get_status_display }}</span></a>
+    {% empty %}<p class="empty muted">Нет совпадений.</p>{% endfor %}
+  </section>
+</div>
+{% endif %}
+{% endblock %}

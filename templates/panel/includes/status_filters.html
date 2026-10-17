@@ -1,0 +1,8 @@
+{% load panel_tags %}
+<nav class="filter-pills" aria-label="Фильтр по статусу">
+  {% for item in filters %}
+    <a class="filter-pill" href="{% query status=item.value %}"{% if item.value == status %} aria-current="true"{% endif %}>
+      {{ item.label }} <span class="mono">{{ item.count }}</span>
+    </a>
+  {% endfor %}
+</nav>

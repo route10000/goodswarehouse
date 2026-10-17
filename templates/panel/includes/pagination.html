@@ -1,0 +1,8 @@
+{% load panel_tags %}
+{% if page.paginator.num_pages > 1 %}
+<nav class="pager" aria-label="Страницы">
+  {% if page.has_previous %}<a class="btn btn--quiet btn--sm" href="{% query page=page.previous_page_number %}">← Назад</a>{% endif %}
+  <span class="pager__info mono">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a class="btn btn--quiet btn--sm" href="{% query page=page.next_page_number %}">Дальше →</a>{% endif %}
+</nav>
+{% endif %}

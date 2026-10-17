@@ -2,6 +2,7 @@
 {% load static %}
 {% block body_class %}theme-dark{% endblock %}
 {% block head %}
+  <link rel="stylesheet" href="{% static 'css/panel.css' %}">
   <script type="importmap">
     {
       "imports": {
@@ -16,9 +17,9 @@
   <header class="topbar">
     <a class="logo" href="{% url 'panel:ops' %}">Goods<span>Warehouse</span></a>
     <span class="badge">Ops center</span>
-    <form class="cmd-search" role="search" action="#" onsubmit="return false">
+    <form class="cmd-search" role="search" method="get" action="{% url 'panel:search' %}">
       <label class="visually-hidden" for="cmd-search">Поиск</label>
-      <input id="cmd-search" type="search" name="q" placeholder="Артикул, телефон или рейс…" autocomplete="off" data-cmd-search>
+      <input id="cmd-search" type="search" name="q" value="{{ search_query|default:'' }}" placeholder="Артикул, телефон или рейс…" autocomplete="off" enterkeyhint="search" data-cmd-search>
       <kbd>/</kbd>
     </form>
     <div class="topbar__right">
@@ -36,6 +37,11 @@
   <main class="main">
     {% block content %}{% endblock %}
   </main>
+</div>
+<div class="toast-stack" id="toasts" role="status" aria-live="polite">
+  {% for message in messages %}
+    <div class="toast{% if message.level_tag == 'error' %} st-error{% elif message.level_tag == 'warning' %} st-loading{% endif %}" data-toast>{{ message }}</div>
+  {% endfor %}
 </div>
 {% endblock %}
 {% block scripts %}<script src="{% static 'js/panel.js' %}" defer></script>{% endblock %}

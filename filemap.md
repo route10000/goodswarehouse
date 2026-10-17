@@ -15,7 +15,7 @@
 - `logistics/` — app: domain models and services
 - `logistics/models.py` — Counter (race-safe code sequences), Client (`GW-NNNN`, E.164 phone, Telegram link token), Truck (`R-YYYY-NNN`), Cargo, DailyOrder, DailyOrderLine, ContactAttempt; status TextChoices
 - `logistics/phones.py` — `normalize_phone` (E.164, region RU, raises `InvalidPhone`), `phone_last4`
-- `logistics/services.py` — the only place statuses change: `get_or_create_client`, `create_truck`, `add_cargo`, `assign_to_truck`, `truck_depart`, `truck_arrive`, `cargo_pickup`, `InvalidTransition`
+- `logistics/services.py` — the only place statuses change: `get_or_create_client`, `create_truck`, `add_cargo`, `assign_to_truck`, `truck_depart`, `truck_arrive`, `truck_close`, `cargo_pickup`, `InvalidTransition`
 - `logistics/admin.py` — admin for all logistics models; statuses and truck assignment read-only; phone search in any format
 - `logistics/migrations/0002_staff_groups.py` — data migration: groups «Менеджер» and «Склад» with permissions
 - `logistics/tests/` — tests: phones, models (codes, phone), services (transitions, cascade, auto-close), groups and admin
@@ -29,7 +29,7 @@
 - `public/` — app: public site; `urls.py`, `views.py` (home, schedule, track with cache rate limit, contacts), `forms.py` (`TrackForm`)
 - `public/templatetags/gw_format.py` — filters `ru_date`, `ru_datetime`, `rub`, `ru_number` (reuse in panel)
 - `public/tests/` — view tests (home, schedule, track, rate limit, contacts) and format filter tests
-- `panel/` — app: staff panel; `urls.py` (login, logout, ops), `views.py` (`ops_center`, login_required)
+- `panel/` — app: staff panel; `urls.py`
 - `tests/` — project-level tests; `test_smoke.py` (home, panel auth, settings)
 - `tests/env.py` — early pytest plugin: sets test SECRET_KEY before settings import
 - `templates/base.html` — root layout: Google Fonts, tokens.css, app.css, htmx, blocks
@@ -60,3 +60,11 @@
 - `bot/management/commands/run_bot.py` — long polling `run_bot [--once]`
 - `bot/tests/` — handlers, links, polling client, run_bot
 - `logistics/migrations/0003_client_unique_telegram_chat.py` — unique chat id when set (clears duplicates first)
+- `logistics/imports.py` — manifest import: `parse_manifest` → `ImportPreview`, atomic `apply_manifest`, `build_template`
+- `panel/permissions.py` — `is_manager`/`is_warehouse`, `manager_required` (403 page)
+- `panel/forms.py` — TruckForm, CargoForm, ClientForm, ManifestUploadForm
+- `panel/views/` — ops, search, trucks (card, status actions, HTMX add cargo), cargo, clients, imports, lookup
+- `panel/templatetags/panel_tags.py` — status pill classes, `phone`, `query`, `is_manager`
+- `panel/tests/` — panel view tests
+- `templates/panel/{trucks,cargo,clients}/`, `search.html`, `403.html`, `includes/*` — panel screens
+- `static/css/panel.css` — panel screen styles

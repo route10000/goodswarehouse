@@ -1,3 +1,5 @@
+"""Staff panel views, split by section. ``panel.urls`` imports the modules directly."""
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 

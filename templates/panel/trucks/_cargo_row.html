@@ -1,0 +1,12 @@
+{% load panel_tags gw_format %}
+<tr{% if fresh %} class="row--fresh"{% endif %}>
+  <td data-label="Артикул" class="mono">{{ cargo.article }}</td>
+  <td data-label="Клиент"><span class="cell-client"><a href="{% url 'panel:client' cargo.client.pk %}">{{ cargo.client.name|default:"Без имени" }}</a> <span class="caption mono">{{ cargo.client.code }}</span></span></td>
+  <td data-label="Телефон"><a class="mono nowrap" href="tel:{{ cargo.client.phone }}">{{ cargo.client.phone|phone }}</a></td>
+  <td data-label="Описание">{{ cargo.description|default:"—" }}</td>
+  <td data-label="Мест" class="num">{{ cargo.places }}</td>
+  <td data-label="Вес, кг" class="num">{{ cargo.weight_kg|ru_number|default:"—" }}</td>
+  <td data-label="К оплате" class="num nowrap">{{ cargo.amount_due|rub }}</td>
+  <td data-label="Статус"><span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span></td>
+  <td data-label="Канал">{% if cargo.client.has_telegram %}<span class="channel channel--tg">Telegram</span>{% else %}<span class="channel channel--call">Звонок</span>{% endif %}</td>
+</tr>

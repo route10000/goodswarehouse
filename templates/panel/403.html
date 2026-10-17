@@ -1,0 +1,10 @@
+{% extends "panel/base.html" %}
+{% block title %}Недостаточно прав · GoodsWarehouse{% endblock %}
+{% block content %}
+<section class="panel empty-state">
+  <span class="pill st-error">403</span>
+  <h1 class="page-title">Недостаточно прав</h1>
+  <p class="muted">Это действие доступно только менеджеру. Попросите менеджера внести изменение или выдать вам права.</p>
+  <a class="btn btn--quiet" href="{% url 'panel:ops' %}">На главную панели</a>
+</section>
+{% endblock %}

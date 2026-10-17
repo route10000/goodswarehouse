@@ -1,4 +1,4 @@
-{# Icon sidebar; becomes a bottom tab bar under 900px. Hrefs for sections not built yet are placeholders (T6/T7). #}
+{# Icon sidebar; becomes a bottom tab bar under 900px. Ордер на день and Выдача are placeholders until T7. #}
 <nav class="sidebar" aria-label="Разделы панели">
   <ul class="sidebar__list">
     <li>
@@ -8,13 +8,13 @@
       </a>
     </li>
     <li>
-      <a class="sidebar__item" href="/panel/trucks/" title="Машины"{% if nav_active == "trucks" %} aria-current="page"{% endif %}>
+      <a class="sidebar__item" href="{% url 'panel:trucks' %}" title="Машины"{% if nav_active == "trucks" %} aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6h11v10H2z"/><path d="M13 9h4l4 4v3h-8z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
         <span class="sidebar__label">Машины</span>
       </a>
     </li>
     <li>
-      <a class="sidebar__item" href="/panel/cargo/" title="Грузы"{% if nav_active == "cargo" %} aria-current="page"{% endif %}>
+      <a class="sidebar__item" href="{% url 'panel:cargo' %}" title="Грузы"{% if nav_active == "cargo" %} aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
         <span class="sidebar__label">Грузы</span>
       </a>
@@ -33,7 +33,7 @@
       </a>
     </li>
     <li>
-      <a class="sidebar__item" href="/panel/clients/" title="Клиенты"{% if nav_active == "clients" %} aria-current="page"{% endif %}>
+      <a class="sidebar__item" href="{% url 'panel:clients' %}" title="Клиенты"{% if nav_active == "clients" %} aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/></svg>
         <span class="sidebar__label">Клиенты</span>
       </a>

@@ -1,0 +1,8 @@
+{# HTMX response: the refreshed form, plus out-of-band updates for the cargo table. #}
+{% include "panel/trucks/_cargo_form.html" %}
+{% if added %}
+<template><tbody hx-swap-oob="beforeend:#cargo-rows">{% include "panel/trucks/_cargo_row.html" with cargo=added fresh=True %}</tbody></template>
+<template>{% include "panel/trucks/_cargo_totals.html" with oob=True %}</template>
+<template><tr id="cargo-empty" hx-swap-oob="delete"></tr></template>
+{% include "panel/trucks/_action.html" with oob=True manager=True %}
+{% endif %}

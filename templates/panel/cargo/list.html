@@ -1,0 +1,53 @@
+{% extends "panel/base.html" %}
+{% load panel_tags gw_format %}
+{% block title %}Грузы · GoodsWarehouse{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Грузы</h1>
+  {% if request.user|is_manager %}<a class="btn btn--primary" href="{% url 'panel:cargo_new' %}">Добавить груз</a>{% endif %}
+</div>
+{% include "panel/includes/status_filters.html" %}
+<form class="toolbar" method="get" role="search">
+  {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+  <div class="field toolbar__grow">
+    <label for="cargo-q">Поиск</label>
+    <input id="cargo-q" type="search" name="q" value="{{ q }}" placeholder="Артикул, телефон или код клиента" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="cargo-truck">Машина</label>
+    <select id="cargo-truck" name="truck">
+      <option value="">Все машины</option>
+      {% for t in trucks %}<option value="{{ t.pk }}"{% if t.pk == truck_id %} selected{% endif %}>{{ t.number }} · {{ t.get_status_display }}</option>{% endfor %}
+    </select>
+  </div>
+  <button class="btn btn--quiet toolbar__btn" type="submit">Найти</button>
+  {% if q or truck_id %}<a class="btn btn--quiet toolbar__btn" href="{% query q=None truck=None %}">Сбросить</a>{% endif %}
+</form>
+<section class="panel panel--flush">
+  {% if page.object_list %}
+  <table class="table">
+    <thead>
+      <tr><th>Артикул</th><th>Клиент</th><th>Телефон</th><th>Машина</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">К оплате</th><th>Статус</th></tr>
+    </thead>
+    <tbody>
+      {% for cargo in page.object_list %}
+      <tr>
+        <td data-label="Артикул" class="mono">{{ cargo.article }}</td>
+        <td data-label="Клиент"><span class="cell-client"><a href="{% url 'panel:client' cargo.client.pk %}">{{ cargo.client.name|default:"Без имени" }}</a> <span class="caption mono">{{ cargo.client.code }}</span></span></td>
+        <td data-label="Телефон"><a class="mono nowrap" href="tel:{{ cargo.client.phone }}">{{ cargo.client.phone|phone }}</a></td>
+        <td data-label="Машина">{% if cargo.truck %}<a class="mono" href="{% url 'panel:truck' cargo.truck.pk %}">{{ cargo.truck.number }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td data-label="Мест" class="num">{{ cargo.places }}</td>
+        <td data-label="Вес, кг" class="num">{{ cargo.weight_kg|ru_number|default:"—" }}</td>
+        <td data-label="К оплате" class="num nowrap">{{ cargo.amount_due|rub }}</td>
+        <td data-label="Статус"><span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty muted">Ничего не нашли. Проверьте артикул или телефон, или сбросьте фильтры.</p>
+  {% endif %}
+</section>
+<p class="caption list-count">Найдено: <span class="mono">{{ page.paginator.count }}</span></p>
+{% include "panel/includes/pagination.html" %}
+{% endblock %}

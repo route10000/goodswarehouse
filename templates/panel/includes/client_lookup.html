@@ -1,0 +1,14 @@
+{# Result of the live phone lookup inside the add-cargo forms; swapped into #client-lookup. #}
+{% if lookup.state == "found" %}
+  <p class="lookup lookup--found"><span class="lookup__dot" aria-hidden="true"></span>Найден: {{ lookup.client.name|default:"без имени" }} · <span class="mono">{{ lookup.client.code }}</span></p>
+{% else %}
+  <div class="field">
+    <label for="id_name">Имя нового клиента</label>
+    <input id="id_name" type="text" name="name" maxlength="200" value="{{ lookup.name }}" autocomplete="off">
+    {% if lookup.state == "new" %}
+      <span class="caption">Новый клиент: такого номера нет в базе, укажите имя</span>
+    {% else %}
+      <span class="caption">Введите телефон: найдём клиента или создадим нового</span>
+    {% endif %}
+  </div>
+{% endif %}

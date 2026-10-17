@@ -145,6 +145,18 @@ def truck_arrive(truck: Truck, user=None, now=None) -> Truck:
     return truck
 
 
+def truck_close(truck: Truck, user=None) -> Truck:
+    """``arrived`` → ``closed`` by hand. Cargo not yet picked up stays ``ready``."""
+    with transaction.atomic():
+        locked = _locked(Truck, truck.pk)
+        if locked.status != Truck.Status.ARRIVED:
+            raise InvalidTransition(f"Рейс {locked.number} нельзя закрыть: машина не прибыла")
+        locked.status = Truck.Status.CLOSED
+        locked.save(update_fields=["status"])
+    truck.refresh_from_db()
+    return truck
+
+
 def cargo_pickup(cargo: Cargo, user, paid: bool, now=None) -> Cargo:
     """``ready`` → ``picked_up``. Closes an ``arrived`` truck once all its cargo is out."""
     now = now or timezone.now()

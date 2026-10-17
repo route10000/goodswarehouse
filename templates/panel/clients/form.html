@@ -1,0 +1,23 @@
+{% extends "panel/base.html" %}
+{% block title %}{{ client.code }} · редактирование · GoodsWarehouse{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back-link" href="{% url 'panel:client' client.pk %}">← {{ client.code }}</a>
+    <h1 class="page-title">{{ client.name|default:"Без имени" }} <span class="mono muted">{{ client.code }}</span></h1>
+  </div>
+</div>
+<form class="panel form-panel" method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+  <div class="form-grid">
+    {% include "panel/includes/field.html" with field=form.name %}
+    {% include "panel/includes/field.html" with field=form.phone %}
+    {% include "panel/includes/field.html" with field=form.notes wide=True %}
+  </div>
+  <div class="form-actions">
+    <button class="btn btn--primary" type="submit">Сохранить</button>
+    <a class="btn btn--quiet" href="{% url 'panel:client' client.pk %}">Отмена</a>
+  </div>
+</form>
+{% endblock %}

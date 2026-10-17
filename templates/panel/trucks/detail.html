@@ -1,0 +1,70 @@
+{% extends "panel/base.html" %}
+{% load panel_tags gw_format %}
+{% block title %}{{ truck.number }} · Машины · GoodsWarehouse{% endblock %}
+{% block content %}
+{% with manager=request.user|is_manager %}
+<div class="page-head">
+  <div>
+    <a class="back-link" href="{% url 'panel:trucks' %}">← Машины</a>
+    <h1 class="page-title"><span class="mono">{{ truck.number }}</span> <span class="pill {{ truck.status|truck_pill }}">{{ truck.get_status_display }}</span></h1>
+    <p class="page-meta">{{ truck.route }}{% if truck.plate %} · <span class="mono">{{ truck.plate }}</span>{% endif %}{% if truck.driver_phone %} · водитель <a class="mono" href="tel:{{ truck.driver_phone }}">{{ truck.driver_phone|phone }}</a>{% endif %}</p>
+  </div>
+  {% if manager %}<a class="btn btn--quiet" href="{% url 'panel:truck_edit' truck.pk %}">Изменить</a>{% endif %}
+</div>
+
+<ol class="stepper" aria-label="Статус рейса">
+  {% for step in steps %}
+  <li class="stepper__step is-{{ step.state }}"{% if step.state == "current" %} aria-current="step"{% endif %}>
+    <span class="stepper__dot" aria-hidden="true">{% if step.state == "future" %}○{% else %}●{% endif %}</span>
+    <span class="stepper__label">{{ step.label }}</span>
+    <span class="stepper__caption">{{ step.caption|default:"&nbsp;" }}</span>
+  </li>
+  {% endfor %}
+</ol>
+
+{% if manager %}{% include "panel/trucks/_action.html" %}{% endif %}
+
+<section class="panel panel--flush" aria-labelledby="cargo-title">
+  <div class="panel__head panel__head--pad">
+    <h2 id="cargo-title" class="panel__title">Грузы в машине</h2>
+    {% if manager and can_add %}
+    <div class="panel__actions">
+      <a class="btn btn--quiet btn--sm" href="{% url 'panel:truck_import' truck.pk %}">Импорт из Excel</a>
+    </div>
+    {% endif %}
+  </div>
+  <table class="table table--cargo">
+    <thead>
+      <tr>
+        <th>Артикул</th><th>Клиент</th><th>Телефон</th><th>Описание</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">К оплате</th><th>Статус</th><th>Канал</th>
+      </tr>
+    </thead>
+    <tbody id="cargo-rows">
+      {% for cargo in cargos %}
+        {% include "panel/trucks/_cargo_row.html" %}
+      {% empty %}
+        <tr id="cargo-empty" class="row--empty"><td colspan="9" class="muted">В машине пока нет грузов.</td></tr>
+      {% endfor %}
+    </tbody>
+    {% include "panel/trucks/_cargo_totals.html" %}
+  </table>
+</section>
+
+{% if manager and can_add %}
+<section class="panel" aria-labelledby="add-title">
+  <div class="panel__head">
+    <h2 id="add-title" class="panel__title">Добавить груз</h2>
+    <span class="caption">Клиент ищется по телефону; если номера нет, создадим нового</span>
+  </div>
+  {% include "panel/trucks/_cargo_form.html" %}
+</section>
+{% endif %}
+
+{% if truck.comment %}
+<section class="panel">
+  <h2 class="panel__title">Комментарий</h2>
+  <p class="pre">{{ truck.comment }}</p>
+</section>
+{% endif %}
+{% endwith %}
+{% endblock %}
