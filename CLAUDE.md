@@ -1,6 +1,6 @@
 # GoodsWarehouse
 
-Stack: Python 3.12, Django 5.1, Django templates + HTMX 2.0.3 (vendored), plain CSS tokens, SQLite dev / PostgreSQL prod, pytest + ruff.
+Stack: Python 3.12, Django 5.1, Django templates + HTMX 2.0.3 and three.js r160 (both vendored, no build step), plain CSS tokens, SQLite dev / PostgreSQL prod, pytest + ruff.
 
 ## Commands (Windows, from repo root)
 - Setup: `python -m venv .venv && .venv\Scripts\pip install -r requirements-dev.txt`
@@ -8,7 +8,7 @@ Stack: Python 3.12, Django 5.1, Django templates + HTMX 2.0.3 (vendored), plain 
 - Test: `.venv\Scripts\pytest`
 - Lint: `.venv\Scripts\ruff check . && .venv\Scripts\ruff format --check .`
 - Bot / jobs: `manage.py run_bot`, `manage.py send_notifications`, `manage.py daily_reminders`
-- Demo data: `manage.py seed_demo`
+- Demo data: `manage.py seed_demo` · Daily call order: `manage.py build_daily_order`
 
 ## Conventions
 - Status changes happen ONLY through `logistics/services.py` (and `notify/services.py` for notifications). Views, bot, admin never set `.status` directly.
