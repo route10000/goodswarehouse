@@ -1,23 +1,26 @@
 {% extends "base.html" %}
 {% load static %}
 {% block body_class %}theme-light{% endblock %}
+{% block head %}<link rel="stylesheet" href="{% static 'css/public.css' %}">{% endblock %}
 {% block body %}
+{% with current=request.resolver_match.url_name %}
 <header class="site-header" data-site-header>
   <div class="container site-header__inner">
-    <a class="logo" href="/">Goods<span>Warehouse</span></a>
+    <a class="logo" href="{% url 'public:home' %}">Goods<span>Warehouse</span></a>
     <button class="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="site-nav" data-burger>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
     <nav class="site-nav" id="site-nav" aria-label="Основное меню">
       <ul class="site-nav__links">
-        <li><a href="#schedule">Расписание</a></li>
-        <li><a href="#track">Где мой груз</a></li>
-        <li><a href="#contacts">Контакты</a></li>
+        <li><a href="{% url 'public:schedule' %}"{% if current == 'schedule' %} aria-current="page"{% endif %}>Расписание</a></li>
+        <li><a href="{% url 'public:track' %}"{% if current == 'track' %} aria-current="page"{% endif %}>Где мой груз</a></li>
+        <li><a href="{% url 'public:contacts' %}"{% if current == 'contacts' %} aria-current="page"{% endif %}>Контакты</a></li>
       </ul>
-      <a class="btn btn--primary" href="#telegram">Telegram-бот</a>
+      {% if bot_url %}<a class="btn btn--primary" href="{{ bot_url }}" target="_blank" rel="noopener">Telegram-бот</a>{% endif %}
     </nav>
   </div>
 </header>
+{% endwith %}
 <main>
   {% block content %}{% endblock %}
 </main>

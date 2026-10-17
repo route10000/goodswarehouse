@@ -1,0 +1,434 @@
+/* Public site pages (/, /schedule/, /track/, /contacts/). Colors only via tokens.css vars. */
+
+/* Light-theme transit pill: black on l-soft (public site). */
+.theme-light .pill.st-transit {
+  background: var(--l-soft);
+  color: var(--black);
+}
+
+/* Keep the footer at the bottom on short pages. */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+body > main {
+  flex: 1 0 auto;
+}
+
+.site-nav__links a[aria-current="page"] {
+  color: var(--green-400);
+}
+
+/* ---------- Hero ---------- */
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: var(--s-7);
+  align-items: center;
+}
+
+.hero__text {
+  min-width: 0;
+}
+
+.hero h1 {
+  max-width: 640px;
+}
+
+/* ---------- Track card and form ---------- */
+.track-card {
+  background: var(--l-bg);
+  color: var(--l-text);
+  border-radius: var(--r-md);
+  padding: var(--s-5);
+  --line: var(--l-line);
+  --field-bg: var(--l-soft);
+  --text: var(--l-text);
+}
+
+.track-card--outlined {
+  border: 1px solid var(--l-line);
+}
+
+.track-card__title {
+  margin-bottom: var(--s-1);
+  font-size: 22px;
+}
+
+.track-card__hint {
+  margin-bottom: var(--s-4);
+  font-size: 14px;
+  color: var(--l-muted);
+}
+
+.track-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.track-form .field input {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.track-form .field input::placeholder {
+  font-family: var(--font);
+  font-weight: 500;
+  color: var(--l-muted);
+}
+
+.track-form__error {
+  margin: 0;
+  padding: var(--s-3);
+  border-left: 3px solid var(--st-error);
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--st-error) 10%, var(--white));
+  color: var(--l-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.track-form__submit {
+  width: 100%;
+}
+
+/* ---------- Sections ---------- */
+.section--line {
+  border-top: 1px solid var(--l-line);
+}
+
+.section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  margin-bottom: var(--s-4);
+}
+
+.section__head h2 {
+  margin: 0;
+}
+
+.section__link {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green-700);
+  text-decoration: none;
+}
+
+.section__link:hover {
+  text-decoration: underline;
+}
+
+.page-head {
+  background: var(--black);
+  color: var(--white);
+  padding: var(--s-6) 0;
+}
+
+.page-head__title {
+  font-size: clamp(32px, 5vw, 44px);
+  margin-bottom: var(--s-2);
+}
+
+.page-head__sub {
+  max-width: 560px;
+  margin: 0;
+  color: var(--d-muted);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--s-5);
+  border: 1px dashed var(--l-line);
+  border-radius: var(--r-md);
+  color: var(--l-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------- Steps ---------- */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-4);
+  margin: var(--s-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  padding: var(--s-5);
+  border: 1px solid var(--l-line);
+  border-radius: var(--r-md);
+}
+
+.step__num {
+  display: block;
+  margin-bottom: var(--s-4);
+  font-size: 14px;
+  color: var(--green-700);
+}
+
+.step__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+/* ---------- Truck list (schedule) ---------- */
+.truck-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--l-line);
+}
+
+.truck-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) 110px minmax(120px, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s-4);
+  min-height: 64px;
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--l-line);
+}
+
+.truck-row__id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.truck-row__number {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.truck-row__route {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--l-muted);
+}
+
+.truck-row .pill {
+  justify-self: start;
+}
+
+.truck-row__when {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.progress {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--l-soft);
+  overflow: hidden;
+}
+
+.progress__bar {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--green-700);
+}
+
+/* ---------- Track result ---------- */
+.track-layout {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: var(--s-6);
+  align-items: start;
+}
+
+.track-result__title {
+  margin-bottom: var(--s-4);
+}
+
+.cargo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cargo-card {
+  padding: var(--s-4);
+  border: 1px solid var(--l-line);
+  border-radius: var(--r-md);
+}
+
+.cargo-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.cargo-card__article {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.cargo-card__desc {
+  margin: var(--s-1) 0 0;
+  color: var(--l-muted);
+}
+
+.cargo-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+  margin: var(--s-3) 0 0;
+}
+
+.cargo-card__meta dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--l-muted);
+}
+
+.cargo-card__meta dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cargo-card__note {
+  margin: var(--s-3) 0 0;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  background: var(--green-100);
+  color: var(--green-700);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cargo-card__note--muted {
+  background: var(--l-soft);
+  color: var(--l-muted);
+}
+
+/* ---------- Contacts ---------- */
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4);
+  margin: 0;
+}
+
+.contact-list__item {
+  padding: var(--s-4) var(--s-5);
+  border: 1px solid var(--l-line);
+  border-radius: var(--r-md);
+}
+
+.contact-list dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--l-muted);
+}
+
+.contact-list dd {
+  margin: var(--s-1) 0 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.contact-list dd a {
+  text-decoration: none;
+}
+
+.contact-list dd a:hover {
+  color: var(--green-700);
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero__grid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: var(--s-5);
+  }
+
+  .track-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero__grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+  }
+
+  .track-card {
+    padding: var(--s-4);
+  }
+
+  .steps,
+  .contact-list {
+    grid-template-columns: 1fr;
+  }
+
+  .step {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    padding: var(--s-4);
+  }
+
+  .step__num {
+    margin: 0;
+  }
+
+  .truck-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "id pill"
+      "bar bar"
+      "when when";
+    gap: var(--s-2) var(--s-3);
+    padding: var(--s-4) 0;
+  }
+
+  .truck-row__id {
+    grid-area: id;
+  }
+
+  .truck-row .pill {
+    grid-area: pill;
+    justify-self: end;
+  }
+
+  .truck-row .progress {
+    grid-area: bar;
+  }
+
+  .truck-row__when {
+    grid-area: when;
+    text-align: left;
+  }
+
+  .hero .btn--lg,
+  .contact-actions .btn {
+    flex: 1 1 auto;
+  }
+}

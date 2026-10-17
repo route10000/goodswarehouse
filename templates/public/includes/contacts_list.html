@@ -1,0 +1,20 @@
+<dl class="contact-list">
+  {% if warehouse.address %}
+  <div class="contact-list__item">
+    <dt>Адрес склада</dt>
+    <dd>{% if warehouse.city %}{{ warehouse.city }}, {% endif %}{{ warehouse.address }}</dd>
+  </div>
+  {% endif %}
+  {% if warehouse.hours %}
+  <div class="contact-list__item">
+    <dt>Часы работы</dt>
+    <dd>{{ warehouse.hours }}</dd>
+  </div>
+  {% endif %}
+  {% if warehouse.phone %}
+  <div class="contact-list__item">
+    <dt>Телефон</dt>
+    <dd><a class="mono" href="tel:{{ warehouse.phone_href }}">{{ warehouse.phone }}</a></dd>
+  </div>
+  {% endif %}
+</dl>

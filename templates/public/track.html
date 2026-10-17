@@ -1,0 +1,55 @@
+{% extends "public/base.html" %}
+{% load gw_format %}
+{% block title %}Где мой груз — GoodsWarehouse{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="overline">ПОИСК ГРУЗА</p>
+    <h1 class="page-head__title">Где мой груз?</h1>
+    <p class="page-head__sub">Введите код клиента или артикул и последние 4 цифры телефона.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container track-layout">
+    <div class="track-card track-card--outlined">
+      {% include "public/includes/track_form.html" %}
+    </div>
+
+    {% if found %}
+    <div class="track-result">
+      <h2 class="track-result__title">{% if first_name %}{{ first_name }}, ваши{% else %}Ваши{% endif %} грузы</h2>
+      {% if cargos %}
+      <ul class="cargo-list">
+        {% for row in cargos %}
+        {% with cargo=row.cargo truck=row.cargo.truck %}
+        <li class="cargo-card">
+          <div class="cargo-card__head">
+            <span class="cargo-card__article mono">{{ cargo.article }}</span>
+            <span class="pill {{ row.pill }}">{{ cargo.get_status_display }}</span>
+          </div>
+          {% if cargo.description %}<p class="cargo-card__desc">{{ cargo.description }}</p>{% endif %}
+          <dl class="cargo-card__meta">
+            <div><dt>Мест</dt><dd class="mono">{{ cargo.places }}</dd></div>
+            {% if cargo.weight_kg is not None %}<div><dt>Вес</dt><dd class="mono">{{ cargo.weight_kg|ru_number }} кг</dd></div>{% endif %}
+            <div><dt>К оплате</dt><dd class="mono">{{ cargo.amount_due|rub }}</dd></div>
+            {% if truck %}
+            <div><dt>Машина</dt><dd><span class="mono">{{ truck.number }}</span>{% if truck.arrived_at %} · прибыла {{ truck.arrived_at|ru_date }}{% elif truck.eta %} · ETA <span class="mono">{{ truck.eta|ru_datetime }}</span>{% endif %}</dd></div>
+            {% endif %}
+          </dl>
+          {% if cargo.status == "ready" and cargo.free_storage_until %}
+          <p class="cargo-card__note">Можно забирать · бесплатное хранение до {{ cargo.free_storage_until|ru_date }}</p>
+          {% elif cargo.status == "picked_up" and cargo.picked_up_at %}
+          <p class="cargo-card__note cargo-card__note--muted">Выдан {{ cargo.picked_up_at|ru_date }}</p>
+          {% endif %}
+        </li>
+        {% endwith %}
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="empty">Сейчас грузов на вашем коде нет.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

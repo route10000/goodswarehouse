@@ -26,13 +26,17 @@
 - `notify/admin.py` — Notification admin, delivery fields read-only
 - `notify/tests/` — tests: messages, enqueue services
 - `bot/` — app: Telegram bot `run_bot` (empty in T1)
-- `public/` — app: public site; `urls.py`, `views.py` (`home` stub)
+- `public/` — app: public site; `urls.py`, `views.py` (home, schedule, track with cache rate limit, contacts), `forms.py` (`TrackForm`)
+- `public/templatetags/gw_format.py` — filters `ru_date`, `ru_datetime`, `rub`, `ru_number` (reuse in panel)
+- `public/tests/` — view tests (home, schedule, track, rate limit, contacts) and format filter tests
 - `panel/` — app: staff panel; `urls.py` (login, logout, ops), `views.py` (`ops_center`, login_required)
 - `tests/` — project-level tests; `test_smoke.py` (home, panel auth, settings)
 - `tests/env.py` — early pytest plugin: sets test SECRET_KEY before settings import
 - `templates/base.html` — root layout: Google Fonts, tokens.css, app.css, htmx, blocks
 - `templates/public/base.html` — public shell: black 64px header, nav, burger, footer
-- `templates/public/home.html` — `/` hero placeholder
+- `templates/public/home.html`, `schedule.html`, `track.html`, `contacts.html` — public pages
+- `templates/public/includes/` — `track_form.html`, `truck_list.html`, `contacts_list.html`
+- `static/css/public.css` — public page styles (hero, track card, steps, truck list, cargo cards, contacts)
 - `templates/panel/base.html` — panel shell: topbar, command search, live clock, three.js importmap
 - `templates/panel/includes/sidebar.html` — icon sidebar / mobile bottom tab bar
 - `templates/panel/ops.html` — `/panel/` Ops-центр placeholder

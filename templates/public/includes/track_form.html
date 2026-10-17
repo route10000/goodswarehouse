@@ -1,0 +1,13 @@
+<form class="track-form" method="post" action="{% url 'public:track' %}" novalidate>
+  {% csrf_token %}
+  <div class="field">
+    <label for="{{ form.query.id_for_label }}">{{ form.query.label }}</label>
+    {{ form.query }}
+  </div>
+  <div class="field">
+    <label for="{{ form.last4.id_for_label }}">{{ form.last4.label }}</label>
+    {{ form.last4 }}
+  </div>
+  {% if error %}<p class="track-form__error" role="alert">{{ error }}</p>{% endif %}
+  <button class="btn btn--dark btn--lg track-form__submit" type="submit">Найти груз</button>
+</form>

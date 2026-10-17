@@ -1,0 +1,26 @@
+{% load gw_format %}
+{% if trucks %}
+<ul class="truck-list">
+  {% for row in trucks %}
+  {% with truck=row.truck %}
+  <li class="truck-row">
+    <div class="truck-row__id">
+      <span class="truck-row__number mono">{{ truck.number }}</span>
+      <span class="truck-row__route">{{ truck.route }}</span>
+    </div>
+    <span class="pill {{ row.pill }}">{{ truck.get_status_display }}</span>
+    <div class="progress" role="progressbar" aria-label="Прогресс рейса" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ row.percent }}">
+      <span class="progress__bar" style="width: {{ row.percent }}%"></span>
+    </div>
+    <span class="truck-row__when">
+      {% if truck.status == "loading" %}{% if truck.departure_date %}Отправка {{ truck.departure_date|ru_date }}{% else %}Отправка уточняется{% endif %}
+      {% elif truck.status == "in_transit" %}{% if truck.eta %}ETA {{ truck.eta|ru_datetime }}{% else %}В пути с {{ truck.departed_at|ru_date }}{% endif %}
+      {% else %}Прибыла {{ truck.arrived_at|ru_date }}{% endif %}
+    </span>
+  </li>
+  {% endwith %}
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty">Сейчас машин в пути нет. Загляните позже или подпишитесь на бота.</p>
+{% endif %}

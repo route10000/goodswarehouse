@@ -1,0 +1,16 @@
+{% extends "public/base.html" %}
+{% block title %}Расписание машин — GoodsWarehouse{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="overline">УССУРИЙСК → ВЛАДИВОСТОК</p>
+    <h1 class="page-head__title">Расписание машин</h1>
+    <p class="page-head__sub">Машины, которые грузятся, едут или прибыли за последние три дня.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    {% include "public/includes/truck_list.html" %}
+  </div>
+</section>
+{% endblock %}

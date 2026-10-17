@@ -2,20 +2,65 @@
 {% block title %}GoodsWarehouse — груз из Китая во Владивосток{% endblock %}
 {% block content %}
 <section class="hero">
-  <div class="container">
-    <p class="overline">УССУРИЙСК → ВЛАДИВОСТОК</p>
-    <h1>Груз из Китая. Напишем, когда забирать.</h1>
-    <p class="hero__sub">GoodsWarehouse везёт грузы из Уссурийска на склад во Владивостоке и сообщает в Telegram, когда машина выехала и когда груз можно забрать.</p>
-    <div class="hero__actions">
-      <a class="btn btn--primary btn--lg" href="#telegram">Подключить Telegram</a>
-      <a class="btn btn--outline btn--lg" href="#schedule">Расписание машин</a>
+  <div class="container hero__grid">
+    <div class="hero__text">
+      <p class="overline">УССУРИЙСК → ВЛАДИВОСТОК</p>
+      <h1>Груз из Китая. Напишем, когда забирать.</h1>
+      <p class="hero__sub">Подключите Telegram-бота: он напишет, когда машина с вашим грузом выехала из Уссурийска и когда груз готов к выдаче на складе во Владивостоке.</p>
+      <div class="hero__actions">
+        {% if bot_url %}<a class="btn btn--primary btn--lg" href="{{ bot_url }}" target="_blank" rel="noopener">Подключить Telegram</a>{% endif %}
+        <a class="btn btn--outline btn--lg" href="{% url 'public:schedule' %}">Расписание машин</a>
+      </div>
+    </div>
+    <div class="track-card" id="track">
+      <h2 class="track-card__title">Где мой груз?</h2>
+      <p class="track-card__hint">Код клиента или артикул и последние 4 цифры телефона.</p>
+      {% include "public/includes/track_form.html" %}
     </div>
   </div>
 </section>
+
 <section class="section">
   <div class="container">
-    <h2>Скоро здесь</h2>
-    <p class="muted">Расписание машин, поиск груза и контакты склада появятся в следующих версиях страницы.</p>
+    <h2>Как это работает</h2>
+    <ol class="steps">
+      <li class="step">
+        <span class="step__num mono">01</span>
+        <h3 class="step__title">Груз приходит на наш склад в Уссурийске</h3>
+      </li>
+      <li class="step">
+        <span class="step__num mono">02</span>
+        <h3 class="step__title">Грузим в машину до Владивостока</h3>
+      </li>
+      <li class="step">
+        <span class="step__num mono">03</span>
+        <h3 class="step__title">Бот пишет, когда машина выехала и прибыла</h3>
+      </li>
+      <li class="step">
+        <span class="step__num mono">04</span>
+        <h3 class="step__title">Забираете на складе во Владивостоке</h3>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section--line" id="schedule">
+  <div class="container">
+    <div class="section__head">
+      <h2>Ближайшие машины</h2>
+      <a class="section__link" href="{% url 'public:schedule' %}">Всё расписание →</a>
+    </div>
+    {% include "public/includes/truck_list.html" %}
+  </div>
+</section>
+
+<section class="section section--line" id="contacts">
+  <div class="container">
+    <div class="section__head">
+      <h2>Контакты</h2>
+      <a class="section__link" href="{% url 'public:contacts' %}">Как добраться →</a>
+    </div>
+    {% include "public/includes/contacts_list.html" %}
   </div>
 </section>
 {% endblock %}

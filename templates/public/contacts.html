@@ -1,0 +1,20 @@
+{% extends "public/base.html" %}
+{% block title %}Контакты — GoodsWarehouse{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="overline">СКЛАД · {{ warehouse.city|upper }}</p>
+    <h1 class="page-head__title">Контакты</h1>
+    <p class="page-head__sub">Здесь вы забираете груз после того, как бот напишет, что машина прибыла.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    {% include "public/includes/contacts_list.html" %}
+    <div class="contact-actions">
+      {% if warehouse.map_query %}<a class="btn btn--quiet btn--lg" href="https://yandex.ru/maps/?text={{ warehouse.map_query|urlencode:'' }}" target="_blank" rel="noopener">Открыть в Яндекс Картах</a>{% endif %}
+      {% if bot_url %}<a class="btn btn--primary btn--lg" href="{{ bot_url }}" target="_blank" rel="noopener">Подключить Telegram</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
