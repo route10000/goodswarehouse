@@ -5,3 +5,31 @@
 - `docs/DESIGN.md` — design tokens, components, layouts, bot message texts
 - `docs/PLAN.md` — task list with statuses
 - `.gitignore` — ignored files
+- `requirements.txt` — pinned runtime deps (Django 5.1.15, dj-database-url, httpx, phonenumbers, openpyxl, whitenoise, gunicorn)
+- `requirements-dev.txt` — runtime deps + pytest, pytest-django, ruff
+- `pyproject.toml` — ruff config (line 100, E/F/I/UP/B/DJ) and pytest config (`-p tests.env`, testpaths)
+- `.env.example` — all env keys from SPEC §11
+- `manage.py` — Django entry point
+- `conftest.py` — pytest fixtures: plain static storage in tests (no collectstatic manifest)
+- `config/` — Django project: `settings.py` (env via os.environ, domain constants), `urls.py` (admin, `/panel/`, public at root), `wsgi.py`, `asgi.py`
+- `logistics/` — app: domain models and services (empty models in T1)
+- `notify/` — app: notifications, Telegram sender (empty in T1)
+- `bot/` — app: Telegram bot `run_bot` (empty in T1)
+- `public/` — app: public site; `urls.py`, `views.py` (`home` stub)
+- `panel/` — app: staff panel; `urls.py` (login, logout, ops), `views.py` (`ops_center`, login_required)
+- `tests/` — project-level tests; `test_smoke.py` (home, panel auth, settings)
+- `tests/env.py` — early pytest plugin: sets test SECRET_KEY before settings import
+- `templates/base.html` — root layout: Google Fonts, tokens.css, app.css, htmx, blocks
+- `templates/public/base.html` — public shell: black 64px header, nav, burger, footer
+- `templates/public/home.html` — `/` hero placeholder
+- `templates/panel/base.html` — panel shell: topbar, command search, live clock, three.js importmap
+- `templates/panel/includes/sidebar.html` — icon sidebar / mobile bottom tab bar
+- `templates/panel/ops.html` — `/panel/` Ops-центр placeholder
+- `templates/panel/login.html` — panel-styled login form
+- `static/css/tokens.css` — design tokens (verbatim from DESIGN.md); the only place for hex colors
+- `static/css/app.css` — base styles, themes, components (btn, pill, live, field, panel, kpi, table, toast), public and panel shells
+- `static/js/public.js` — public header burger toggle
+- `static/js/panel.js` — panel live clock (Vladivostok) and `/` search hotkey
+- `static/vendor/htmx.min.js` — htmx 2.0.3
+- `static/vendor/three/three.module.min.js` — three.js r160 ES module
+- `static/vendor/three/addons/renderers/CSS2DRenderer.js` — three.js r160 CSS2DRenderer addon

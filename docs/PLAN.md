@@ -2,7 +2,7 @@
 
 Статусы: ☐ не начато · ◐ в работе · ☑ принято. Спека: `docs/SPEC.md`, дизайн: `docs/DESIGN.md`.
 
-## T1. Каркас проекта — Medium — ☐
+## T1. Каркас проекта — Medium — ☑
 Django 5.1 проект `config` с приложениями `logistics`, `notify`, `bot`, `public`, `panel`. `requirements.txt` (django, dj-database-url, httpx, phonenumbers, openpyxl, whitenoise, gunicorn) и `requirements-dev.txt` (pytest, pytest-django, ruff). Настройки читают env из SPEC §11 (`.env.example`). Русская локаль, `TIME_ZONE=Asia/Vladivostok`. Ruff и pytest настроены в `pyproject.toml`. Статика: `static/css/tokens.css` (точно по DESIGN.md), `static/css/app.css` (базовые компоненты: btn, pill, field, table, panel, kpi), `static/vendor/htmx.min.js` 2.0.3, `static/vendor/three/` r160 (`three.module.min.js`, `CSS2DRenderer.js`). Шаблоны `templates/base.html`, `templates/public/base.html` (чёрная шапка и футер), `templates/panel/base.html` (топбар + иконочный сайдбар по DESIGN.md), заглушки `/` и `/panel/` (под логином). Smoke-тесты.
 **Проверка:** `pytest`, `ruff check .`, `manage.py check`, runserver открывает `/`.
 

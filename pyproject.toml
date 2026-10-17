@@ -1,0 +1,20 @@
+[project]
+name = "goodswarehouse"
+version = "1.0.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["static", "staticfiles", "*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+testpaths = ["tests", "logistics", "notify", "bot", "public", "panel"]
+python_files = ["test_*.py", "tests.py"]
+addopts = "-p tests.env"
+pythonpath = ["."]
+filterwarnings = ["ignore:No directory at:UserWarning"]

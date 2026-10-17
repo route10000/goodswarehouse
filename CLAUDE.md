@@ -4,6 +4,7 @@ Stack: Python 3.12, Django 5.1, Django templates + HTMX 2.0.3 and three.js r160 
 
 ## Commands (Windows, from repo root)
 - Setup: `python -m venv .venv && .venv\Scripts\pip install -r requirements-dev.txt`
+- Env: settings read `os.environ` only (keys in `.env.example`). `DEBUG` defaults to off and then `SECRET_KEY` is required, so for local work first run `$env:DEBUG="true"` (PowerShell) / `set DEBUG=true` (cmd). Tests set their own key.
 - Run: `.venv\Scripts\python manage.py runserver`
 - Test: `.venv\Scripts\pytest`
 - Lint: `.venv\Scripts\ruff check . && .venv\Scripts\ruff format --check .`

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_class %}theme-dark{% endblock %}
+{% block head %}
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "{% static 'vendor/three/three.module.min.js' %}",
+        "three/addons/": "{% static 'vendor/three/addons/' %}"
+      }
+    }
+  </script>
+{% endblock %}
+{% block body %}
+<div class="shell">
+  <header class="topbar">
+    <a class="logo" href="{% url 'panel:ops' %}">Goods<span>Warehouse</span></a>
+    <span class="badge">Ops center</span>
+    <form class="cmd-search" role="search" action="#" onsubmit="return false">
+      <label class="visually-hidden" for="cmd-search">Поиск</label>
+      <input id="cmd-search" type="search" name="q" placeholder="Артикул, телефон или рейс…" autocomplete="off" data-cmd-search>
+      <kbd>/</kbd>
+    </form>
+    <div class="topbar__right">
+      <span class="live" data-live-clock>LIVE {% now "H:i" %}</span>
+      <div class="topbar__user">
+        <span class="topbar__username">{{ request.user.get_full_name|default:request.user.get_username }}</span>
+        <form method="post" action="{% url 'panel:logout' %}">
+          {% csrf_token %}
+          <button class="btn btn--quiet btn--sm" type="submit">Выйти</button>
+        </form>
+      </div>
+    </div>
+  </header>
+  {% include "panel/includes/sidebar.html" %}
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/panel.js' %}" defer></script>{% endblock %}

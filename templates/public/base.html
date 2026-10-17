@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_class %}theme-light{% endblock %}
+{% block body %}
+<header class="site-header" data-site-header>
+  <div class="container site-header__inner">
+    <a class="logo" href="/">Goods<span>Warehouse</span></a>
+    <button class="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="site-nav" data-burger>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="Основное меню">
+      <ul class="site-nav__links">
+        <li><a href="#schedule">Расписание</a></li>
+        <li><a href="#track">Где мой груз</a></li>
+        <li><a href="#contacts">Контакты</a></li>
+      </ul>
+      <a class="btn btn--primary" href="#telegram">Telegram-бот</a>
+    </nav>
+  </div>
+</header>
+<main>
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <span class="logo">Goods<span>Warehouse</span></span>
+    <span>Уссурийск → Владивосток</span>
+  </div>
+</footer>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/public.js' %}" defer></script>{% endblock %}
