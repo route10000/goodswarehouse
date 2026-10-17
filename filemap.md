@@ -12,8 +12,19 @@
 - `manage.py` — Django entry point
 - `conftest.py` — pytest fixtures: plain static storage in tests (no collectstatic manifest)
 - `config/` — Django project: `settings.py` (env via os.environ, domain constants), `urls.py` (admin, `/panel/`, public at root), `wsgi.py`, `asgi.py`
-- `logistics/` — app: domain models and services (empty models in T1)
-- `notify/` — app: notifications, Telegram sender (empty in T1)
+- `logistics/` — app: domain models and services
+- `logistics/models.py` — Counter (race-safe code sequences), Client (`GW-NNNN`, E.164 phone, Telegram link token), Truck (`R-YYYY-NNN`), Cargo, DailyOrder, DailyOrderLine, ContactAttempt; status TextChoices
+- `logistics/phones.py` — `normalize_phone` (E.164, region RU, raises `InvalidPhone`), `phone_last4`
+- `logistics/services.py` — the only place statuses change: `get_or_create_client`, `create_truck`, `add_cargo`, `assign_to_truck`, `truck_depart`, `truck_arrive`, `cargo_pickup`, `InvalidTransition`
+- `logistics/admin.py` — admin for all logistics models; statuses and truck assignment read-only; phone search in any format
+- `logistics/migrations/0002_staff_groups.py` — data migration: groups «Менеджер» and «Склад» with permissions
+- `logistics/tests/` — tests: phones, models (codes, phone), services (transitions, cascade, auto-close), groups and admin
+- `notify/` — app: notifications (Telegram sender comes in T3)
+- `notify/models.py` — Notification (kind, channel, status, `created_on` local date; unique per client+truck+kind+day)
+- `notify/messages.py` — `render(kind, client, cargos, truck)`: bot texts for `departed` / `arrived` (HTML-escaped), money/weight formatting
+- `notify/services.py` — `enqueue_departed`, `enqueue_arrived`: one aggregated notification per client, `pending` / `skipped`, same-day dedupe
+- `notify/admin.py` — Notification admin, delivery fields read-only
+- `notify/tests/` — tests: messages, enqueue services
 - `bot/` — app: Telegram bot `run_bot` (empty in T1)
 - `public/` — app: public site; `urls.py`, `views.py` (`home` stub)
 - `panel/` — app: staff panel; `urls.py` (login, logout, ops), `views.py` (`ops_center`, login_required)

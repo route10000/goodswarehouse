@@ -6,7 +6,7 @@
 Django 5.1 проект `config` с приложениями `logistics`, `notify`, `bot`, `public`, `panel`. `requirements.txt` (django, dj-database-url, httpx, phonenumbers, openpyxl, whitenoise, gunicorn) и `requirements-dev.txt` (pytest, pytest-django, ruff). Настройки читают env из SPEC §11 (`.env.example`). Русская локаль, `TIME_ZONE=Asia/Vladivostok`. Ruff и pytest настроены в `pyproject.toml`. Статика: `static/css/tokens.css` (точно по DESIGN.md), `static/css/app.css` (базовые компоненты: btn, pill, field, table, panel, kpi), `static/vendor/htmx.min.js` 2.0.3, `static/vendor/three/` r160 (`three.module.min.js`, `CSS2DRenderer.js`). Шаблоны `templates/base.html`, `templates/public/base.html` (чёрная шапка и футер), `templates/panel/base.html` (топбар + иконочный сайдбар по DESIGN.md), заглушки `/` и `/panel/` (под логином). Smoke-тесты.
 **Проверка:** `pytest`, `ruff check .`, `manage.py check`, runserver открывает `/`.
 
-## T2. Модели и доменные сервисы — Careful — ☐ (после T1)
+## T2. Модели и доменные сервисы — Careful — ☑ (после T1)
 `logistics`: Client, Truck, Cargo (с `article`), DailyOrder, DailyOrderLine, ContactAttempt по SPEC §5. Генерация `GW-NNNN` и `R-YYYY-NNN` без гонок. Нормализация телефона +7. `services.py`: `truck_depart`, `truck_arrive`, `cargo_pickup`, `add_cargo`, `assign_to_truck`, `InvalidTransition` по SPEC §6. Модель Notification и `notify.services.enqueue_*` (без отправки). Django admin. Группы «Менеджер» и «Склад» через data-миграцию.
 **Проверка:** тесты переходов (включая недопустимые), каскада, агрегации уведомлений, закрытия машины, телефона, уникальности кодов.
 
