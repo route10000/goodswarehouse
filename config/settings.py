@@ -135,3 +135,12 @@ WAREHOUSE_PHONE = os.environ.get("WAREHOUSE_PHONE", "")
 
 FREE_STORAGE_DAYS = env_int("FREE_STORAGE_DAYS", 7)
 CALL_AFTER_DAYS = env_int("CALL_AFTER_DAYS", 3)
+
+# Sender and jobs log to stderr (journald under systemd); dry-run messages show up here.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"plain": {"format": "%(asctime)s %(levelname)s %(name)s: %(message)s"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "plain"}},
+    "loggers": {"notify": {"handlers": ["console"], "level": "INFO", "propagate": False}},
+}

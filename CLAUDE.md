@@ -13,6 +13,7 @@ Stack: Python 3.12, Django 5.1, Django templates + HTMX 2.0.3 and three.js r160 
 
 ## Conventions
 - Status changes happen ONLY through `logistics/services.py` (and `notify/services.py` for notifications). Views, bot, admin never set `.status` directly.
+- Daily order lines and `ContactAttempt` are written ONLY through `logistics/orders.py` (`build_daily_order`, `add_line`, `remove_line`, `mark_line`).
 - Notifications are queued as `pending` inside the same transaction. Only `send_notifications` talks to Telegram, never a web request.
 - Phones are stored in E.164 (`+7...`). Always normalize via the helper in `logistics`.
 - All user-facing text is in Russian. Code, identifiers, and commits are in English.

@@ -110,10 +110,10 @@ def test_arrived_text_has_total_and_storage(truck, tg_client, settings):
     enqueue_arrived(truck, now=NOW)
 
     text = Notification.objects.get().text
-    assert "10 000,50 ₽" in text
+    assert "10 000,50 ₽" in text
     assert "ул. Складская, 1" in text
     assert "9:00–18:00" in text
-    assert "24.10.2026" in text
+    assert "до 24 октября." in text
     assert "12,4 кг" in text
 
 

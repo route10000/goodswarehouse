@@ -220,6 +220,11 @@ class DailyOrder(models.Model):
     def __str__(self) -> str:
         return f"Ордер {self.date:%d.%m.%Y}"
 
+    @property
+    def is_read_only(self) -> bool:
+        """Orders for past local dates are read-only (SPEC §7)."""
+        return self.date < timezone.localdate()
+
 
 class DailyOrderLine(models.Model):
     class CallStatus(models.TextChoices):
@@ -271,6 +276,11 @@ class DailyOrderLine(models.Model):
 
     def __str__(self) -> str:
         return f"{self.order} · арт. {self.article}"
+
+    @property
+    def is_picked_up(self) -> bool:
+        """The cargo was handed out after the line was made; the call status stays as is."""
+        return self.cargo.status == Cargo.Status.PICKED_UP
 
 
 class ContactAttempt(models.Model):

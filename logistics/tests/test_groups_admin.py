@@ -74,3 +74,15 @@ def test_client_admin_search_by_any_phone_format(admin_client):
     Client.objects.create(name="Иван", phone="+79141234567")
     response = admin_client.get("/admin/logistics/client/", {"q": "8 914 123 45 67"})
     assert "GW-0001" in response.content.decode()
+
+
+@pytest.mark.parametrize("model", [DailyOrderLine, ContactAttempt])
+def test_order_lines_and_calls_are_view_only_in_admin(rf, admin_user, model):
+    """Their writes go only through ``logistics.orders`` (mark_line, add_line, ...)."""
+    model_admin = admin.site._registry[model]
+    request = rf.get("/")
+    request.user = admin_user
+    assert model_admin.has_view_permission(request)
+    assert not model_admin.has_add_permission(request)
+    assert not model_admin.has_change_permission(request)
+    assert not model_admin.has_delete_permission(request)

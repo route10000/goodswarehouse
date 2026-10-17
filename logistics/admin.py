@@ -1,4 +1,7 @@
-"""Admin. Statuses are read-only here: they change only via ``logistics.services``."""
+"""Admin. Statuses are read-only here: they change only via ``logistics.services``.
+
+Order lines and the call journal are view-only: ``logistics.orders`` writes them.
+"""
 
 from django.contrib import admin
 
@@ -70,6 +73,19 @@ class CargoAdmin(admin.ModelAdmin):
     ]
 
 
+class ViewOnlyAdmin(admin.ModelAdmin):
+    """Rows written only by ``logistics.orders`` (build/add/remove/mark): view only here."""
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 class DailyOrderLineInline(admin.TabularInline):
     model = DailyOrderLine
     extra = 0
@@ -90,7 +106,7 @@ class DailyOrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(DailyOrderLine)
-class DailyOrderLineAdmin(admin.ModelAdmin):
+class DailyOrderLineAdmin(ViewOnlyAdmin):
     list_display = ["order", "article", "client_name", "phone", "call_status", "promised_date"]
     list_filter = ["call_status", "order__date"]
     search_fields = ["article", "phone", "client_name"]
@@ -100,7 +116,7 @@ class DailyOrderLineAdmin(admin.ModelAdmin):
 
 
 @admin.register(ContactAttempt)
-class ContactAttemptAdmin(admin.ModelAdmin):
+class ContactAttemptAdmin(ViewOnlyAdmin):
     list_display = ["created_at", "client", "cargo", "staff", "outcome", "promised_date"]
     list_filter = ["outcome"]
     search_fields = ["client__phone", "client__code", "client__name", "cargo__article"]

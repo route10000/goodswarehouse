@@ -10,7 +10,7 @@ Django 5.1 проект `config` с приложениями `logistics`, `notif
 `logistics`: Client, Truck, Cargo (с `article`), DailyOrder, DailyOrderLine, ContactAttempt по SPEC §5. Генерация `GW-NNNN` и `R-YYYY-NNN` без гонок. Нормализация телефона +7. `services.py`: `truck_depart`, `truck_arrive`, `cargo_pickup`, `add_cargo`, `assign_to_truck`, `InvalidTransition` по SPEC §6. Модель Notification и `notify.services.enqueue_*` (без отправки). Django admin. Группы «Менеджер» и «Склад» через data-миграцию.
 **Проверка:** тесты переходов (включая недопустимые), каскада, агрегации уведомлений, закрытия машины, телефона, уникальности кодов.
 
-## T3. Уведомления и формирование ордера — Careful — ☐ (после T2)
+## T3. Уведомления и формирование ордера — Careful — ☑ (после T2)
 `notify/telegram.py` (httpx, 403/429/5xx, dry-run). `notify/messages.py` (тексты по DESIGN.md). Команды `send_notifications`, `daily_reminders`. `logistics/orders.py`: `build_daily_order(date, user=None)` по SPEC §7 (включения, исключения, перенос `no_answer`/`pending`, повторное формирование не трогает отмеченные), `mark_line(line, status, user, promised_date, comment)` пишет ContactAttempt. Команда `build_daily_order`.
 **Проверка:** тесты с моком httpx на все ветки, идемпотентность reminders, каждое правило ордера, повторное формирование.
 

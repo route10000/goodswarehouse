@@ -48,3 +48,9 @@
 - `static/vendor/htmx.min.js` — htmx 2.0.3
 - `static/vendor/three/three.module.min.js` — three.js r160 ES module
 - `static/vendor/three/addons/renderers/CSS2DRenderer.js` — three.js r160 CSS2DRenderer addon
+- `notify/telegram.py` — Bot API sendMessage client (httpx, HTML), typed errors, dry-run without token
+- `notify/services.py` — enqueue_departed/arrived, `send_pending`, `enqueue_reminders`
+- `notify/messages.py` — bot texts for all 4 kinds, `format_date` (narrow NBSP money)
+- `notify/management/commands/` — `send_notifications` (`--loop --interval`), `daily_reminders` (`--date`)
+- `logistics/orders.py` — daily order: `build_daily_order`, `add_line`, `remove_line`, `mark_line` (only writer of lines/ContactAttempt)
+- `logistics/management/commands/build_daily_order.py` — `build_daily_order [--date]`
