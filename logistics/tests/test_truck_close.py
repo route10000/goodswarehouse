@@ -56,3 +56,24 @@ def test_close_rejects_truck_not_arrived(truck, status):
 
     assert Truck.objects.get(pk=truck.pk).status == status
     assert sorted(truck.cargos.values_list("status", flat=True)) == cargo_before
+
+
+T_CLOSE = datetime(2026, 10, 18, 10, 0, tzinfo=VLAT)
+
+
+def test_close_sets_closed_at(truck):
+    services.truck_depart(truck, now=T_DEPART)
+    services.truck_arrive(truck, now=T_ARRIVE)
+    assert truck.closed_at is None
+
+    services.truck_close(truck, now=T_CLOSE)
+
+    assert Truck.objects.get(pk=truck.pk).closed_at == T_CLOSE
+    assert truck.closed_at == T_CLOSE
+
+
+def test_rejected_close_leaves_closed_at_empty(truck):
+    with pytest.raises(InvalidTransition):
+        services.truck_close(truck, now=T_CLOSE)
+
+    assert Truck.objects.get(pk=truck.pk).closed_at is None

@@ -38,16 +38,28 @@ class TruckForm(forms.ModelForm):
             "loading_starts",
             "departure_date",
             "eta",
+            "capacity_places",
             "is_public",
             "comment",
         ]
+        labels = {"capacity_places": "Вместимость, мест"}
         widgets = {
+            "capacity_places": forms.NumberInput(attrs={"min": 1, "inputmode": "numeric"}),
             "loading_starts": DateTimeLocalInput(),
             "departure_date": DateInput(),
             "eta": DateTimeLocalInput(),
             "driver_phone": forms.TextInput(attrs={"inputmode": "tel"}),
             "comment": forms.Textarea(attrs={"rows": 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Optional in the form: an empty value keeps the current (or default) capacity.
+        self.fields["capacity_places"].required = False
+
+    def clean_capacity_places(self):
+        value = self.cleaned_data.get("capacity_places")
+        return self.instance.capacity_places if value is None else value
 
 
 class RuDecimalField(forms.DecimalField):

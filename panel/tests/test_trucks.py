@@ -232,3 +232,36 @@ def test_status_action_requires_post(mgr, loaded_truck):
 
 def test_unknown_status_action_404(mgr, loaded_truck):
     assert mgr.post(f"/panel/trucks/{loaded_truck.pk}/status/fly/").status_code == 404
+
+
+# ---------- capacity ----------
+
+
+def test_truck_form_shows_capacity_field(mgr):
+    page = mgr.get("/panel/trucks/new/").content.decode()
+
+    assert "Вместимость, мест" in page
+    assert 'name="capacity_places"' in page
+    assert 'value="60"' in page
+
+
+def test_create_truck_with_capacity(mgr):
+    mgr.post("/panel/trucks/new/", {"route": DEFAULT_ROUTE, "capacity_places": "82"})
+
+    assert Truck.objects.get().capacity_places == 82
+
+
+def test_create_truck_rejects_zero_capacity(mgr):
+    response = mgr.post("/panel/trucks/new/", {"route": DEFAULT_ROUTE, "capacity_places": "0"})
+
+    assert response.status_code == 200
+    assert not Truck.objects.exists()
+
+
+def test_edit_truck_without_capacity_keeps_it(mgr):
+    truck = services.create_truck(capacity_places=45)
+
+    mgr.post(f"/panel/trucks/{truck.pk}/edit/", {"route": DEFAULT_ROUTE})
+
+    truck.refresh_from_db()
+    assert truck.capacity_places == 45

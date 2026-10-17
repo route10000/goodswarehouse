@@ -26,6 +26,7 @@ data and never changes anything.
       "progress": 0.5,
       "places": 52,
       "places_loaded": 52,
+      "capacity_places": 60,
       "clients": 23,
       "weight_kg": 812.4,
       "departed_at": "2026-10-18T11:00:00+10:00",
@@ -58,10 +59,10 @@ data and never changes anything.
 ### `trucks[]`
 
 Same set and order as the fleet list on the page: every truck that is not `closed`, plus
-trucks closed within the last 24 h (trucks have no `closed_at`; the last pickup time is
-used, or `arrived_at` if nothing was picked up). Order: `arrived` (latest arrival first),
-`in_transit` (earliest `eta` first, no ETA last), `loading` (earliest `departure_date`
-first, undated last), then `closed`.
+trucks closed within the last 24 h by `Truck.closed_at` (legacy rows closed before that
+field existed use `arrived_at`). Order: `arrived` (latest arrival first), `in_transit`
+(earliest `eta` first, no ETA last), `loading` (earliest `departure_date` first, undated
+last), then `closed` (most recently closed first).
 
 | field | type | meaning |
 |---|---|---|
@@ -72,6 +73,7 @@ first, undated last), then `closed`.
 | `progress` | float 0..1 | see below, 4 decimals |
 | `places` | int | places of all cargo in the truck |
 | `places_loaded` | int | places of cargo already loaded (any status after `received`) |
+| `capacity_places` | int ≥ 1 | truck capacity in places (`Truck.capacity_places`, default 60) |
 | `clients` | int | number of distinct clients with cargo in the truck |
 | `weight_kg` | float | total weight; cargo without weight counts as 0 |
 | `departed_at` | string \| null | actual departure |
@@ -80,9 +82,9 @@ first, undated last), then `closed`.
 | `url` | string | truck card in the panel |
 
 `progress`:
-- `loading`: `places_loaded / places`, `0.0` when the truck is empty. Cargo is loaded as
-  soon as it is added to a loading truck, so in practice this is `1.0` for any truck with
-  cargo; the scene should show loading by `places_loaded` boxes.
+- `loading`: `min(1, places_loaded / capacity_places)`; `0.0` when the truck is empty,
+  `1.0` when it is loaded over capacity. Labels show `places_loaded/capacity_places`
+  («Погрузка 38/60»).
 - `in_transit`: share of `departed_at → eta` elapsed at `generated_at`, clamped to
   `0.0..1.0`; `0.0` when `eta` or `departed_at` is missing; `1.0` when `eta` is not after
   `departed_at`.

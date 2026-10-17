@@ -41,7 +41,7 @@ class TruckAdmin(admin.ModelAdmin):
     list_display = ["number", "route", "status", "departure_date", "eta", "plate", "is_public"]
     list_filter = ["status", "is_public"]
     search_fields = ["number", "plate", "driver_phone"]
-    readonly_fields = ["number", "status", "departed_at", "arrived_at", "created_at"]
+    readonly_fields = ["number", "status", "departed_at", "arrived_at", "closed_at", "created_at"]
 
 
 @admin.register(Cargo)

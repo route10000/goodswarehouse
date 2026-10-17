@@ -11,7 +11,7 @@ from datetime import datetime, time, timedelta
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Count, Max, Q, Sum
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
@@ -214,11 +214,14 @@ def truck_progress(
     departed_at: datetime | None,
     eta: datetime | None,
     places_loaded: int,
-    places_total: int,
+    capacity_places: int,
 ) -> float:
-    """0..1. Loading: share of places loaded; in transit: share of departed_at → eta elapsed."""
+    """0..1. Loading: places loaded of the truck's capacity (clamped); in transit: share of
+    departed_at → eta elapsed (clamped)."""
     if status == Truck.Status.LOADING:
-        return round(places_loaded / places_total, 4) if places_total else 0.0
+        if capacity_places <= 0:
+            return 0.0
+        return round(min(1.0, places_loaded / capacity_places), 4)
     if status == Truck.Status.IN_TRANSIT:
         if departed_at is None or eta is None:
             return 0.0
@@ -250,8 +253,12 @@ class FleetItem:
     places_picked: int
     clients: int
     weight_kg: Decimal
-    last_activity: datetime | None
+    closed_since: datetime | None
     progress: float
+
+    @property
+    def capacity_places(self) -> int:
+        return self.truck.capacity_places
 
     @property
     def id(self) -> int:
@@ -292,7 +299,7 @@ class FleetItem:
     @property
     def places_text(self) -> str:
         if self.status == Truck.Status.LOADING:
-            return f"{self.places_loaded}/{self.places_total} мест"
+            return f"{self.places_loaded}/{self.capacity_places} мест"
         return f"{self.places_total} мест"
 
     @property
@@ -336,7 +343,6 @@ def _annotated_trucks():
         places_picked=Coalesce(Sum("cargos__places", filter=Q(cargos__status="picked_up")), 0),
         clients_total=Count("cargos__client", distinct=True),
         weight_total=Sum("cargos__weight_kg"),
-        last_pickup=Max("cargos__picked_up_at"),
     )
 
 
@@ -350,14 +356,15 @@ def _item(truck: Truck, now: datetime) -> FleetItem:
         places_picked=truck.places_picked,
         clients=truck.clients_total,
         weight_kg=truck.weight_total or Decimal("0"),
-        last_activity=truck.last_pickup or truck.arrived_at,
+        # Legacy rows closed before ``closed_at`` existed fall back to the arrival time.
+        closed_since=truck.closed_at or truck.arrived_at,
         progress=truck_progress(
             truck.status,
             now=now,
             departed_at=truck.departed_at,
             eta=truck.eta,
             places_loaded=truck.places_loaded,
-            places_total=truck.places_total,
+            capacity_places=truck.capacity_places,
         ),
     )
 
@@ -372,22 +379,21 @@ def _sort_key(item: FleetItem):
     elif item.status == Truck.Status.LOADING:
         key = (truck.departure_date or Date.max).toordinal()
     else:
-        key = -(item.last_activity.timestamp() if item.last_activity else 0)
+        key = -(item.closed_since.timestamp() if item.closed_since else 0)
     return (STATUS_RANK[item.status], key, truck.pk)
 
 
 def fleet(now: datetime | None = None) -> list[FleetItem]:
     """Non-closed trucks plus those closed within 24 h, most relevant first.
 
-    Trucks have no ``closed_at``: a closed truck's last activity is its latest pickup,
-    or its arrival when nothing was picked up (closed by hand).
+    «Closed within 24 h» uses ``closed_at``; legacy rows without it use ``arrived_at``.
     """
     now = _now(now)
     items = []
     for truck in _annotated_trucks():
         item = _item(truck, now)
         if item.status == Truck.Status.CLOSED and (
-            item.last_activity is None or item.last_activity < now - CLOSED_VISIBLE_FOR
+            item.closed_since is None or item.closed_since < now - CLOSED_VISIBLE_FOR
         ):
             continue
         items.append(item)
@@ -443,7 +449,7 @@ def journey(item: FleetItem, now: datetime | None = None) -> list[dict]:
     steps = [
         {
             "label": "Погрузка",
-            "caption": f"{item.places_loaded}/{item.places_total} мест",
+            "caption": item.places_text,
             "time": short_time(truck.loading_starts, now),
             "text": "Уссурийск · погрузка",
         },
@@ -662,6 +668,7 @@ def scene_truck(item: FleetItem) -> dict:
         "progress": item.progress,
         "places": item.places_total,
         "places_loaded": item.places_loaded,
+        "capacity_places": truck.capacity_places,
         "clients": item.clients,
         "weight_kg": float(item.weight_kg),
         "departed_at": _iso(truck.departed_at),

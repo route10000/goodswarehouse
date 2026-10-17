@@ -283,3 +283,29 @@ def test_full_flow_notifications_once_per_kind(arrived_truck, staff):
     for cargo in arrived_truck.cargos.all():
         services.cargo_pickup(cargo, staff, paid=True, now=T_PICKUP + timedelta(minutes=5))
     assert Notification.objects.count() == 4
+
+
+# ---------- capacity and closed_at ----------
+
+
+def test_create_truck_capacity_defaults_to_60():
+    assert services.create_truck().capacity_places == 60
+    assert services.create_truck(capacity_places=82).capacity_places == 82
+
+
+def test_create_truck_rejects_zero_capacity():
+    with pytest.raises(ValidationError):
+        services.create_truck(capacity_places=0)
+    assert not Truck.objects.exists()
+
+
+def test_auto_close_on_last_pickup_sets_closed_at(arrived_truck, staff):
+    cargos = list(arrived_truck.cargos.order_by("id"))
+    for cargo in cargos[:-1]:
+        services.cargo_pickup(cargo, staff, paid=True, now=T_PICKUP)
+    assert Truck.objects.get(pk=arrived_truck.pk).closed_at is None
+
+    last = T_PICKUP + timedelta(minutes=5)
+    services.cargo_pickup(cargos[-1], staff, paid=True, now=last)
+
+    assert Truck.objects.get(pk=arrived_truck.pk).closed_at == last

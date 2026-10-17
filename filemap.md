@@ -13,7 +13,7 @@
 - `conftest.py` — pytest fixtures: plain static storage in tests (no collectstatic manifest)
 - `config/` — Django project: `settings.py` (env via os.environ, domain constants), `urls.py` (admin, `/panel/`, public at root), `wsgi.py`, `asgi.py`
 - `logistics/` — app: domain models and services
-- `logistics/models.py` — Counter (race-safe code sequences), Client (`GW-NNNN`, E.164 phone, Telegram link token), Truck (`R-YYYY-NNN`), Cargo, DailyOrder, DailyOrderLine, ContactAttempt; status TextChoices
+- `logistics/models.py` — Counter (race-safe code sequences), Client (`GW-NNNN`, E.164 phone, Telegram link token), Truck (`R-YYYY-NNN`, `capacity_places` default 60, `closed_at`), Cargo, DailyOrder, DailyOrderLine, ContactAttempt; status TextChoices
 - `logistics/phones.py` — `normalize_phone` (E.164, region RU, raises `InvalidPhone`), `phone_last4`
 - `logistics/services.py` — the only place statuses change: `get_or_create_client`, `create_truck`, `add_cargo`, `assign_to_truck`, `truck_depart`, `truck_arrive`, `truck_close`, `cargo_pickup`, `InvalidTransition`
 - `logistics/admin.py` — admin for all logistics models; statuses and truck assignment read-only; phone search in any format
@@ -60,6 +60,7 @@
 - `bot/management/commands/run_bot.py` — long polling `run_bot [--once]`
 - `bot/tests/` — handlers, links, polling client, run_bot
 - `logistics/migrations/0003_client_unique_telegram_chat.py` — unique chat id when set (clears duplicates first)
+- `logistics/migrations/0004_truck_capacity_closed_at.py` — `Truck.capacity_places` (default 60, ≥ 1) and `Truck.closed_at`
 - `logistics/imports.py` — manifest import: `parse_manifest` → `ImportPreview`, atomic `apply_manifest`, `build_template`
 - `panel/permissions.py` — `is_manager`/`is_warehouse`, `manager_required` (403 page)
 - `panel/forms.py` — TruckForm, CargoForm, ClientForm, ManifestUploadForm

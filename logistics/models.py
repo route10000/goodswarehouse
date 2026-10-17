@@ -110,6 +110,10 @@ class Truck(models.Model):
     eta = models.DateTimeField("ожидаемое прибытие", null=True, blank=True)
     departed_at = models.DateTimeField("отправлена", null=True, blank=True)
     arrived_at = models.DateTimeField("прибыла", null=True, blank=True)
+    closed_at = models.DateTimeField("закрыта", null=True, blank=True)
+    capacity_places = models.PositiveIntegerField(
+        "вместимость, мест", default=60, validators=[MinValueValidator(1)]
+    )
     is_public = models.BooleanField("в публичном расписании", default=True)
     comment = models.TextField("комментарий", blank=True)
     created_at = models.DateTimeField("создана", default=timezone.now, editable=False)

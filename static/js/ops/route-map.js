@@ -42,7 +42,7 @@ export function truckLabel(truck) {
   const head = shortNumber(truck.number);
   switch (truck.status) {
     case "loading":
-      return `${head} · Погрузка ${truck.places_loaded}/${truck.places}`;
+      return `${head} · Погрузка ${truck.places_loaded}/${truck.capacity_places}`;
     case "in_transit":
       return `${head} · В пути · ETA ${when(truck.eta)}`;
     case "arrived":

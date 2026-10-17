@@ -215,16 +215,20 @@ def test_pipeline_order_stage_without_order():
 
 def progress(status, **kwargs):
     defaults = {"now": NOON, "departed_at": None, "eta": None, "places_loaded": 0}
-    defaults["places_total"] = 0
+    defaults["capacity_places"] = 60
     return ops_data.truck_progress(status, **{**defaults, **kwargs})
 
 
-def test_progress_loading_is_share_of_loaded_places():
-    assert progress("loading", places_loaded=3, places_total=4) == 0.75
+def test_progress_loading_is_share_of_capacity():
+    assert progress("loading", places_loaded=15, capacity_places=60) == 0.25
 
 
 def test_progress_loading_without_cargo_is_zero():
     assert progress("loading") == 0.0
+
+
+def test_progress_loading_over_capacity_is_clamped():
+    assert progress("loading", places_loaded=70, capacity_places=60) == 1.0
 
 
 def test_progress_in_transit_is_elapsed_share_of_trip():
@@ -334,8 +338,29 @@ def test_fleet_item_numbers(ivan, petr):
 
     assert (item.places_total, item.places_loaded, item.clients) == (10, 9, 2)
     assert float(item.weight_kg) == 12.5
-    assert item.progress == 0.9
+    assert item.capacity_places == 60
+    assert item.progress == 0.15
+    assert item.places_text == "9/60 мест"
     assert item.short_number == "R-" + truck.number.rsplit("-", 1)[1]
+
+
+def test_fleet_closed_window_uses_closed_at(ivan):
+    # Arrived long ago, closed by hand 2 h ago: still shown.
+    recent = arrived_truck(ivan, places=(1,), arrived=NOON - timedelta(days=3))
+    services.truck_close(recent, now=NOON - timedelta(hours=2))
+    # Arrived 1 h ago but closed_at says 30 h: hidden (closed_at wins over arrived_at).
+    old = arrived_truck(ivan, places=(1,), arrived=NOON - timedelta(hours=1))
+    services.truck_close(old, now=NOON - timedelta(hours=30))
+    # Legacy rows without closed_at fall back to arrived_at.
+    legacy_fresh = arrived_truck(ivan, places=(1,), arrived=NOON - timedelta(hours=3))
+    services.truck_close(legacy_fresh)
+    legacy_stale = arrived_truck(ivan, places=(1,), arrived=NOON - timedelta(hours=26))
+    services.truck_close(legacy_stale)
+    Truck.objects.filter(pk__in=[legacy_fresh.pk, legacy_stale.pk]).update(closed_at=None)
+
+    ids = [i.id for i in ops_data.fleet(now=NOON)]
+
+    assert ids == [recent.pk, legacy_fresh.pk]
 
 
 def test_fleet_item_texts(ivan):
@@ -408,6 +433,15 @@ def test_day_timeline_hides_now_line_outside_scale():
 # ---------- journey ----------
 
 
+def test_journey_loading_caption_shows_capacity(ivan):
+    loading_truck(ivan, places=(2, 3), capacity_places=40)
+
+    steps = ops_data.journey(ops_data.fleet(now=NOON)[0], now=NOON)
+
+    assert steps[0]["caption"] == "5/40 мест"
+    assert steps[0]["state"] == "current"
+
+
 def test_journey_states_follow_truck_status(ivan):
     truck = transit_truck(ivan, places=(2,), eta=NOON + timedelta(hours=1))
     item = ops_data.fleet(now=NOON)[0]
@@ -450,6 +484,7 @@ def test_scene_payload_shape_and_values(ivan, settings):
         "progress": 0.5,
         "places": 5,
         "places_loaded": 5,
+        "capacity_places": 60,
         "clients": 1,
         "weight_kg": 0.0,
         "departed_at": "2026-10-18T11:00:00+10:00",
@@ -548,7 +583,7 @@ def test_truck_partial_returns_drawer_and_oob_tracker(wh, ivan):
     assert page.lstrip().startswith('<div class="drawer" id="ops-drawer"')
     assert 'id="ops-tracker" hx-swap-oob="true"' in page
     assert truck.number in page
-    assert "5/5 мест" in page
+    assert "5/60 мест" in page
 
 
 def test_truck_partial_404_for_missing_truck(wh):

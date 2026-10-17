@@ -42,8 +42,10 @@ def create_truck(
     eta=None,
     is_public: bool = True,
     comment: str = "",
+    capacity_places: int = 60,
 ) -> Truck:
     truck = Truck(
+        capacity_places=capacity_places,
         plate=plate,
         route=route,
         driver_phone=driver_phone,
@@ -145,20 +147,23 @@ def truck_arrive(truck: Truck, user=None, now=None) -> Truck:
     return truck
 
 
-def truck_close(truck: Truck, user=None) -> Truck:
-    """``arrived`` → ``closed`` by hand. Cargo not yet picked up stays ``ready``."""
+def truck_close(truck: Truck, user=None, now=None) -> Truck:
+    """``arrived`` → ``closed`` by hand, sets ``closed_at``. Unpicked cargo stays ``ready``."""
+    now = now or timezone.now()
     with transaction.atomic():
         locked = _locked(Truck, truck.pk)
         if locked.status != Truck.Status.ARRIVED:
             raise InvalidTransition(f"Рейс {locked.number} нельзя закрыть: машина не прибыла")
         locked.status = Truck.Status.CLOSED
-        locked.save(update_fields=["status"])
+        locked.closed_at = now
+        locked.save(update_fields=["status", "closed_at"])
     truck.refresh_from_db()
     return truck
 
 
 def cargo_pickup(cargo: Cargo, user, paid: bool, now=None) -> Cargo:
-    """``ready`` → ``picked_up``. Closes an ``arrived`` truck once all its cargo is out."""
+    """``ready`` → ``picked_up``. Closes an ``arrived`` truck (``closed_at = now``) once all
+    its cargo is out."""
     now = now or timezone.now()
     with transaction.atomic():
         truck_id = Cargo.objects.values_list("truck_id", flat=True).get(pk=cargo.pk)
@@ -181,6 +186,7 @@ def cargo_pickup(cargo: Cargo, user, paid: bool, now=None) -> Cargo:
             and not locked_truck.cargos.exclude(status=Cargo.Status.PICKED_UP).exists()
         ):
             locked_truck.status = Truck.Status.CLOSED
-            locked_truck.save(update_fields=["status"])
+            locked_truck.closed_at = now
+            locked_truck.save(update_fields=["status", "closed_at"])
     cargo.refresh_from_db()
     return cargo
