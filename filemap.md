@@ -83,3 +83,7 @@
 - `static/css/panel-ops.css` — Ops-центр styles (stage, route map, drawer/bottom sheet, tracker, timeline, fleet)
 - `static/js/ops/` — `data.js` (scene polling, `ops:data`), `page.js` (selection, tabs, bottom sheet), `route-map.js` (SVG fallback)
 - `docs/SCENE_API.md` — scene JSON contract and page events for the 3D scene
+- `logistics/management/commands/seed_demo.py` — demo data (`seed_demo [--reset]`), users manager/sklad
+- `logistics/tests/test_seed_demo.py` — seed_demo tests
+- `docs/DEPLOY.md` — VPS deployment (PostgreSQL, gunicorn, nginx, systemd units and timers)
+- `README.md` — overview and quick start
