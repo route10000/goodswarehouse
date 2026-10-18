@@ -11,7 +11,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -20,7 +19,7 @@ from logistics.models import Cargo, Client
 from logistics.services import InvalidTransition
 from public.templatetags.gw_format import ru_date, ru_datetime
 
-from .common import any_of, count_phrase, phone_q
+from .common import any_of, count_phrase, phone_q, warehouse_url
 
 CLIENT_LIMIT = 20
 MIN_PREFIX = 3
@@ -95,10 +94,10 @@ def client_cargo(client: Client, articles: set[str]) -> dict:
     }
 
 
-@login_required
-def pickup(request):
+def pickup_context(request) -> dict:
+    """Context for ``panel/pickup/_tab.html``: ``?q=`` search or a picked ``?client=``."""
     q = request.GET.get("q", "").strip()
-    context = {"nav_active": "pickup", "q": q, "searched": bool(q), "clients": [], "result": None}
+    context = {"q": q, "searched": bool(q), "clients": [], "result": None}
     client_pk = request.GET.get("client", "")
     if client_pk.isdigit():
         client = get_object_or_404(Client, pk=client_pk)
@@ -109,15 +108,25 @@ def pickup(request):
         if len(clients) == 1:
             context["result"] = client_cargo(clients[0], articles)
         context["clients"] = clients
-    template = "panel/pickup/_results.html" if request.headers.get("HX-Request") else None
-    return render(request, template or "panel/pickup/page.html", context)
+    return context
+
+
+@login_required
+def pickup(request):
+    """HTMX search endpoint of the «Выдача» tab; a plain visit opens the tab itself."""
+    params = {"q": request.GET.get("q", "").strip(), "client": request.GET.get("client", "")}
+    if not request.headers.get("HX-Request"):
+        return redirect(warehouse_url("pickup", **params))
+    response = render(request, "panel/pickup/_results.html", pickup_context(request))
+    response["HX-Replace-Url"] = warehouse_url("pickup", **params)
+    return response
 
 
 @require_POST
 @login_required
 def pickup_issue(request):
     client = get_object_or_404(Client, pk=request.POST.get("client") or 0)
-    back = f"{reverse('panel:pickup')}?client={client.pk}"
+    back = warehouse_url("pickup", client=client.pk)
     ids = [int(x) for x in request.POST.getlist("cargo") if x.isdigit()]
     if not ids:
         messages.error(request, "Отметьте грузы, которые выдаёте")
@@ -135,4 +144,4 @@ def pickup_issue(request):
         messages.error(request, f"{exc}. Ничего не выдано")
         return redirect(back)
     messages.success(request, f"Выдано {count_phrase(len(cargos), 'груз', 'груза', 'грузов')}")
-    return redirect("panel:pickup")
+    return redirect(warehouse_url("pickup"))

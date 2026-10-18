@@ -1,0 +1,45 @@
+{% load gw_format %}
+{# «Склад» → «На складе»: ready cargo by age blocks A–D; the filter works in the browser. #}
+{% if stock_empty %}
+<section class="panel empty-state">
+  <h2 class="page-title">На складе нет готовых грузов</h2>
+  <p class="muted">Грузы появятся здесь, когда машина прибудет во Владивосток.</p>
+</section>
+{% else %}
+<div class="wh-stock" data-stock>
+  <div class="wh-stock__filter">
+    <label class="visually-hidden" for="stock-q">Артикул, телефон или код клиента</label>
+    <input class="input wh-stock__input" id="stock-q" type="search" placeholder="Артикул, телефон или код клиента" autocomplete="off" data-stock-filter>
+    <p class="caption wh-stock__none" data-stock-none hidden>Ничего не нашли.</p>
+  </div>
+  <div class="wh-blocks">
+    {% for item in blocks %}
+    <section class="wh-block wh-block--{{ item.key|lower }}" data-block="{{ item.key }}" aria-label="{{ item.label }}">
+      <header class="wh-block__head">
+        <h2 class="wh-block__title">{{ item.label }} · {{ item.caption }}</h2>
+        <p class="wh-block__meta">{{ item.places_text }} · {{ item.cargo_text }}</p>
+      </header>
+      {% if item.items %}
+      <ul class="wh-list">
+        {% for cargo in item.items %}
+        <li class="wh-item" data-stock-item data-article="{{ cargo.article|lower }}" data-code="{{ cargo.client.code|lower }}" data-phone="{{ cargo.client.phone|cut:'+' }}">
+          <div class="wh-item__top">
+            <span class="mono strong wh-item__article">{{ cargo.article }}</span>
+            <a class="btn btn--quiet btn--sm" href="{% url 'panel:warehouse' %}?tab=pickup&amp;q={{ cargo.article|urlencode }}">Выдать</a>
+          </div>
+          <div class="wh-item__client"><span class="wh-item__name">{{ cargo.client.name|default:"Без имени" }}</span> <span class="mono caption">{{ cargo.client.code }}</span></div>
+          <div class="wh-item__facts">
+            <span><span class="caption">Мест</span> <span class="mono">{{ cargo.places }}</span></span>
+            <span><span class="caption">На складе</span> <span class="mono">{{ cargo.days }} дн</span></span>
+            <span{% if cargo.overdue %} class="is-overdue"{% endif %}><span class="caption">Хранение до</span> <span class="mono">{{ cargo.free_storage_until|date:"d.m.Y"|default:"—" }}</span></span>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      <p class="caption wh-block__empty" data-block-empty{% if item.items %} hidden{% endif %}>Нет грузов</p>
+    </section>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

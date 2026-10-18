@@ -22,7 +22,7 @@
       <span class="kpi__label">Ордер на сегодня</span>
       <span class="kpi__line"><span class="kpi__value">{{ kpis.order_pending }}</span><span class="kpi__of">/{{ kpis.order_total }}</span></span>
     </div>
-    <span class="kpi__note">{% if kpis.order_built %}осталось позвонить{% else %}Ордер ещё не сформирован{% endif %} · <a href="/panel/order/">Открыть</a></span>
+    <span class="kpi__note">{% if kpis.order_built %}осталось позвонить{% else %}Ордер ещё не сформирован{% endif %} · <a href="{% url 'panel:warehouse' %}?tab=order">Открыть</a></span>
   </article>
   <article class="kpi">
     <span class="kpi__icon">{% include "panel/ops/_icon.html" with name="picked_up" %}</span>

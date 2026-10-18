@@ -1,0 +1,25 @@
+{% extends "panel/base.html" %}
+{% load static %}
+{% block title %}Склад · {{ tab_label }} · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-order.css' %}">
+  <link rel="stylesheet" href="{% static 'css/panel-warehouse.css' %}">
+  <script src="{% static 'js/panel-order.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+<div class="page-head wh-head">
+  <h1 class="page-title">Склад</h1>
+</div>
+<nav class="wh-tabs" aria-label="Вкладки склада">
+  {% for item in tabs %}<a class="wh-tabs__tab" href="{{ item.url }}" data-tab="{{ item.key }}"{% if item.current %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}
+</nav>
+<div class="wh-tab wh-tab--{{ tab }}">
+  {% if tab == "pickup" %}
+    {% include "panel/pickup/_tab.html" %}
+  {% elif tab == "order" %}
+    {% include "panel/order/_day.html" %}
+  {% else %}
+    {% include "panel/warehouse/_stock.html" %}
+  {% endif %}
+</div>
+{% endblock %}

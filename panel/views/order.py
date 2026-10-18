@@ -14,7 +14,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from openpyxl import Workbook
@@ -25,7 +24,7 @@ from logistics.models import Cargo, Client, DailyOrder, DailyOrderLine
 from logistics.orders import OrderError
 from panel.permissions import is_manager, manager_required
 
-from .common import any_of, count_phrase, phone_q
+from .common import any_of, count_phrase, phone_q, warehouse_url
 
 CallStatus = DailyOrderLine.CallStatus
 PICKED_UP = Cargo.Status.PICKED_UP
@@ -51,7 +50,8 @@ def _parse_day(day: str) -> Date:
 
 
 def _day_url(day: Date) -> str:
-    return reverse("panel:order_day", args=[day.isoformat()])
+    """The order of ``day`` inside «Склад» (the order tab)."""
+    return warehouse_url("order", date=day.isoformat())
 
 
 def remaining_lines(day: Date | None = None) -> int:
@@ -141,50 +141,60 @@ def _row_context(request, line, *, editing=False, toast="", error=False, deleted
     }
 
 
-# ---------- page ----------
+# ---------- page (lives in the «Склад» order tab) ----------
 
 
 @login_required
 def order_today(request):
-    picked = request.GET.get("date")
-    if picked:
-        try:
-            return redirect(_day_url(Date.fromisoformat(picked)))
-        except ValueError:
-            messages.error(request, "Неверная дата")
-    return _render_order(request, timezone.localdate())
+    """Old address: open the order tab, keeping a picked date and the status filter."""
+    params = {"date": request.GET.get("date", ""), "status": _status_param(request)}
+    return redirect(warehouse_url("order", **params))
 
 
 @login_required
 def order_day(request, day):
-    return _render_order(request, _parse_day(day))
+    day = _parse_day(day)
+    return redirect(warehouse_url("order", date=day.isoformat(), status=_status_param(request)))
 
 
-def _render_order(request, day: Date):
+def parse_tab_day(request) -> Date:
+    """``?date=`` of the order tab; a bad value shows today with an error toast."""
+    picked = request.GET.get("date", "")
+    if picked:
+        try:
+            if len(picked) != 10:
+                raise ValueError
+            return Date.fromisoformat(picked)
+        except ValueError:
+            messages.error(request, "Неверная дата")
+    return timezone.localdate()
+
+
+def order_context(request, day: Date) -> dict:
+    """Context for ``panel/order/_day.html`` (the order tab of «Склад»)."""
     today = timezone.localdate()
     order = DailyOrder.objects.filter(date=day).first()
     status = _status_param(request)
     lines = [x for x in numbered_lines(order) if _matches(x, status)] if order else []
-    return render(
-        request,
-        "panel/order/day.html",
-        {
-            "nav_active": "order",
-            "day": day,
-            "today": today,
-            "is_today": day == today,
-            "is_past": day < today,
-            "prev_day": day - timedelta(days=1),
-            "next_day": day + timedelta(days=1),
-            "order": order,
-            "read_only": day < today,
-            "manager": is_manager(request.user),
-            "status": status,
-            "filters": _filters(order, status),
-            "lines": lines,
-            "order_url": _day_url(day),
-        },
-    )
+    prev_day, next_day = day - timedelta(days=1), day + timedelta(days=1)
+    return {
+        "day": day,
+        "today": today,
+        "is_today": day == today,
+        "is_past": day < today,
+        "prev_day": prev_day,
+        "next_day": next_day,
+        "prev_url": _day_url(prev_day),
+        "next_url": _day_url(next_day),
+        "today_url": warehouse_url("order"),
+        "order": order,
+        "read_only": day < today,
+        "manager": is_manager(request.user),
+        "status": status,
+        "filters": _filters(order, status),
+        "lines": lines,
+        "order_url": _day_url(day),
+    }
 
 
 # ---------- build / add (full page, toast after redirect) ----------

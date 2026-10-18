@@ -23,10 +23,10 @@ def login(client, username, next_url=None):
 
 
 @pytest.mark.usefixtures("keeper")
-def test_warehouse_user_without_next_lands_on_pickup(client):
+def test_warehouse_user_without_next_lands_on_warehouse(client):
     response = login(client, "keeper")
     assert response.status_code == 302
-    assert response["Location"] == "/panel/pickup/"
+    assert response["Location"] == "/panel/warehouse/"
 
 
 @pytest.mark.usefixtures("manager")
@@ -62,7 +62,7 @@ def test_manager_can_choose_pickup_segment(client):
 @pytest.mark.parametrize("bad", ["https://evil.example/", "//evil.example/x"])
 def test_unsafe_next_is_ignored(client, bad):
     response = login(client, "keeper", bad)
-    assert response["Location"] == "/panel/pickup/"
+    assert response["Location"] == "/panel/warehouse/"
 
 
 def test_login_page_renders_segment_switch_and_back_link(client):

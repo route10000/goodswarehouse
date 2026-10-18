@@ -19,7 +19,7 @@ class StaffLoginView(auth_views.LoginView):
 
     def get_default_redirect_url(self):
         if is_warehouse(self.request.user):
-            return reverse("panel:pickup")
+            return reverse("panel:warehouse")
         return resolve_url(settings.LOGIN_REDIRECT_URL)
 
     def get_context_data(self, **kwargs):

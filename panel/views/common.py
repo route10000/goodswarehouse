@@ -4,6 +4,8 @@ import re
 
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.urls import reverse
+from django.utils.http import urlencode
 
 from logistics.phones import InvalidPhone, normalize_phone
 
@@ -53,3 +55,9 @@ def any_of(*conditions: Q | None) -> Q:
         if condition is not None:
             result |= condition
     return result
+
+
+def warehouse_url(tab: str, **params) -> str:
+    """«Склад» page on ``tab`` with extra query params (empty values are left out)."""
+    query = {"tab": tab, **{key: value for key, value in params.items() if value}}
+    return f"{reverse('panel:warehouse')}?{urlencode(query)}"

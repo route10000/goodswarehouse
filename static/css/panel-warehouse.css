@@ -1,0 +1,190 @@
+/* «Склад»: tab bar, order tab header, «На складе» age blocks A–D.
+   Colors, fonts and spacing come only from tokens.css variables. */
+
+/* ---------- Tabs (segment of links, same look as .segment) ---------- */
+.wh-head {
+  margin-bottom: var(--s-4);
+}
+
+.wh-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: 0 0 var(--s-5);
+  padding: var(--s-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.wh-tabs__tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 var(--s-4);
+  border-radius: calc(var(--r-sm) - 2px);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.wh-tabs__tab:hover {
+  color: var(--text);
+}
+
+.wh-tabs__tab[aria-current="page"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.wh-tabs__tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Pickup tab: room between the search and the found client ---------- */
+.wh-tab--pickup .pickup-results {
+  margin-top: var(--s-3);
+}
+
+/* ---------- Order tab: the day header that used to be the page head ---------- */
+.order-head {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  margin-bottom: var(--s-4);
+}
+
+.order-head__heading {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* ---------- Stock tab ---------- */
+.wh-stock__filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+}
+
+.wh-stock__input {
+  width: min(100%, 420px);
+}
+
+.wh-stock__none {
+  margin: 0;
+}
+
+.wh-blocks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-4);
+  align-items: start;
+}
+
+.wh-block {
+  border: 1px solid var(--line);
+  border-top: 6px solid var(--wh-age);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.wh-block--a { --wh-age: var(--age-a); }
+.wh-block--b { --wh-age: var(--age-b); }
+.wh-block--c { --wh-age: var(--age-c); }
+.wh-block--d { --wh-age: var(--age-d); }
+
+.wh-block__head {
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.wh-block__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.wh-block__meta {
+  margin: var(--s-1) 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.wh-block__empty {
+  margin: 0;
+  padding: var(--s-4);
+}
+
+.wh-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wh-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.wh-item:last-child {
+  border-bottom: 0;
+}
+
+.wh-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.wh-item__article {
+  overflow-wrap: anywhere;
+}
+
+.wh-item__client {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.wh-item__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-3);
+  font-size: 13px;
+}
+
+.wh-item__facts .is-overdue .mono,
+.wh-item__facts .is-overdue .caption {
+  color: var(--st-error-ink);
+}
+
+@media (max-width: 899px) {
+  .wh-blocks {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 719px) {
+  .wh-tabs {
+    display: flex;
+  }
+
+  .wh-tabs__tab {
+    flex: 1 1 0;
+    padding: 0 var(--s-2);
+    font-size: 13px;
+  }
+}

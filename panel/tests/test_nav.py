@@ -95,7 +95,7 @@ def test_warehouse_item_links_to_warehouse_and_carries_the_order_badge(mgr):
 
 @pytest.mark.parametrize("url", ["/panel/pickup/", "/panel/order/"])
 def test_warehouse_item_is_active_on_pickup_and_order(mgr, url):
-    page = mgr.get(url).content.decode()
+    page = mgr.get(url, follow=True).content.decode()
     assert 'aria-current="page"' in nav_link(page, "warehouse")
     assert 'aria-current="page"' not in nav_link(page, "ops")
 
@@ -122,7 +122,7 @@ def test_more_menu_is_marked_active_for_its_sections(mgr):
     assert "is-active" not in summary
 
 
-# ---------- analytics stub ----------
+# ---------- analytics page (charts: test_analytics.py) ----------
 
 
 def test_analytics_requires_login():
@@ -132,12 +132,12 @@ def test_analytics_requires_login():
 
 
 @pytest.mark.parametrize("who", ["mgr", "wh"])
-def test_analytics_empty_state(request, who):
+def test_analytics_page_opens(request, who):
     response = request.getfixturevalue(who).get("/panel/analytics/")
     assert response.status_code == 200
     assert "panel/analytics/index.html" in [t.name for t in response.templates]
     page = response.content.decode()
-    assert "Аналитика появится здесь" in page
+    assert "data-analytics" in page
     assert 'aria-current="page"' in nav_link(page, "analytics")
 
 
@@ -150,15 +150,17 @@ def test_warehouse_requires_login():
     assert response["Location"].startswith("/panel/login/?next=")
 
 
-def test_warehouse_redirects_to_pickup(wh):
+def test_warehouse_opens_on_pickup_tab(wh):
     response = wh.get("/panel/warehouse/")
-    assert response.status_code == 302
-    assert response["Location"] == "/panel/pickup/"
+    assert response.status_code == 200
+    assert "panel/pickup/_tab.html" in [t.name for t in response.templates]
 
 
 @pytest.mark.parametrize("url", ["/panel/pickup/", "/panel/order/"])
 def test_old_warehouse_urls_still_work(wh, url):
-    assert wh.get(url).status_code == 200
+    response = wh.get(url, follow=True)
+    assert response.status_code == 200
+    assert response.redirect_chain[-1][0].startswith("/panel/warehouse/?tab=")
 
 
 # ---------- autopilot stub ----------

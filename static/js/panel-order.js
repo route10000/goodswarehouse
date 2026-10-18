@@ -61,3 +61,35 @@ document.addEventListener("submit", (event) => {
   }
   if (submit) submit.dataset.sent = "1";
 });
+
+// «Склад» → «На складе»: filter cargo of all blocks by article, client code or phone.
+function filterStock(root, text) {
+  const q = text.trim().toLowerCase();
+  let digits = q.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("8")) digits = `7${digits.slice(1)}`;
+  let shown = 0;
+  root.querySelectorAll("[data-block]").forEach((block) => {
+    let inBlock = 0;
+    block.querySelectorAll("[data-stock-item]").forEach((item) => {
+      const { article = "", code = "", phone = "" } = item.dataset;
+      const match =
+        !q ||
+        article.includes(q) ||
+        code.includes(q) ||
+        (digits.length >= 3 && phone.includes(digits));
+      item.hidden = !match;
+      if (match) inBlock += 1;
+    });
+    const empty = block.querySelector("[data-block-empty]");
+    if (empty) empty.hidden = inBlock > 0;
+    shown += inBlock;
+  });
+  const none = root.querySelector("[data-stock-none]");
+  if (none) none.hidden = !q || shown > 0;
+}
+
+document.addEventListener("input", (event) => {
+  const input = event.target.closest("[data-stock-filter]");
+  const root = input?.closest("[data-stock]");
+  if (root) filterStock(root, input.value);
+});

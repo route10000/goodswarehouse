@@ -1,0 +1,12 @@
+{# «Склад» → «Выдача»: the search posts to the HTMX endpoint /panel/pickup/, which also sets the address. #}
+<form class="pickup-search" role="search" method="get" action="{% url 'panel:warehouse' %}"
+  hx-get="{% url 'panel:pickup' %}" hx-target="#pickup-results">
+  <input type="hidden" name="tab" value="pickup">
+  <label class="visually-hidden" for="pickup-q">Артикул, телефон или код клиента</label>
+  <input class="pickup-search__input" id="pickup-q" type="search" name="q" value="{{ q }}" placeholder="Артикул, телефон или код клиента" autocomplete="off" enterkeyhint="search" autofocus
+    hx-get="{% url 'panel:pickup' %}" hx-trigger="input changed delay:300ms, search" hx-target="#pickup-results">
+  <button class="btn btn--quiet pickup-search__btn" type="submit">Найти</button>
+</form>
+<div id="pickup-results" class="pickup-results" aria-live="polite">
+  {% include "panel/pickup/_results.html" %}
+</div>

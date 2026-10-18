@@ -50,7 +50,7 @@ def url(day=None, suffix=""):
 
 
 def test_today_without_order_shows_empty_state(mgr, arrived):
-    page = mgr.get("/panel/order/").content.decode()
+    page = mgr.get("/panel/order/", follow=True).content.decode()
     assert "Ордер на сегодня ещё не сформирован" in page
     assert "Сформировать ордер" in page
 
@@ -68,11 +68,11 @@ def test_build_creates_order_and_toasts_added_lines(mgr, arrived):
 
 def test_warehouse_can_build_and_open(wh, arrived):
     assert wh.post(url(suffix="build/")).status_code == 302
-    assert wh.get("/panel/order/").status_code == 200
+    assert wh.get("/panel/order/", follow=True).status_code == 200
 
 
 def test_header_and_columns(mgr, order, petr):
-    page = mgr.get("/panel/order/").content.decode()
+    page = mgr.get("/panel/order/", follow=True).content.decode()
     assert f"Ордер на {today().day}" in page
     assert 'href="tel:+79141234568"' in page
     assert petr.code in page
@@ -88,7 +88,7 @@ def test_bad_date_is_404(mgr):
 def test_date_picker_redirects_to_day(mgr):
     response = mgr.get("/panel/order/?date=2026-10-01")
     assert response.status_code == 302
-    assert response["Location"].endswith("/panel/order/2026-10-01/")
+    assert response["Location"] == "/panel/warehouse/?tab=order&date=2026-10-01"
 
 
 # ---------- counters and filters ----------
@@ -102,16 +102,16 @@ def counters(page):
 def test_counters_and_filters(mgr, order, manager):
     mark_line(line("A1"), L.REACHED, manager)
     mark_line(line("A2"), L.NO_ANSWER, manager)
-    page = mgr.get("/panel/order/").content.decode()
+    page = mgr.get("/panel/order/", follow=True).content.decode()
     block = counters(page)
     for label, n in (("Всего", 3), ("Позвонили", 1), ("Не дозвонились", 1), ("Осталось", 1)):
         assert f'{label} <span class="mono">{n}</span>' in block, label
 
-    page = mgr.get("/panel/order/?status=pending").content.decode()
+    page = mgr.get("/panel/order/?status=pending", follow=True).content.decode()
     assert f'id="line-{line("B1").pk}"' in page
     assert f'id="line-{line("A1").pk}"' not in page
 
-    page = mgr.get("/panel/order/?status=reached").content.decode()
+    page = mgr.get("/panel/order/?status=reached", follow=True).content.decode()
     assert f'id="line-{line("A1").pk}"' in page
     assert f'id="line-{line("B1").pk}"' not in page
 
@@ -119,7 +119,7 @@ def test_counters_and_filters(mgr, order, manager):
 def test_picked_up_row_goes_to_bottom_without_buttons(mgr, order, manager):
     a1 = line("A1")
     services.cargo_pickup(a1.cargo, manager, paid=True)
-    page = mgr.get("/panel/order/").content.decode()
+    page = mgr.get("/panel/order/", follow=True).content.decode()
     row_start = page.index(f'id="line-{a1.pk}"')
     row = page[row_start : page.index("</tr>", row_start)]
     assert "Выдан" in row
@@ -221,7 +221,7 @@ def past(order):
 
 
 def test_past_order_is_read_only(mgr, past):
-    page = mgr.get(url(past)).content.decode()
+    page = mgr.get(url(past), follow=True).content.decode()
     assert "Ордер за прошедший день — только просмотр" in page
     assert "Позвонили</button>" not in page
     assert "Обновить ордер" not in page
@@ -267,7 +267,7 @@ def test_warehouse_cannot_remove_or_add(wh, order):
     assert wh.post(url(suffix=f"line/{b1.pk}/remove/"), **HX).status_code == 403
     assert wh.post(url(suffix="add/"), {"cargo": b1.cargo_id}).status_code == 403
     assert wh.get(url(suffix="candidates/?q=A1")).status_code == 403
-    page = wh.get("/panel/order/").content.decode()
+    page = wh.get("/panel/order/", follow=True).content.decode()
     assert "Убрать" not in page and "Добавить груз" not in page
 
 

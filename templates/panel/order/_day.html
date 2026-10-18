@@ -1,23 +1,18 @@
-{% extends "panel/base.html" %}
-{% load static gw_format %}
-{% block title %}Ордер на {{ day|ru_date }} · GoodsWarehouse{% endblock %}
-{% block head %}{{ block.super }}
-  <link rel="stylesheet" href="{% static 'css/panel-order.css' %}">
-  <script src="{% static 'js/panel-order.js' %}" defer></script>
-{% endblock %}
-{% block content %}
-<div class="page-head order-head">
+{% load gw_format %}
+{# «Склад» → «Ордер на звонок»: one day of the call order (context from order_context). #}
+<div class="order-head">
   <div class="order-head__title">
-    <h1 class="page-title">Ордер на {{ day|ru_date }}</h1>
+    <h2 class="order-head__heading">Ордер на {{ day|ru_date }}</h2>
     <nav class="order-dates" aria-label="Другой день">
-      <a class="btn btn--quiet btn--sm" href="{% url 'panel:order_day' prev_day|date:'Y-m-d' %}" aria-label="Предыдущий день">← <span class="order-dates__label">{{ prev_day|ru_date }}</span></a>
-      <form class="order-dates__pick" method="get" action="{% url 'panel:order' %}">
+      <a class="btn btn--quiet btn--sm" href="{{ prev_url }}" aria-label="Предыдущий день">← <span class="order-dates__label">{{ prev_day|ru_date }}</span></a>
+      <form class="order-dates__pick" method="get" action="{% url 'panel:warehouse' %}">
+        <input type="hidden" name="tab" value="order">
         <label class="visually-hidden" for="order-date">Дата ордера</label>
         <input class="input order-input" id="order-date" type="date" name="date" value="{{ day|date:'Y-m-d' }}" data-autosubmit>
         <noscript><button class="btn btn--quiet btn--sm" type="submit">Открыть</button></noscript>
       </form>
-      <a class="btn btn--quiet btn--sm" href="{% url 'panel:order_day' next_day|date:'Y-m-d' %}" aria-label="Следующий день"><span class="order-dates__label">{{ next_day|ru_date }}</span> →</a>
-      {% if not is_today %}<a class="btn btn--quiet btn--sm" href="{% url 'panel:order' %}">Сегодня</a>{% endif %}
+      <a class="btn btn--quiet btn--sm" href="{{ next_url }}" aria-label="Следующий день"><span class="order-dates__label">{{ next_day|ru_date }}</span> →</a>
+      {% if not is_today %}<a class="btn btn--quiet btn--sm" href="{{ today_url }}">Сегодня</a>{% endif %}
     </nav>
   </div>
   {% if order %}
@@ -91,4 +86,3 @@
   </div>
 </dialog>
 {% endif %}
-{% endblock %}

@@ -24,7 +24,7 @@ def cargo(article):
 
 
 def test_page_has_big_autofocus_search(wh):
-    page = wh.get("/panel/pickup/").content.decode()
+    page = wh.get("/panel/pickup/", follow=True).content.decode()
     assert 'placeholder="Артикул, телефон или код клиента"' in page
     assert "autofocus" in page
     assert 'hx-trigger="input changed delay:300ms' in page
@@ -42,7 +42,7 @@ def test_search_by_article_shows_client_and_ready_cargo(wh, arrived, ivan):
 
 
 def test_search_by_phone_and_code(wh, arrived, ivan, petr):
-    page = wh.get("/panel/pickup/?q=8 914 123-45-68").content.decode()
+    page = wh.get("/panel/pickup/?q=8 914 123-45-68", follow=True).content.decode()
     assert petr.code in page and "B1" in page
     page = wh.get(f"/panel/pickup/?q={ivan.code.lower()}", **HX).content.decode()
     assert "A1" in page and "A2" in page

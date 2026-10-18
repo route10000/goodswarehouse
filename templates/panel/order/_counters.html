@@ -1,4 +1,4 @@
 {# Counter pills that are also the status filter; swapped out of band after each mark. #}
 <nav class="filter-pills order-counters" id="order-counters" aria-label="Фильтр по статусу звонка"{% if oob %} hx-swap-oob="true"{% endif %}>
-  {% for item in filters %}<a class="filter-pill order-counter order-counter--{{ item.value|default:'all' }}" href="{{ order_url }}{% if item.value %}?status={{ item.value }}{% endif %}"{% if item.current %} aria-current="true"{% endif %}>{{ item.label }} <span class="mono">{{ item.count }}</span></a>{% endfor %}
+  {% for item in filters %}<a class="filter-pill order-counter order-counter--{{ item.value|default:'all' }}" href="{{ order_url }}{% if item.value %}&amp;status={{ item.value }}{% endif %}"{% if item.current %} aria-current="true"{% endif %}>{{ item.label }} <span class="mono">{{ item.count }}</span></a>{% endfor %}
 </nav>
