@@ -8,7 +8,9 @@ from django.utils import timezone
 from logistics.models import Cargo, Client, ContactAttempt, DailyOrder, DailyOrderLine, Truck
 from notify.models import Notification
 
-pytestmark = pytest.mark.django_db
+# The command builds today's order, then marks its lines: if local midnight passed in between,
+# the order would already be read-only. Pin the clock so a run at 23:59 cannot fail.
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("pinned_now")]
 
 
 def run(*args):

@@ -20,7 +20,8 @@ from logistics.orders import (
 )
 from notify.models import Notification
 
-pytestmark = pytest.mark.django_db
+# «Today» is taken here and again inside orders.py: pin the clock so midnight cannot split them.
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("pinned_now")]
 
 VLAT = ZoneInfo("Asia/Vladivostok")
 L = DailyOrderLine.CallStatus

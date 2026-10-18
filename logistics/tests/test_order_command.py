@@ -7,7 +7,8 @@ from django.utils import timezone
 
 from logistics.models import Cargo, Client, DailyOrder, Truck
 
-pytestmark = pytest.mark.django_db
+# «Today» is taken here and again by the command: pin the clock so midnight cannot split them.
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("pinned_now")]
 
 
 def run(*args):

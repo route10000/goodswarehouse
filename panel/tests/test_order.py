@@ -9,8 +9,10 @@ from openpyxl import load_workbook
 from logistics import services
 from logistics.models import Cargo, ContactAttempt, DailyOrder, DailyOrderLine
 from logistics.orders import add_line, build_daily_order, mark_line
+from panel.tests.helpers import page_without_csrf
 
-pytestmark = pytest.mark.django_db
+# «Today» is taken here and again by the views: pin the clock so midnight cannot split them.
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("pinned_now")]
 
 L = DailyOrderLine.CallStatus
 HX = {"HTTP_HX_REQUEST": "true"}
@@ -271,7 +273,7 @@ def test_warehouse_cannot_remove_or_add(wh, order):
 
 def test_manager_searches_and_adds_cargo(mgr, arrived, manager):
     order, _ = build_daily_order(today(), manager)
-    page = mgr.get(url(suffix="candidates/?q=A1"), **HX).content.decode()
+    page = page_without_csrf(mgr.get(url(suffix="candidates/?q=A1"), **HX))
     assert "A1" in page and "B1" not in page  # B1 is already in the order
     page = mgr.get(url(suffix="candidates/?q=4567"), **HX).content.decode()
     assert "A1" in page and "A2" in page  # by phone of Иван

@@ -10,7 +10,7 @@
 - `pyproject.toml` — ruff config (line 100, E/F/I/UP/B/DJ) and pytest config (`-p tests.env`, testpaths)
 - `.env.example` — all env keys from SPEC §11
 - `manage.py` — Django entry point
-- `conftest.py` — pytest fixtures: plain static storage in tests (no collectstatic manifest)
+- `conftest.py` — pytest fixtures: plain static storage in tests (no collectstatic manifest); `pinned_now` (stops `timezone.now()` for tests that compare «today» with the code's)
 - `config/` — Django project: `settings.py` (env via os.environ, domain constants), `urls.py` (admin, `/panel/`, public at root), `wsgi.py`, `asgi.py`
 - `logistics/` — app: domain models and services
 - `logistics/models.py` — Counter (race-safe code sequences), Client (`GW-NNNN`, E.164 phone, Telegram link token), Truck (`R-YYYY-NNN`, `capacity_places` default 60, `closed_at`), Cargo, DailyOrder, DailyOrderLine, ContactAttempt; status TextChoices
@@ -69,7 +69,7 @@
 - `panel/views/` — ops, search, trucks (card, status actions, HTMX add cargo), cargo, clients, imports, lookup
 - `panel/views/auth.py` — `StaffLoginView`: Django LoginView (safe `next`), without `next` «Склад» → `/panel/pickup/`, others → `/panel/`
 - `panel/templatetags/panel_tags.py` — status pill classes, `phone`, `query`, `is_manager`
-- `panel/tests/` — panel view tests; `test_login.py` (group redirect, unsafe `next`, segment switch)
+- `panel/tests/` — panel view tests; `test_login.py` (group redirect, unsafe `next`, segment switch); `helpers.py` (`page_without_csrf` for `not in` checks)
 - `templates/panel/{trucks,cargo,clients}/`, `search.html`, `403.html`, `includes/*` — panel screens
 - `static/css/panel.css` — panel screen styles
 - `panel/views/order.py` — Ордер на день: page, filters, HTMX marks (row + OOB counters/badge/toast), add/remove, print, xlsx

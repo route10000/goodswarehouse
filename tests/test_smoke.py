@@ -1,12 +1,19 @@
 import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 
 def test_time_zone_is_vladivostok():
     assert settings.TIME_ZONE == "Asia/Vladivostok"
     assert settings.USE_TZ is True
     assert settings.LANGUAGE_CODE == "ru-ru"
+
+
+def test_pinned_now_stops_the_clock_for_local_dates_too(pinned_now):
+    assert timezone.now() == pinned_now
+    assert timezone.now() == pinned_now
+    assert timezone.localdate() == timezone.localdate(pinned_now)
 
 
 @pytest.mark.django_db

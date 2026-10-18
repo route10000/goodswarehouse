@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from logistics import services
 from logistics.models import Cargo, Truck
+from panel.tests.helpers import page_without_csrf
 
 pytestmark = pytest.mark.django_db
 
@@ -30,7 +31,7 @@ def test_page_has_big_autofocus_search(wh):
 
 
 def test_search_by_article_shows_client_and_ready_cargo(wh, arrived, ivan):
-    page = wh.get("/panel/pickup/?q=a1", **HX).content.decode()
+    page = page_without_csrf(wh.get("/panel/pickup/?q=a1", **HX))
     assert ivan.name in page and ivan.code in page
     # All of the client's ready cargo, checked by default.
     assert f'value="{cargo("A1").pk}" checked' in page

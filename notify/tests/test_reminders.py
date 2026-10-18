@@ -174,6 +174,7 @@ def test_storage_ending_replaces_reminder_that_day(truck, ivan):
     assert kinds() == [ENDING]
 
 
+@pytest.mark.usefixtures("pinned_now")  # so midnight cannot pass between the two «today»s
 def test_default_today_is_local_date(truck, ivan):
     from django.utils import timezone
 
