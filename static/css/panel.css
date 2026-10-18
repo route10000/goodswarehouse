@@ -160,13 +160,13 @@
 }
 
 .filter-pill[aria-current="true"] {
-  background: var(--green-700);
-  border-color: var(--green-700);
-  color: var(--white);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
 }
 
 .filter-pill[aria-current="true"] .mono {
-  color: var(--white);
+  color: var(--accent-fg);
 }
 
 /* ---------- Toolbar (search + selects above lists) ---------- */
@@ -248,7 +248,7 @@
 
 @keyframes row-fresh {
   from {
-    background: var(--green-900);
+    background: color-mix(in srgb, var(--ivory) 12%, transparent);
   }
   to {
     background: transparent;
@@ -279,7 +279,7 @@
 }
 
 .channel--tg {
-  color: var(--green-400);
+  color: var(--d-text);
 }
 
 .channel--call {
@@ -313,11 +313,11 @@
 }
 
 .stepper__step.is-done {
-  border-top-color: var(--green-700);
+  border-top-color: var(--ivory-3);
 }
 
 .stepper__step.is-current {
-  border-top-color: var(--green-400);
+  border-top-color: var(--ivory);
 }
 
 .stepper__dot {
@@ -344,7 +344,7 @@
 }
 
 .stepper__step.is-done .stepper__dot {
-  color: var(--green-700);
+  color: var(--ivory-3);
 }
 
 .stepper__step.is-done .stepper__label {
@@ -353,7 +353,7 @@
 
 .stepper__step.is-current .stepper__dot,
 .stepper__step.is-current .stepper__label {
-  color: var(--green-400);
+  color: var(--ivory);
 }
 
 /* ---------- Action bar + confirm dialog ---------- */
@@ -368,7 +368,7 @@
   gap: var(--s-4);
   padding: var(--s-4) var(--s-5);
   background: var(--d-panel);
-  border: 1px solid var(--green-700);
+  border: 1px solid var(--ivory-3);
   border-radius: var(--r-md);
 }
 
@@ -493,8 +493,8 @@
 }
 
 .form-ok {
-  background: var(--green-900);
-  color: var(--green-400);
+  background: var(--d-panel-2);
+  color: var(--d-text);
 }
 
 .form-error--pad {
@@ -512,7 +512,7 @@
 .check input {
   width: 18px;
   height: 18px;
-  accent-color: var(--green-700);
+  accent-color: var(--accent);
 }
 
 .lookup-slot {
@@ -531,15 +531,15 @@
 }
 
 .lookup--found {
-  background: var(--green-900);
-  color: var(--green-400);
+  background: var(--d-panel-2);
+  color: var(--d-text);
 }
 
 .lookup__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--green-400);
+  background: var(--ivory);
 }
 
 .htmx-indicator {

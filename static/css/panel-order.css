@@ -156,12 +156,12 @@
 }
 
 .btn--call {
-  background: var(--green-700);
-  color: var(--white);
+  background: color-mix(in srgb, var(--st-ready) 18%, transparent);
+  color: var(--st-ready);
 }
 
 .btn--call:hover {
-  background: var(--green-600);
+  background: color-mix(in srgb, var(--st-ready) 28%, transparent);
 }
 
 .btn--miss {
@@ -425,7 +425,7 @@
 
 .pickup-search__input:focus {
   outline: none;
-  border-color: var(--green-400);
+  border-color: var(--accent);
 }
 
 .pickup-search__btn {
@@ -497,7 +497,7 @@
 }
 
 .pickup-card:has(.pickup-card__check:checked) {
-  border-color: var(--green-700);
+  border-color: var(--ivory);
 }
 
 .pickup-card.is-off {
@@ -514,7 +514,7 @@
   width: 22px;
   height: 22px;
   margin: 2px 0 0;
-  accent-color: var(--green-700);
+  accent-color: var(--accent);
 }
 
 .pickup-card__body {
@@ -622,7 +622,7 @@
 }
 
 .pickup-clients__item:hover {
-  border-color: var(--green-700);
+  border-color: var(--ivory);
 }
 
 @media (max-width: 899px) {
@@ -671,8 +671,8 @@
 .print-page {
   margin: 0;
   padding: var(--s-5);
-  background: var(--white);
-  color: var(--black);
+  background: var(--l-bg);
+  color: var(--l-text);
   font-family: var(--font);
   font-size: 12px;
   font-weight: 500;
@@ -716,7 +716,7 @@
   padding: 0 var(--s-4);
   border: 1.5px solid var(--black);
   border-radius: var(--r-sm);
-  background: var(--white);
+  background: var(--l-bg);
   color: var(--black);
   font: inherit;
   font-size: 14px;
@@ -774,8 +774,16 @@
 }
 
 @media print {
+  /* Paper stays pure black on white. */
   .print-page {
     padding: 0;
+    background: #fff;
+    color: #000;
+  }
+
+  .print-table th,
+  .print-table td {
+    border-color: #000;
   }
 
   .print-btn {

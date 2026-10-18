@@ -9,7 +9,9 @@
   --text: var(--d-text);
   --muted: var(--d-muted);
   --field-bg: var(--d-panel-2);
-  --accent: var(--green-400);
+  --accent: var(--ivory);
+  --accent-fg: var(--black);
+  --accent-hover: var(--ivory-2);
 }
 
 .theme-light {
@@ -20,7 +22,19 @@
   --text: var(--l-text);
   --muted: var(--l-muted);
   --field-bg: var(--l-soft);
-  --accent: var(--green-700);
+  --accent: var(--black);
+  --accent-fg: var(--ivory);
+  --accent-hover: var(--d-panel-2);
+}
+
+/* Black zones inside light pages (public header, hero, page head, footer). */
+.site-header,
+.hero,
+.page-head,
+.site-footer {
+  --accent: var(--ivory);
+  --accent-fg: var(--black);
+  --accent-hover: var(--ivory-2);
 }
 
 /* ---------- Base ---------- */
@@ -85,7 +99,7 @@ svg {
 }
 
 :focus-visible {
-  outline: 2px solid var(--green-400);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -108,7 +122,7 @@ svg {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--green-400);
+  color: var(--ivory-3);
   letter-spacing: 0.08em;
 }
 
@@ -140,12 +154,12 @@ svg {
   font-size: 20px;
   letter-spacing: -0.02em;
   text-decoration: none;
-  color: var(--white);
+  color: var(--ivory);
   white-space: nowrap;
 }
 
 .logo span {
-  color: var(--green-400);
+  color: var(--ivory-3);
 }
 
 /* ---------- Buttons ---------- */
@@ -177,16 +191,16 @@ svg {
 }
 
 .btn--primary {
-  background: var(--green-700);
-  color: var(--white);
+  background: var(--accent);
+  color: var(--accent-fg);
 }
 
 .btn--primary:hover {
-  background: var(--green-600);
+  background: var(--accent-hover);
 }
 
 .btn--light {
-  background: var(--white);
+  background: var(--ivory);
   color: var(--black);
 }
 
@@ -196,7 +210,11 @@ svg {
 
 .btn--dark {
   background: var(--black);
-  color: var(--white);
+  color: var(--ivory);
+}
+
+.btn--dark:hover {
+  background: var(--d-panel-2);
 }
 
 .btn--outline {
@@ -265,7 +283,7 @@ svg {
 }
 
 .theme-light .pill.st-loading {
-  background: color-mix(in srgb, var(--st-loading) 18%, var(--white));
+  background: color-mix(in srgb, var(--st-loading) 18%, var(--l-bg));
   color: var(--black);
 }
 
@@ -280,12 +298,12 @@ svg {
 }
 
 .theme-light .pill.st-done {
-  background: var(--l-soft);
+  background: var(--l-line);
   color: var(--l-muted);
 }
 
 .theme-light .pill.st-error {
-  background: color-mix(in srgb, var(--st-error) 14%, var(--white));
+  background: color-mix(in srgb, var(--st-error) 14%, var(--l-bg));
   color: var(--black);
 }
 
@@ -297,7 +315,7 @@ svg {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--green-400);
+  color: var(--d-text);
   white-space: nowrap;
 }
 
@@ -306,7 +324,7 @@ svg {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--green-400);
+  background: var(--st-ready);
   animation: live-pulse 1.6s ease-in-out infinite;
 }
 
@@ -370,7 +388,7 @@ svg {
 .field textarea:focus,
 .input:focus {
   outline: none;
-  border-color: var(--green-400);
+  border-color: var(--accent);
 }
 
 .field__error {
@@ -425,8 +443,8 @@ svg {
   width: 36px;
   height: 36px;
   border-radius: var(--r-sm);
-  background: var(--green-900);
-  color: var(--green-400);
+  background: var(--d-panel-2);
+  color: var(--ivory);
 }
 
 .kpi__label {
@@ -445,7 +463,7 @@ svg {
   margin-left: var(--s-2);
   font-size: 12px;
   font-weight: 700;
-  color: var(--green-400);
+  color: var(--ivory-3);
 }
 
 .kpi__note {
@@ -594,7 +612,7 @@ dialog {
   top: 0;
   z-index: 20;
   background: var(--black);
-  color: var(--white);
+  color: var(--ivory);
 }
 
 .site-header__inner {
@@ -623,11 +641,11 @@ dialog {
   font-weight: 700;
   font-size: 14px;
   text-decoration: none;
-  color: var(--white);
+  color: var(--ivory);
 }
 
 .site-nav__links a:hover {
-  color: var(--green-400);
+  color: var(--ivory-3);
 }
 
 .burger {
@@ -636,10 +654,10 @@ dialog {
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1.5px solid color-mix(in srgb, var(--white) 30%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--ivory) 30%, transparent);
   border-radius: var(--r-sm);
   background: transparent;
-  color: var(--white);
+  color: var(--ivory);
   cursor: pointer;
   place-items: center;
 }
@@ -660,7 +678,7 @@ dialog {
     gap: var(--s-4);
     padding: var(--s-4);
     background: var(--black);
-    border-top: 1px solid color-mix(in srgb, var(--white) 12%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--ivory) 12%, transparent);
   }
 
   .site-header.is-open .site-nav {
@@ -679,7 +697,7 @@ dialog {
 
 .hero {
   background: var(--black);
-  color: var(--white);
+  color: var(--ivory);
   padding: var(--s-7) 0;
 }
 
@@ -697,11 +715,11 @@ dialog {
 }
 
 .hero .btn--outline {
-  color: var(--white);
+  color: var(--ivory);
 }
 
 .hero .btn--outline:hover {
-  background: color-mix(in srgb, var(--white) 10%, transparent);
+  background: color-mix(in srgb, var(--ivory) 10%, transparent);
 }
 
 .section {
@@ -788,7 +806,7 @@ dialog {
 
 .cmd-search input:focus {
   outline: none;
-  border-color: var(--green-400);
+  border-color: var(--ivory);
 }
 
 .cmd-search kbd {
@@ -859,8 +877,8 @@ dialog {
 }
 
 .sidebar__item[aria-current="page"] {
-  background: var(--green-700);
-  color: var(--white);
+  background: var(--ivory);
+  color: var(--black);
 }
 
 .sidebar__item svg {
@@ -886,7 +904,7 @@ dialog {
   padding: 0 4px;
   border-radius: var(--r-pill);
   background: var(--st-error);
-  color: var(--white);
+  color: var(--black);
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;

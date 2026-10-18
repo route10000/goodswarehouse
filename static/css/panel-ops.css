@@ -71,7 +71,7 @@
 }
 
 .ops__more:hover {
-  color: var(--green-400);
+  color: var(--ivory);
 }
 
 /* ---------- KPI additions ---------- */
@@ -111,7 +111,7 @@
 }
 
 .kpi__note a:hover {
-  color: var(--green-400);
+  color: var(--ivory-3);
 }
 
 .ops-icon {
@@ -342,16 +342,16 @@
 }
 
 .route-map__truck.is-selected .route-map__capsule {
-  stroke: var(--green-400);
+  stroke: var(--ivory);
   stroke-width: 2;
 }
 
 .route-map__truck.is-selected .route-map__stem {
-  stroke: var(--green-400);
+  stroke: var(--ivory);
 }
 
 .route-map__truck.is-selected .route-map__point {
-  fill: var(--green-400);
+  fill: var(--ivory);
 }
 
 .route-map__blocks {
@@ -392,7 +392,7 @@
 .route-map__meter span {
   display: block;
   height: 100%;
-  background: var(--green-400);
+  background: var(--ivory);
 }
 
 .route-map__block--d .route-map__meter span {
@@ -526,7 +526,7 @@
 }
 
 .journey__step.is-done:not(:last-child)::before {
-  border-left-color: var(--green-700);
+  border-left-color: var(--ivory-3);
 }
 
 .journey__dot {
@@ -544,14 +544,14 @@
 }
 
 .journey__step.is-done .journey__dot {
-  border-color: var(--green-700);
-  background: var(--green-700);
-  color: var(--white);
+  border-color: var(--ivory-3);
+  background: var(--ivory-3);
+  color: var(--black);
 }
 
 .journey__step.is-current .journey__dot {
-  border-color: var(--green-700);
-  background: var(--green-400);
+  border-color: var(--ivory);
+  background: var(--ivory);
   color: var(--black);
 }
 
@@ -622,7 +622,7 @@
 
 .tabs__tab[aria-selected="true"] {
   color: var(--d-text);
-  border-bottom-color: var(--green-400);
+  border-bottom-color: var(--ivory);
 }
 
 .tabs__panel {
@@ -668,7 +668,7 @@
 }
 
 .tracker__step.is-done + .tracker__step::before {
-  border-top-color: var(--green-700);
+  border-top-color: var(--ivory-3);
 }
 
 .tracker__dot {
@@ -692,16 +692,16 @@
 }
 
 .tracker__step.is-done .tracker__dot {
-  border-color: var(--green-700);
-  background: var(--green-700);
-  color: var(--white);
+  border-color: var(--ivory-3);
+  background: var(--ivory-3);
+  color: var(--black);
 }
 
 .tracker__step.is-current .tracker__dot {
-  border-color: var(--green-400);
-  background: var(--green-900);
-  color: var(--green-400);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green-400) 20%, transparent);
+  border-color: var(--ivory);
+  background: var(--d-panel-2);
+  color: var(--ivory);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivory) 20%, transparent);
 }
 
 .tracker__label {
@@ -967,7 +967,7 @@
 
 .fleet__row[aria-current="true"] {
   background: var(--d-panel-2);
-  border-left-color: var(--green-400);
+  border-left-color: var(--ivory);
 }
 
 .fleet__id {
@@ -1011,7 +1011,7 @@
 .meter__fill {
   display: block;
   height: 100%;
-  background: var(--green-400);
+  background: var(--ivory);
 }
 
 .meter__fill--loading {

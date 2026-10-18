@@ -1,8 +1,8 @@
 /* Public site pages (/, /schedule/, /track/, /contacts/). Colors only via tokens.css vars. */
 
-/* Light-theme transit pill: black on l-soft (public site). */
+/* Light-theme transit pill: black on ivory-3 (public site; cards are l-soft). */
 .theme-light .pill.st-transit {
-  background: var(--l-soft);
+  background: var(--st-transit);
   color: var(--black);
 }
 
@@ -17,7 +17,10 @@ body > main {
 }
 
 .site-nav__links a[aria-current="page"] {
-  color: var(--green-400);
+  color: var(--ivory);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
 }
 
 /* ---------- Hero ---------- */
@@ -38,13 +41,16 @@ body > main {
 
 /* ---------- Track card and form ---------- */
 .track-card {
-  background: var(--l-bg);
+  background: var(--l-soft);
   color: var(--l-text);
   border-radius: var(--r-md);
   padding: var(--s-5);
   --line: var(--l-line);
-  --field-bg: var(--l-soft);
+  --field-bg: var(--l-bg);
   --text: var(--l-text);
+  --accent: var(--black);
+  --accent-fg: var(--ivory);
+  --accent-hover: var(--d-panel-2);
 }
 
 .track-card--outlined {
@@ -84,7 +90,7 @@ body > main {
   padding: var(--s-3);
   border-left: 3px solid var(--st-error);
   border-radius: var(--r-sm);
-  background: color-mix(in srgb, var(--st-error) 10%, var(--white));
+  background: color-mix(in srgb, var(--st-error) 10%, var(--l-bg));
   color: var(--l-text);
   font-size: 14px;
   font-weight: 600;
@@ -115,7 +121,7 @@ body > main {
 .section__link {
   font-size: 14px;
   font-weight: 700;
-  color: var(--green-700);
+  color: var(--l-text);
   text-decoration: none;
 }
 
@@ -125,7 +131,7 @@ body > main {
 
 .page-head {
   background: var(--black);
-  color: var(--white);
+  color: var(--ivory);
   padding: var(--s-6) 0;
 }
 
@@ -164,13 +170,14 @@ body > main {
   padding: var(--s-5);
   border: 1px solid var(--l-line);
   border-radius: var(--r-md);
+  background: var(--l-soft);
 }
 
 .step__num {
   display: block;
   margin-bottom: var(--s-4);
   font-size: 14px;
-  color: var(--green-700);
+  color: var(--l-text);
 }
 
 .step__title {
@@ -236,7 +243,7 @@ body > main {
   display: block;
   height: 100%;
   border-radius: var(--r-pill);
-  background: var(--green-700);
+  background: var(--black);
 }
 
 /* ---------- Track result ---------- */
@@ -264,6 +271,7 @@ body > main {
   padding: var(--s-4);
   border: 1px solid var(--l-line);
   border-radius: var(--r-md);
+  background: var(--l-soft);
 }
 
 .cargo-card__head {
@@ -305,14 +313,14 @@ body > main {
   margin: var(--s-3) 0 0;
   padding: var(--s-2) var(--s-3);
   border-radius: var(--r-sm);
-  background: var(--green-100);
-  color: var(--green-700);
+  background: var(--ivory-3);
+  color: var(--l-text);
   font-size: 14px;
   font-weight: 700;
 }
 
 .cargo-card__note--muted {
-  background: var(--l-soft);
+  background: var(--l-bg);
   color: var(--l-muted);
 }
 
@@ -328,6 +336,7 @@ body > main {
   padding: var(--s-4) var(--s-5);
   border: 1px solid var(--l-line);
   border-radius: var(--r-md);
+  background: var(--l-soft);
 }
 
 .contact-list dt {
@@ -347,7 +356,7 @@ body > main {
 }
 
 .contact-list dd a:hover {
-  color: var(--green-700);
+  text-decoration: underline;
 }
 
 .contact-actions {
