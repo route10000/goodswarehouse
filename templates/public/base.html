@@ -3,10 +3,11 @@
 {% block body_class %}theme-light{% endblock %}
 {% block head %}<link rel="stylesheet" href="{% static 'css/public.css' %}">{% endblock %}
 {% block body %}
+{% url 'panel:login' as login_url %}{% url 'panel:ops' as panel_url %}{% url 'panel:pickup' as pickup_url %}{% url 'public:home' as home_url %}
 {% with current=request.resolver_match.url_name %}
 <header class="site-header" data-site-header>
   <div class="container site-header__inner">
-    <a class="logo" href="{% url 'public:home' %}">Goods<span>Warehouse</span></a>
+    <a class="logo" href="{{ home_url }}">Goods<span>Warehouse</span></a>
     <button class="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="site-nav" data-burger>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
@@ -16,7 +17,24 @@
         <li><a href="{% url 'public:track' %}"{% if current == 'track' %} aria-current="page"{% endif %}>Где мой груз</a></li>
         <li><a href="{% url 'public:contacts' %}"{% if current == 'contacts' %} aria-current="page"{% endif %}>Контакты</a></li>
       </ul>
-      {% if bot_url %}<a class="btn btn--primary" href="{{ bot_url }}" target="_blank" rel="noopener">Telegram-бот</a>{% endif %}
+      <div class="site-nav__actions">
+        {% if bot_url %}<a class="btn btn--outline" href="{{ bot_url }}" target="_blank" rel="noopener">Telegram-бот</a>{% endif %}
+        {% if user.is_authenticated %}
+        <a class="btn btn--primary" href="{{ panel_url }}">Открыть панель</a>
+        {% else %}
+        <div class="login-menu" data-login-menu>
+          <button class="btn btn--primary login-menu__toggle" type="button" aria-expanded="false" aria-controls="login-menu" data-login-toggle>
+            Войти
+            <svg class="login-menu__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <p class="login-menu__label">Вход для сотрудников</p>
+          <ul class="login-menu__list" id="login-menu" data-login-list>
+            <li><a class="login-menu__item" href="{{ login_url }}?next={{ panel_url }}"><span class="login-menu__title">Панель управления</span><span class="login-menu__hint">машины, грузы, клиенты</span></a></li>
+            <li><a class="login-menu__item" href="{{ login_url }}?next={{ pickup_url }}"><span class="login-menu__title">Склад</span><span class="login-menu__hint">выдача и ордер на звонок</span></a></li>
+          </ul>
+        </div>
+        {% endif %}
+      </div>
     </nav>
   </div>
 </header>
@@ -26,8 +44,24 @@
 </main>
 <footer class="site-footer">
   <div class="container site-footer__inner">
-    <span class="logo">Goods<span>Warehouse</span></span>
-    <span>Уссурийск → Владивосток</span>
+    <div class="site-footer__brand">
+      <a class="logo" href="{{ home_url }}">Goods<span>Warehouse</span></a>
+      <p class="site-footer__route">Уссурийск → Владивосток</p>
+    </div>
+    <dl class="site-footer__contacts">
+      {% if warehouse.address %}<div><dt>Адрес</dt><dd>{% if warehouse.city %}{{ warehouse.city }}, {% endif %}{{ warehouse.address }}</dd></div>{% endif %}
+      {% if warehouse.hours %}<div><dt>Часы работы</dt><dd>{{ warehouse.hours }}</dd></div>{% endif %}
+      {% if warehouse.phone %}<div><dt>Телефон</dt><dd><a class="mono" href="tel:{{ warehouse.phone_href }}">{{ warehouse.phone }}</a></dd></div>{% endif %}
+    </dl>
+    <nav class="site-footer__nav" aria-label="Разделы сайта">
+      <ul>
+        <li><a href="{% url 'public:schedule' %}">Расписание</a></li>
+        <li><a href="{% url 'public:track' %}">Где мой груз</a></li>
+        <li><a href="{% url 'public:contacts' %}">Контакты</a></li>
+        <li><a href="{{ home_url }}#faq">Частые вопросы</a></li>
+        <li><a href="{{ home_url }}#staff">Вход для сотрудников</a></li>
+      </ul>
+    </nav>
   </div>
 </footer>
 {% endblock %}

@@ -68,8 +68,8 @@ def test_home_renders_hero_steps_and_contacts(client):
     response = client.get("/")
     assert response.status_code == 200
     html = response.content.decode()
-    assert "Груз из Китая. Напишем, когда забирать." in html
-    assert "Где мой груз?" in html
+    assert "Груз из Китая — до склада во Владивостоке." in html
+    assert "Где мой груз" in html
     assert "Как это работает" in html
     assert "Грузим в машину до Владивостока" in html
     assert "ул. Складская, 7" in html

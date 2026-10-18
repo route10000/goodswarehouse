@@ -26,7 +26,7 @@ body > main {
 /* ---------- Hero ---------- */
 .hero__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-columns: minmax(0, 1fr) 400px;
   gap: var(--s-7);
   align-items: center;
 }
@@ -111,7 +111,12 @@ body > main {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--s-2) var(--s-4);
-  margin-bottom: var(--s-4);
+  margin-bottom: var(--s-5);
+}
+
+.section > .container > h2,
+.track-split h2 {
+  margin-bottom: var(--s-5);
 }
 
 .section__head h2 {
@@ -160,31 +165,35 @@ body > main {
 .steps {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--s-4);
-  margin: var(--s-5) 0 0;
+  gap: var(--s-5);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .step {
-  padding: var(--s-5);
-  border: 1px solid var(--l-line);
-  border-radius: var(--r-md);
-  background: var(--l-soft);
+  padding-top: var(--s-4);
+  border-top: 2px solid var(--black);
 }
 
 .step__num {
   display: block;
-  margin-bottom: var(--s-4);
+  margin-bottom: var(--s-3);
   font-size: 14px;
   color: var(--l-text);
 }
 
 .step__title {
-  margin: 0;
+  margin: 0 0 var(--s-2);
   font-size: 18px;
   font-weight: 800;
   line-height: 1.25;
+}
+
+.step__text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--l-muted);
 }
 
 /* ---------- Truck list (schedule) ---------- */
@@ -366,6 +375,435 @@ body > main {
   margin-top: var(--s-5);
 }
 
+/* ---------- Route widget «Сейчас на маршруте» ---------- */
+.route-widget {
+  padding: var(--s-5);
+  border: 1px solid var(--d-line);
+  border-radius: var(--r-md);
+  background: var(--d-panel);
+}
+
+.route-widget__title {
+  margin: 0 0 var(--s-5);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.route-widget__ends {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--d-muted);
+}
+
+.route-widget__track {
+  position: relative;
+  height: 28px;
+  margin: var(--s-2) 8px 0;
+}
+
+.route-widget__line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--ivory) 22%, transparent);
+  transform: translateY(-50%);
+}
+
+.route-widget__dot,
+.route-widget__ring {
+  position: absolute;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.route-widget__dot {
+  width: 14px;
+  height: 14px;
+  background: var(--ivory);
+  box-shadow: 0 0 0 3px var(--d-panel);
+}
+
+.route-widget__ring {
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid var(--ivory-3);
+  background: var(--d-panel);
+}
+
+.route-widget__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-3);
+  margin: var(--s-5) 0 0;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--d-line);
+}
+
+.route-widget__stats > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.route-widget__stats dt {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--d-muted);
+}
+
+.route-widget__stats dd {
+  margin: var(--s-1) 0 0;
+  font-size: 24px;
+  line-height: 1.1;
+  color: var(--ivory);
+}
+
+/* ---------- Header actions and «Войти ▾» ---------- */
+.site-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.site-header .btn--outline {
+  color: var(--ivory);
+}
+
+.site-header .btn--outline:hover,
+.staff .btn--outline:hover {
+  background: color-mix(in srgb, var(--ivory) 10%, transparent);
+}
+
+.login-menu {
+  position: relative;
+}
+
+.login-menu__chevron {
+  transition: transform 0.15s;
+}
+
+.login-menu.is-open .login-menu__chevron {
+  transform: rotate(180deg);
+}
+
+.login-menu__label {
+  display: none;
+}
+
+.login-menu__list {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--s-2));
+  right: 0;
+  width: 290px;
+  margin: 0;
+  padding: var(--s-2);
+  list-style: none;
+  border: 1px solid color-mix(in srgb, var(--ivory) 16%, transparent);
+  border-radius: var(--r-md);
+  background: var(--d-panel-2);
+  box-shadow: 0 16px 48px color-mix(in srgb, var(--black) 50%, transparent);
+}
+
+.login-menu.is-open .login-menu__list {
+  display: block;
+}
+
+.login-menu__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-3);
+  border-radius: var(--r-sm);
+  color: var(--ivory);
+  text-decoration: none;
+}
+
+.login-menu__item:hover,
+.login-menu__item:focus-visible {
+  background: var(--d-line);
+}
+
+.login-menu__item:focus-visible {
+  outline-offset: -2px;
+}
+
+.login-menu__title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.login-menu__hint {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--d-muted);
+}
+
+@media (max-width: 899px) {
+  .site-nav {
+    border-bottom: 1px solid var(--d-line);
+  }
+
+  .site-nav__actions {
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--d-line);
+  }
+
+  .login-menu__toggle {
+    display: none;
+  }
+
+  .login-menu__label {
+    display: block;
+    margin: var(--s-1) 0 var(--s-2);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--d-muted);
+  }
+
+  .login-menu__list {
+    display: grid;
+    gap: var(--s-2);
+    position: static;
+    width: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .login-menu__item {
+    border: 1px solid var(--d-line);
+  }
+}
+
+/* ---------- «Где мой груз» section ---------- */
+.track-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: var(--s-7);
+  align-items: center;
+}
+
+.track-split__text p:last-child {
+  margin-bottom: 0;
+}
+
+.lead {
+  max-width: 46ch;
+  font-size: 17px;
+}
+
+.track-card--inline .track-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.track-card--inline .track-form__error,
+.track-card--inline .track-form__submit {
+  grid-column: 1 / -1;
+}
+
+/* ---------- Terms ---------- */
+.terms {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.term {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  border-radius: var(--r-md);
+  background: var(--l-soft);
+}
+
+.term__value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.term__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--l-muted);
+}
+
+/* ---------- FAQ ---------- */
+.faq {
+  max-width: 780px;
+  border-top: 1px solid var(--l-line);
+}
+
+.faq__item {
+  border-bottom: 1px solid var(--l-line);
+}
+
+.faq__item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-4) 0;
+  font-size: 17px;
+  font-weight: 700;
+  list-style: none;
+  cursor: pointer;
+}
+
+.faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq__item summary::after {
+  content: "+";
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--l-line);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 25px;
+  text-align: center;
+  transition: border-color 0.15s;
+}
+
+.faq__item[open] summary::after {
+  content: "−";
+}
+
+.faq__item summary:hover::after {
+  border-color: var(--black);
+}
+
+.faq__item p {
+  max-width: 65ch;
+  margin: 0;
+  padding: 0 0 var(--s-4);
+}
+
+.faq__item a {
+  text-underline-offset: 3px;
+}
+
+.faq__item a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ---------- Staff entry ---------- */
+.staff {
+  --accent: var(--ivory);
+  --accent-fg: var(--black);
+  --accent-hover: var(--ivory-2);
+  padding: var(--s-7) 0;
+  background: var(--black);
+  color: var(--ivory);
+}
+
+.staff h2 {
+  margin-bottom: var(--s-5);
+}
+
+.staff__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.staff-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--s-5);
+  border: 1px solid var(--d-line);
+  border-radius: var(--r-md);
+}
+
+.staff-card__title {
+  margin-bottom: var(--s-1);
+  font-weight: 800;
+}
+
+.staff-card__text {
+  margin-bottom: var(--s-5);
+  color: var(--d-muted);
+}
+
+.staff-card .btn {
+  margin-top: auto;
+}
+
+.staff .btn--outline {
+  color: var(--ivory);
+}
+
+/* ---------- Footer ---------- */
+.site-footer__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--s-6);
+}
+
+.site-footer__route {
+  margin: var(--s-2) 0 0;
+}
+
+.site-footer__contacts {
+  display: grid;
+  gap: var(--s-3);
+  margin: 0;
+}
+
+.site-footer__contacts dt {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.site-footer__contacts dd {
+  margin: 0;
+  color: var(--ivory);
+  font-weight: 600;
+}
+
+.site-footer a {
+  color: var(--ivory);
+  text-decoration: none;
+}
+
+.site-footer a:not(.logo):hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.site-footer__nav ul {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 700;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .steps {
@@ -374,11 +812,19 @@ body > main {
 
   .hero__grid {
     grid-template-columns: minmax(0, 1fr) 340px;
-    gap: var(--s-5);
+    gap: var(--s-6);
   }
 
   .track-layout {
     grid-template-columns: 1fr;
+  }
+
+  .site-footer__inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .site-footer__nav {
+    grid-column: 1 / -1;
   }
 }
 
@@ -393,19 +839,36 @@ body > main {
   }
 
   .steps,
-  .contact-list {
+  .contact-list,
+  .terms,
+  .staff__grid,
+  .site-footer__inner {
     grid-template-columns: 1fr;
   }
 
-  .step {
-    display: flex;
-    align-items: baseline;
-    gap: var(--s-3);
+  .track-split {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+
+  .track-card--inline .track-form {
+    grid-template-columns: 1fr;
+  }
+
+  .term__value {
+    font-size: 26px;
+  }
+
+  .route-widget {
     padding: var(--s-4);
   }
 
-  .step__num {
-    margin: 0;
+  .route-widget__stats dd {
+    font-size: 20px;
+  }
+
+  .staff-card .btn {
+    width: 100%;
   }
 
   .truck-row {

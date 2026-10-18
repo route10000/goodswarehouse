@@ -61,6 +61,7 @@ def _site_context() -> dict:
     city = settings.WAREHOUSE_CITY
     return {
         "bot_url": _bot_url(),
+        "free_storage_days": settings.FREE_STORAGE_DAYS,
         "warehouse": {
             "city": city,
             "address": address,
@@ -129,6 +130,32 @@ def schedule_rows(now: datetime, limit: int | None = None) -> list[TruckRow]:
     return [TruckRow(t, truck_progress(t, now), TRUCK_PILL[t.status]) for t in ordered]
 
 
+@dataclass
+class RouteSummary:
+    """Hero widget «Сейчас на маршруте»: public trucks only, no client data."""
+
+    loading: int
+    in_transit: int
+    nearest_eta: datetime | None
+    dots: list[TruckRow]
+
+
+def route_summary(now: datetime) -> RouteSummary:
+    trucks = list(
+        Truck.objects.filter(
+            is_public=True, status__in=[Truck.Status.LOADING, Truck.Status.IN_TRANSIT]
+        )
+    )
+    moving = sorted((t for t in trucks if t.status == Truck.Status.IN_TRANSIT), key=_sort_key)
+    upcoming = [t.eta for t in moving if t.eta and t.eta >= now]
+    return RouteSummary(
+        loading=sum(t.status == Truck.Status.LOADING for t in trucks),
+        in_transit=len(moving),
+        nearest_eta=min(upcoming, default=None),
+        dots=[TruckRow(t, truck_progress(t, now), TRUCK_PILL[t.status]) for t in moving],
+    )
+
+
 # ---------- track ----------
 
 
@@ -192,8 +219,13 @@ def _first_name(client: Client) -> str:
 
 
 def home(request):
-    rows = schedule_rows(timezone.now(), limit=HOME_TRUCKS)
-    return _render(request, "public/home.html", {"trucks": rows, "form": TrackForm()})
+    now = timezone.now()
+    context = {
+        "trucks": schedule_rows(now, limit=HOME_TRUCKS),
+        "route": route_summary(now),
+        "form": TrackForm(),
+    }
+    return _render(request, "public/home.html", context)
 
 
 def schedule(request):

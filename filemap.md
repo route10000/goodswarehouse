@@ -26,24 +26,26 @@
 - `notify/admin.py` — Notification admin, delivery fields read-only
 - `notify/tests/` — tests: messages, enqueue services
 - `bot/` — app: Telegram bot
-- `public/` — app: public site; `urls.py`, `views.py` (home, schedule, track with cache rate limit, contacts), `forms.py` (`TrackForm`)
+- `public/` — app: public site; `urls.py`, `views.py` (home with `route_summary` for the «Сейчас на маршруте» widget, schedule, track with cache rate limit, contacts), `forms.py` (`TrackForm`)
 - `public/templatetags/gw_format.py` — filters `ru_date`, `ru_datetime`, `rub`, `ru_number` (reuse in panel)
-- `public/tests/` — view tests (home, schedule, track, rate limit, contacts) and format filter tests
+- `public/tests/` — view tests (home, schedule, track, rate limit, contacts), `test_home.py` (header login menu, section order, route widget, FAQ, staff entry) and format filter tests
 - `panel/` — app: staff panel; `urls.py`
 - `tests/` — project-level tests; `test_smoke.py` (home, panel auth, settings)
 - `tests/env.py` — early pytest plugin: sets test SECRET_KEY before settings import
 - `templates/base.html` — root layout: Google Fonts, tokens.css, app.css, htmx, blocks
-- `templates/public/base.html` — public shell: black 64px header, nav, burger, footer
-- `templates/public/home.html`, `schedule.html`, `track.html`, `contacts.html` — public pages
+- `templates/public/base.html` — public shell: sticky black header (nav, «Telegram-бот», «Войти ▾» dropdown / «Открыть панель», burger), footer (contacts, section links, staff entry)
+- `templates/public/home.html` — home v1.1: hero + route widget, «Где мой груз», steps, «Условия», nearest trucks, FAQ, «Вход для сотрудников», contacts
+- `templates/public/schedule.html`, `track.html`, `contacts.html` — public pages
 - `templates/public/includes/` — `track_form.html`, `truck_list.html`, `contacts_list.html`
-- `static/css/public.css` — public page styles (hero, track card, steps, truck list, cargo cards, contacts)
+- `static/css/public.css` — public page styles (hero, route widget, header login menu, track card, steps, terms, FAQ, staff entry, truck list, cargo cards, contacts, footer)
 - `templates/panel/base.html` — panel shell: topbar, command search, live clock, three.js importmap
 - `templates/panel/includes/sidebar.html` — icon sidebar / mobile bottom tab bar
 - `templates/panel/ops.html` — Ops-центр dashboard (`#ops-scene` mount point)
-- `templates/panel/login.html` — panel-styled login form
+- `templates/panel/login.html` — «Вход для сотрудников»: segment «Панель управления / Склад», form, «← На сайт»
 - `static/css/tokens.css` — design tokens (verbatim from DESIGN.md); the only place for hex colors
 - `static/css/app.css` — base styles, themes, components (btn, pill, live, field, panel, kpi, table, toast), public and panel shells
-- `static/js/public.js` — public header burger toggle
+- `static/js/public.js` — public header burger toggle and «Войти ▾» dropdown (Escape / outside click)
+- `static/js/login.js` — login segment switch: sets hidden `next` and the caption
 - `static/js/panel.js` — panel live clock (Vladivostok) and `/` search hotkey
 - `static/vendor/htmx.min.js` — htmx 2.0.3
 - `static/vendor/three/three.module.min.js` — three.js r160 ES module
@@ -65,8 +67,9 @@
 - `panel/permissions.py` — `is_manager`/`is_warehouse`, `manager_required` (403 page)
 - `panel/forms.py` — TruckForm, CargoForm, ClientForm, ManifestUploadForm
 - `panel/views/` — ops, search, trucks (card, status actions, HTMX add cargo), cargo, clients, imports, lookup
+- `panel/views/auth.py` — `StaffLoginView`: Django LoginView (safe `next`), without `next` «Склад» → `/panel/pickup/`, others → `/panel/`
 - `panel/templatetags/panel_tags.py` — status pill classes, `phone`, `query`, `is_manager`
-- `panel/tests/` — panel view tests
+- `panel/tests/` — panel view tests; `test_login.py` (group redirect, unsafe `next`, segment switch)
 - `templates/panel/{trucks,cargo,clients}/`, `search.html`, `403.html`, `includes/*` — panel screens
 - `static/css/panel.css` — panel screen styles
 - `panel/views/order.py` — Ордер на день: page, filters, HTMX marks (row + OOB counters/badge/toast), add/remove, print, xlsx
@@ -83,7 +86,7 @@
 - `static/css/panel-ops.css` — Ops-центр styles (stage, route map, drawer/bottom sheet, tracker, timeline, fleet)
 - `static/js/ops/` — `data.js` (scene polling, `ops:data`), `page.js` (selection, tabs, bottom sheet), `route-map.js` (SVG fallback)
 - `docs/SCENE_API.md` — scene JSON contract and page events for the 3D scene
-- `logistics/management/commands/seed_demo.py` — demo data (`seed_demo [--reset]`), users manager/sklad
+- `logistics/management/commands/seed_demo.py` — demo data (`seed_demo [--reset]`), users manager/sklad; client names with gender-agreeing surnames (`MALE_FIRST_NAMES`, `FEMALE_FIRST_NAMES`, `SURNAMES`)
 - `logistics/tests/test_seed_demo.py` — seed_demo tests
 - `docs/DEPLOY.md` — VPS deployment (PostgreSQL, gunicorn, nginx, systemd units and timers)
-- `README.md` — overview and quick start
+- `README.md` — project description (Russian): problem, features, stack, Windows quick start, tests, docs

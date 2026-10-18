@@ -69,3 +69,28 @@ def test_reset_recreates_data_and_keeps_users():
     assert truck_counts() == {"loading": 2, "in_transit": 2, "arrived": 2, "closed": 1}
     assert User.objects.get(username="manager").pk == manager_pk
     assert DailyOrder.objects.filter(date=timezone.localdate()).count() == 1
+
+
+def test_client_surnames_agree_with_first_name_gender():
+    from logistics.management.commands.seed_demo import (
+        FEMALE_FIRST_NAMES,
+        MALE_FIRST_NAMES,
+        SURNAMES,
+    )
+
+    male_surnames = {male for male, _female in SURNAMES}
+    female_surnames = {female for _male, female in SURNAMES}
+    run()
+    names = list(Client.objects.values_list("name", flat=True))
+    assert names
+    genders = set()
+    for name in names:
+        first, last = name.split(" ", 1)
+        if first in FEMALE_FIRST_NAMES:
+            genders.add("f")
+            assert last in female_surnames, name
+        else:
+            assert first in MALE_FIRST_NAMES, name
+            genders.add("m")
+            assert last in male_surnames, name
+    assert genders == {"f", "m"}

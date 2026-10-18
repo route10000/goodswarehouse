@@ -4,17 +4,12 @@ from django.urls import path
 from .views import cargo, clients, imports, lookup, ops, search, trucks
 from .views import order as order_views
 from .views import pickup as pickup_views
+from .views.auth import StaffLoginView
 
 app_name = "panel"
 
 urlpatterns = [
-    path(
-        "login/",
-        auth_views.LoginView.as_view(
-            template_name="panel/login.html", redirect_authenticated_user=True
-        ),
-        name="login",
-    ),
+    path("login/", StaffLoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("", ops.ops_center, name="ops"),
     path("ops/live/", ops.ops_live, name="ops_live"),

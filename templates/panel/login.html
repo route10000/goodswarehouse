@@ -1,13 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Вход · GoodsWarehouse{% endblock %}
+{% load static %}
+{% block title %}Вход для сотрудников · GoodsWarehouse{% endblock %}
 {% block body_class %}theme-dark{% endblock %}
 {% block body %}
 <main class="auth">
-  <form class="panel auth__card" method="post" action="{% url 'panel:login' %}">
+  <form class="panel auth__card" method="post" action="{% url 'panel:login' %}" data-login-form>
     {% csrf_token %}
-    <span class="logo">Goods<span>Warehouse</span></span>
-    <h1 class="page-title">Вход в панель</h1>
-    {% if form.non_field_errors %}<p class="field__error">Неверный логин или пароль. Проверьте данные и попробуйте снова.</p>{% endif %}
+    <a class="logo auth__logo" href="{% url 'public:home' %}">Goods<span>Warehouse</span></a>
+    <h1 class="auth__title">Вход для сотрудников</h1>
+    <fieldset class="segment">
+      <legend class="visually-hidden">Куда войти</legend>
+      <label class="segment__option">
+        <input type="radio" name="segment" value="panel" data-next="{{ panel_url }}" data-caption="Машины, грузы, клиенты и Ops-центр"{% if segment == "panel" %} checked{% endif %}>
+        <span>Панель управления</span>
+      </label>
+      <label class="segment__option">
+        <input type="radio" name="segment" value="warehouse" data-next="{{ pickup_url }}" data-caption="Выдача грузов и ордер на звонок"{% if segment == "warehouse" %} checked{% endif %}>
+        <span>Склад</span>
+      </label>
+    </fieldset>
+    <p class="auth__caption" data-segment-caption>{% if segment == "warehouse" %}Выдача грузов и ордер на звонок{% else %}Машины, грузы, клиенты и Ops-центр{% endif %}</p>
+    {% if form.non_field_errors %}<p class="field__error auth__error" role="alert">Неверный логин или пароль. Проверьте данные и попробуйте снова.</p>{% endif %}
     <div class="field">
       <label for="{{ form.username.id_for_label }}">Логин</label>
       {{ form.username }}
@@ -16,8 +29,10 @@
       <label for="{{ form.password.id_for_label }}">Пароль</label>
       {{ form.password }}
     </div>
-    <input type="hidden" name="next" value="{{ next }}">
+    <input type="hidden" name="next" value="{{ next }}" data-next-input>
     <button class="btn btn--primary btn--lg" type="submit">Войти</button>
+    <a class="auth__back" href="{% url 'public:home' %}">← На сайт</a>
   </form>
 </main>
 {% endblock %}
+{% block scripts %}<script src="{% static 'js/login.js' %}" defer></script>{% endblock %}
