@@ -13,6 +13,7 @@ from django.utils import timezone
 from logistics.models import Cargo, Client, Truck
 
 from .forms import TrackForm
+from .stats import platform_stats
 
 ARRIVED_VISIBLE_DAYS = 3
 PICKED_UP_VISIBLE_DAYS = 14
@@ -223,6 +224,7 @@ def home(request):
     context = {
         "trucks": schedule_rows(now, limit=HOME_TRUCKS),
         "route": route_summary(now),
+        "stats": platform_stats(now),
         "form": TrackForm(),
     }
     return _render(request, "public/home.html", context)

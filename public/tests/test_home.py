@@ -1,4 +1,4 @@
-"""Home page v1.1 (DESIGN «Публичный сайт»): header login, route widget, FAQ, staff entry."""
+"""Home page (DESIGN «Главная — презентация»): first screen, chapters, stats, old blocks."""
 
 import re
 from datetime import timedelta
@@ -83,12 +83,15 @@ def test_header_bot_button_only_when_configured(client, settings):
 def test_home_sections_in_design_order(client):
     html = client.get("/").content.decode()
     markers = [
-        'class="hero"',
+        'class="hero intro"',
+        'id="client"',
+        'id="warehouse"',
+        'id="manager"',
+        'id="numbers"',
         'id="track"',
-        "Как это работает",
-        "Условия",
-        "Ближайшие машины",
-        "Частые вопросы",
+        'id="schedule"',
+        'id="terms"',
+        'id="faq"',
         'id="staff"',
         'id="contacts"',
         "<footer",
@@ -98,17 +101,75 @@ def test_home_sections_in_design_order(client):
     assert positions == sorted(positions)
 
 
-def test_home_hero_texts(client):
+def test_home_first_screen_texts_and_anchors(client):
     html = client.get("/").content.decode()
-    assert "Груз из Китая — до склада во Владивостоке." in html
-    assert "ДОСТАВКА ГРУЗОВ ИЗ КИТАЯ · УССУРИЙСК → ВЛАДИВОСТОК" in html
-    assert 'href="#track"' in html
-    assert "Сейчас на маршруте" in html
+    intro = html.split('class="hero intro"', 1)[1].split('id="client"', 1)[0]
+    assert "ПЛАТФОРМА GOODSWAREHOUSE" in intro
+    assert "Склад, машины и клиенты — в одном окне." in intro
+    assert 'href="#track"' in intro
+    assert 'href="#staff"' in intro
+    assert "Где мой груз" in intro
+    assert "Вход для сотрудников" in intro
+    assert "<svg" in intro
+    assert "intro__scroll" in intro
+
+
+def chapter(html: str, chapter_id: str, next_id: str) -> str:
+    return html.split(f'id="{chapter_id}"', 1)[1].split(f'id="{next_id}"', 1)[0]
+
+
+@pytest.mark.parametrize(
+    ("chapter_id", "next_id", "label", "tone"),
+    [
+        ("client", "warehouse", "01 / 04 · КЛИЕНТУ", "light"),
+        ("warehouse", "manager", "02 / 04 · СКЛАДУ", "dark"),
+        ("manager", "numbers", "03 / 04 · МЕНЕДЖЕРУ", "light"),
+        ("numbers", "track", "04 / 04 · ЦИФРЫ", "dark"),
+    ],
+)
+def test_chapters_have_label_and_alternate_tone(client, chapter_id, next_id, label, tone):
+    html = client.get("/").content.decode()
+    before, after = html.split(f'id="{chapter_id}"', 1)
+    tag = before.rsplit("<section", 1)[1] + after.split(">", 1)[0]
+    assert f"chapter--{tone}" in tag
+    assert "data-reveal" in tag
+    assert label in chapter(html, chapter_id, next_id)
+
+
+def test_chapter_mocks_show_product(client):
+    html = client.get("/").content.decode()
+    client_ch = chapter(html, "client", "warehouse")
+    assert "Ваш груз выехал из Уссурийска" in client_ch
+    assert "К оплате" in client_ch
+    warehouse_ch = chapter(html, "warehouse", "manager")
+    assert "Позвонили" in warehouse_ch
+    assert "Не дозвонились" in warehouse_ch
+    manager_ch = chapter(html, "manager", "numbers")
+    assert "Сейчас на маршруте" in manager_ch
+
+
+def test_numbers_chapter_renders_stats(client):
+    now = timezone.now()
+    for ago in (timedelta(days=1), timedelta(days=2), timedelta(days=3)):
+        services.truck_depart(services.create_truck(), now=now - ago)
+    html = client.get("/").content.decode()
+    numbers = chapter(html, "numbers", "track")
+    values = re.findall(r'class="stat__value[^"]*">([^<]+)<', numbers)
+    assert values == ["3", "0", "0,0", "0"]
+    for caption in ("рейсов за 30 дней", "мест выдано", "хранения", "Telegram"):
+        assert caption in numbers
+
+
+def test_numbers_chapter_empty_database_shows_zeros(client):
+    html = client.get("/").content.decode()
+    numbers = chapter(html, "numbers", "track")
+    values = re.findall(r'class="stat__value[^"]*">([^<]+)<', numbers)
+    assert values == ["0", "0", "0,0", "0"]
 
 
 def test_conditions_use_free_storage_days(client):
     html = client.get("/").content.decode()
-    conditions = html.split("Условия", 1)[1].split("Ближайшие машины", 1)[0]
+    conditions = html.split('id="terms"', 1)[1].split('id="faq"', 1)[0]
     assert ">9<" in conditions
     assert "дней бесплатного хранения" in conditions
 
@@ -182,7 +243,7 @@ def test_route_widget_renders_dots_rings_and_local_time(client):
     services.create_truck()
     truck = in_transit(timedelta(hours=1), timedelta(hours=3))
     html = client.get("/").content.decode()
-    widget = html.split("Сейчас на маршруте", 1)[1].split('id="track"', 1)[0]
+    widget = html.split("Сейчас на маршруте", 1)[1].split('id="numbers"', 1)[0]
     assert len(re.findall(r'class="route-widget__dot"', widget)) == 1
     assert len(re.findall(r'class="route-widget__ring"', widget)) == 1
     assert "left: 25%" in widget
@@ -194,5 +255,5 @@ def test_route_widget_renders_dots_rings_and_local_time(client):
 
 def test_route_widget_dash_without_arrivals(client):
     html = client.get("/").content.decode()
-    widget = html.split("Сейчас на маршруте", 1)[1].split('id="track"', 1)[0]
+    widget = html.split("Сейчас на маршруте", 1)[1].split('id="numbers"', 1)[0]
     assert "—" in widget

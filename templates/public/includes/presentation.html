@@ -1,0 +1,172 @@
+{% load gw_format %}
+{# Home presentation (DESIGN «Главная — презентация»): first screen and four chapters. Mocks are decorative HTML, aria-hidden. #}
+<section class="hero intro" aria-labelledby="intro-title">
+  <div class="container intro__inner">
+    <p class="overline intro__overline">ПЛАТФОРМА GOODSWAREHOUSE</p>
+    <h1 class="intro__title" id="intro-title">Склад, машины и клиенты — в одном окне.</h1>
+    <p class="intro__sub">Принимаем груз в Уссурийске, везём своими машинами во Владивосток и сами сообщаем клиенту, когда можно забирать.</p>
+    <div class="intro-route" aria-hidden="true">
+      <div class="intro-route__ends"><span>Уссурийск</span><span class="mono">≈ 110 км</span><span>Владивосток</span></div>
+      <div class="intro-route__track">
+        <svg class="intro-route__svg" viewBox="0 0 1000 8" preserveAspectRatio="none" focusable="false">
+          <line class="intro-route__base" x1="0" y1="4" x2="1000" y2="4" vector-effect="non-scaling-stroke"/>
+          <line class="intro-route__fill" x1="0" y1="4" x2="700" y2="4" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <span class="intro-route__stop intro-route__stop--start"></span>
+        <span class="intro-route__stop intro-route__stop--end"></span>
+        <span class="intro-route__mover"><span class="intro-route__truck"><span class="intro-route__tag mono">R-2026-041 · в пути</span></span></span>
+      </div>
+    </div>
+    <div class="hero__actions intro__actions">
+      <a class="btn btn--primary btn--lg" href="#track">Где мой груз</a>
+      <a class="btn btn--outline btn--lg" href="#staff">Вход для сотрудников</a>
+    </div>
+  </div>
+  <a class="intro__scroll" href="#client"><span class="intro__scroll-line" aria-hidden="true"></span>Листайте</a>
+</section>
+
+<section class="chapter chapter--light" id="client" data-reveal aria-labelledby="ch-client-title">
+  <div class="container chapter__inner">
+    <div class="chapter__text">
+      <p class="chapter__num mono">01 / 04 · КЛИЕНТУ</p>
+      <h2 class="chapter__title" id="ch-client-title">Клиент всё узнаёт сам — без звонков.</h2>
+      <ul class="chapter__points">
+        <li><strong>Уведомления в Telegram</strong><span>Бот пишет, когда машина выехала и когда груз можно забирать.</span></li>
+        <li><strong>Поиск по коду</strong><span>Код клиента и 4 цифры телефона — и видно, где груз.</span></li>
+        <li><strong>Расписание машин</strong><span>Когда грузимся, когда выезжаем и когда приедем.</span></li>
+      </ul>
+    </div>
+    <div class="chapter__mock" aria-hidden="true">
+      <div class="phone">
+        <div class="phone__bar"><span class="mono">15:42</span><span class="phone__notch"></span><span class="mono">5G</span></div>
+        <div class="phone__head">
+          <span class="phone__avatar">GW</span>
+          <span class="phone__who"><strong>GoodsWarehouse</strong><span>бот</span></span>
+        </div>
+        <div class="phone__chat">
+          <p class="phone__day mono">сегодня</p>
+          <div class="msg">
+            <p><b>🚚 Ваш груз выехал из Уссурийска</b></p>
+            <p>Рейс <span class="mono">R-2026-041</span> → Владивосток<br>Ожидаем на складе: сегодня около <span class="mono">15:40</span></p>
+            <p>• Арт. <span class="mono">88123</span> — одежда, 3 места</p>
+            <span class="msg__time mono">11:05</span>
+          </div>
+          <div class="msg">
+            <p><b>📦 Груз на складе, можно забирать</b></p>
+            <p>• Арт. <span class="mono">88123</span> — 3 места, 12,4 кг<br>К оплате: <b class="mono">8&nbsp;400 ₽</b></p>
+            <p>Бесплатное хранение до 26 октября.</p>
+            <span class="msg__time mono">15:41</span>
+          </div>
+          <div class="msg__keys"><span>Мои грузы</span><span>Расписание</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter chapter--dark" id="warehouse" data-reveal aria-labelledby="ch-warehouse-title">
+  <div class="container chapter__inner">
+    <div class="chapter__text">
+      <p class="chapter__num mono">02 / 04 · СКЛАДУ</p>
+      <h2 class="chapter__title" id="ch-warehouse-title">Обзвон на день собирается сам.</h2>
+      <ul class="chapter__points">
+        <li><strong>Ордер строится сам</strong><span>Каждое утро — все, кому пора напомнить о грузе.</span></li>
+        <li><strong>Отметка в один клик</strong><span>«Позвонили» или «Не дозвонились» — и строка уходит из списка.</span></li>
+        <li><strong>Печать и Excel</strong><span>Ордер на A4 или файлом — как удобнее складу.</span></li>
+      </ul>
+    </div>
+    <div class="chapter__mock" aria-hidden="true">
+      <div class="mock-window">
+        <div class="mock-window__bar"><span class="mock-window__dots"><i></i><i></i><i></i></span><span>Ордер на звонок</span><span class="mono">19.10</span></div>
+        <div class="mock-order">
+          <div class="mock-order__counts">
+            <span><b class="mono">3</b> осталось</span>
+            <span><b class="mono">2</b> позвонили</span>
+            <span><b class="mono">1</b> не дозвонились</span>
+          </div>
+          <ul class="mock-order__rows">
+            <li class="mock-order__row">
+              <span class="mock-order__who"><b class="mono">88123</b><span>Анна К. · <span class="mono">3 места · 5 дн.</span></span></span>
+              <span class="mock-order__acts"><span class="mock-pill mock-pill--ok">Позвонили</span><span class="mock-pill mock-pill--fail">Не дозвонились</span></span>
+            </li>
+            <li class="mock-order__row">
+              <span class="mock-order__who"><b class="mono">77410</b><span>Игорь П. · <span class="mono">1 место · 4 дн.</span></span></span>
+              <span class="mock-order__acts"><span class="mock-pill mock-pill--ok">Позвонили</span><span class="mock-pill mock-pill--fail">Не дозвонились</span></span>
+            </li>
+            <li class="mock-order__row is-done">
+              <span class="mock-order__who"><b class="mono">90215</b><span>Ольга С. · <span class="mono">6 мест · 7 дн.</span></span></span>
+              <span class="mock-order__acts"><span class="mock-pill mock-pill--ok is-set">✓ Позвонили</span></span>
+            </li>
+            <li class="mock-order__row is-done">
+              <span class="mock-order__who"><b class="mono">65002</b><span>Павел Д. · <span class="mono">2 места · 3 дн.</span></span></span>
+              <span class="mock-order__acts"><span class="mock-pill mock-pill--fail is-set">Не дозвонились</span></span>
+            </li>
+          </ul>
+          <div class="mock-order__foot"><span class="mock-chip">Печать</span><span class="mock-chip">Excel</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter chapter--light" id="manager" data-reveal aria-labelledby="ch-manager-title">
+  <div class="container chapter__inner">
+    <div class="chapter__text">
+      <p class="chapter__num mono">03 / 04 · МЕНЕДЖЕРУ</p>
+      <h2 class="chapter__title" id="ch-manager-title">Все машины и грузы — на одном экране.</h2>
+      <ul class="chapter__points">
+        <li><strong>Машины и статусы</strong><span>Кто грузится, кто в пути и когда прибудет.</span></li>
+        <li><strong>Импорт из Excel</strong><span>Накладная загружается файлом, без ручного ввода.</span></li>
+        <li><strong>Аналитика</strong><span>Поток мест, загрузка рейсов и обзвон по дням.</span></li>
+      </ul>
+    </div>
+    <div class="chapter__mock">
+      <div class="mock-window mock-window--ops">
+        <div class="mock-window__bar" aria-hidden="true"><span class="mock-window__dots"><i></i><i></i><i></i></span><span>Ops-центр</span><span class="mock-live mono">live</span></div>
+        <div class="mock-ops">
+          <aside class="route-widget route-widget--light" aria-labelledby="route-title">
+            <h3 class="route-widget__title" id="route-title">Сейчас на маршруте</h3>
+            <div class="route-widget__ends" aria-hidden="true"><span>Уссурийск</span><span>Владивосток</span></div>
+            <div class="route-widget__track">
+              <span class="route-widget__line" aria-hidden="true"></span>
+              {% if route.loading %}<span class="route-widget__ring" title="Грузятся: {{ route.loading }}"></span>{% endif %}
+              {% for dot in route.dots %}<span class="route-widget__dot" style="left: {{ dot.percent }}%" title="{{ dot.truck.number }} · {{ dot.percent }}%"></span>{% endfor %}
+            </div>
+            <dl class="route-widget__stats">
+              <div><dt>в пути</dt><dd class="mono">{{ route.in_transit }}</dd></div>
+              <div><dt>грузятся</dt><dd class="mono">{{ route.loading }}</dd></div>
+              <div><dt>ближайшее прибытие</dt><dd class="mono">{% if route.nearest_eta %}{{ route.nearest_eta|date:"H:i" }}{% else %}—{% endif %}</dd></div>
+            </dl>
+          </aside>
+          <div class="mock-chart" aria-hidden="true">
+            <p class="mock-chart__title">Загрузка рейсов, % вместимости</p>
+            <div class="mock-chart__bars">
+              <span style="--h: 62%"></span><span style="--h: 88%"></span><span style="--h: 74%"></span><span style="--h: 95%"></span><span style="--h: 58%"></span><span style="--h: 81%"></span><span style="--h: 92%"></span>
+            </div>
+            <div class="mock-chart__axis mono"><span>пн</span><span>вт</span><span>ср</span><span>чт</span><span>пт</span><span>сб</span><span>вс</span></div>
+          </div>
+          <div class="mock-import" aria-hidden="true"><span class="mock-import__file mono">R-2026-041.xlsx</span><span>38 грузов загружено</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter chapter--dark" id="numbers" data-reveal aria-labelledby="ch-numbers-title">
+  <div class="container chapter__inner">
+    <div class="chapter__text">
+      <p class="chapter__num mono">04 / 04 · ЦИФРЫ</p>
+      <h2 class="chapter__title" id="ch-numbers-title">Работает каждый день.</h2>
+      <ul class="chapter__points">
+        <li><strong>Живые данные</strong><span>Числа считаются из базы при каждом открытии страницы.</span></li>
+        <li><strong>Последние 30 дней</strong><span>Рейсы, выдача и срок хранения — без личных данных клиентов.</span></li>
+      </ul>
+    </div>
+    <dl class="stats">
+      <div class="stat"><dt class="stat__label">рейсов за 30 дней</dt><dd class="stat__value">{{ stats.trips_30d|ru_number }}</dd></div>
+      <div class="stat"><dt class="stat__label">мест выдано за 30 дней</dt><dd class="stat__value">{{ stats.places_picked_30d|ru_number }}</dd></div>
+      <div class="stat"><dt class="stat__label">дней — средний срок хранения</dt><dd class="stat__value">{{ stats.avg_storage_days|floatformat:1 }}</dd></div>
+      <div class="stat"><dt class="stat__label">клиентов с Telegram</dt><dd class="stat__value">{{ stats.telegram_clients|ru_number }}</dd></div>
+    </dl>
+  </div>
+</section>

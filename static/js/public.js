@@ -1,5 +1,26 @@
+// Home chapters: reveal on scroll. Content stays visible without JS or under reduced motion.
+const setupReveal = () => {
+  const sections = document.querySelectorAll("[data-reveal]");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!sections.length || reduced || !("IntersectionObserver" in window)) return;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    { rootMargin: "0px 0px -10% 0px", threshold: 0.15 },
+  );
+  document.documentElement.classList.add("js-reveal");
+  sections.forEach((section) => observer.observe(section));
+};
+
 // Public header: mobile burger toggle and the «Войти ▾» dropdown.
 document.addEventListener("DOMContentLoaded", () => {
+  setupReveal();
+
   const header = document.querySelector("[data-site-header]");
   const burger = document.querySelector("[data-burger]");
   if (header && burger) {

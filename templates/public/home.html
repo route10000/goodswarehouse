@@ -3,33 +3,7 @@
 {% block title %}GoodsWarehouse — груз из Китая во Владивосток{% endblock %}
 {% block content %}
 {% url 'panel:login' as login_url %}{% url 'panel:ops' as panel_url %}{% url 'panel:pickup' as pickup_url %}
-<section class="hero">
-  <div class="container hero__grid">
-    <div class="hero__text">
-      <p class="overline">ДОСТАВКА ГРУЗОВ ИЗ КИТАЯ · УССУРИЙСК → ВЛАДИВОСТОК</p>
-      <h1>Груз из Китая — до склада во Владивостоке.</h1>
-      <p class="hero__sub">Принимаем в Уссурийске, везём своими машинами и сообщаем в Telegram, когда можно забирать.</p>
-      <div class="hero__actions">
-        <a class="btn btn--primary btn--lg" href="#track">Где мой груз</a>
-        <a class="btn btn--outline btn--lg" href="{% url 'public:schedule' %}">Расписание машин</a>
-      </div>
-    </div>
-    <aside class="route-widget" aria-labelledby="route-title">
-      <h2 class="route-widget__title" id="route-title">Сейчас на маршруте</h2>
-      <div class="route-widget__ends" aria-hidden="true"><span>Уссурийск</span><span>Владивосток</span></div>
-      <div class="route-widget__track">
-        <span class="route-widget__line" aria-hidden="true"></span>
-        {% if route.loading %}<span class="route-widget__ring" title="Грузятся: {{ route.loading }}"></span>{% endif %}
-        {% for dot in route.dots %}<span class="route-widget__dot" style="left: {{ dot.percent }}%" title="{{ dot.truck.number }} · {{ dot.percent }}%"></span>{% endfor %}
-      </div>
-      <dl class="route-widget__stats">
-        <div><dt>в пути</dt><dd class="mono">{{ route.in_transit }}</dd></div>
-        <div><dt>грузятся</dt><dd class="mono">{{ route.loading }}</dd></div>
-        <div><dt>ближайшее прибытие</dt><dd class="mono">{% if route.nearest_eta %}{{ route.nearest_eta|date:"H:i" }}{% else %}—{% endif %}</dd></div>
-      </dl>
-    </aside>
-  </div>
-</section>
+{% include "public/includes/presentation.html" %}
 
 <section class="section" id="track" aria-labelledby="track-title">
   <div class="container track-split">
@@ -44,35 +18,17 @@
   </div>
 </section>
 
-<section class="section section--line" aria-labelledby="how-title">
+<section class="section section--line" id="schedule" aria-labelledby="schedule-title">
   <div class="container">
-    <h2 id="how-title">Как это работает</h2>
-    <ol class="steps">
-      <li class="step">
-        <span class="step__num mono">01</span>
-        <h3 class="step__title">Груз приходит на наш склад в Уссурийске</h3>
-        <p class="step__text">Учитываем каждое место по артикулу и вашему телефону.</p>
-      </li>
-      <li class="step">
-        <span class="step__num mono">02</span>
-        <h3 class="step__title">Грузим в машину до Владивостока</h3>
-        <p class="step__text">Везём своими машинами, рейс ≈&nbsp;110&nbsp;км.</p>
-      </li>
-      <li class="step">
-        <span class="step__num mono">03</span>
-        <h3 class="step__title">Бот пишет, когда машина выехала и прибыла</h3>
-        <p class="step__text">В сообщении — время прибытия и сумма к оплате.</p>
-      </li>
-      <li class="step">
-        <span class="step__num mono">04</span>
-        <h3 class="step__title">Забираете на складе во Владивостоке</h3>
-        <p class="step__text">Бесплатно храним {{ free_storage_days }} {{ free_storage_days|ru_plural:"день,дня,дней" }}.</p>
-      </li>
-    </ol>
+    <div class="section__head">
+      <h2 id="schedule-title">Ближайшие машины</h2>
+      <a class="section__link" href="{% url 'public:schedule' %}">Всё расписание →</a>
+    </div>
+    {% include "public/includes/truck_list.html" %}
   </div>
 </section>
 
-<section class="section section--line" aria-labelledby="terms-title">
+<section class="section section--line" id="terms" aria-labelledby="terms-title">
   <div class="container">
     <h2 id="terms-title">Условия</h2>
     <ul class="terms">
@@ -89,16 +45,6 @@
         <span class="term__label">уведомление придёт в Telegram</span>
       </li>
     </ul>
-  </div>
-</section>
-
-<section class="section section--line" id="schedule" aria-labelledby="schedule-title">
-  <div class="container">
-    <div class="section__head">
-      <h2 id="schedule-title">Ближайшие машины</h2>
-      <a class="section__link" href="{% url 'public:schedule' %}">Всё расписание →</a>
-    </div>
-    {% include "public/includes/truck_list.html" %}
   </div>
 </section>
 

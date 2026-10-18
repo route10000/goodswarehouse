@@ -64,14 +64,14 @@ def make_arrived(arrived_ago, **kwargs):
 # ---------- home ----------
 
 
-def test_home_renders_hero_steps_and_contacts(client):
+def test_home_renders_hero_chapters_and_contacts(client):
     response = client.get("/")
     assert response.status_code == 200
     html = response.content.decode()
-    assert "Груз из Китая — до склада во Владивостоке." in html
+    assert "Склад, машины и клиенты — в одном окне." in html
     assert "Где мой груз" in html
-    assert "Как это работает" in html
-    assert "Грузим в машину до Владивостока" in html
+    assert "01 / 04 · КЛИЕНТУ" in html
+    assert "Как это работает" not in html  # replaced by the four chapters
     assert "ул. Складская, 7" in html
     assert "https://t.me/gw_test_bot" in html
     assert 'action="/track/"' in html
