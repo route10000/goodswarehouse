@@ -1,12 +1,83 @@
 {% extends "panel/base.html" %}
+{% load static %}
 {% block title %}Аналитика · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-analytics.css' %}">
+{% endblock %}
 {% block content %}
-<div class="page-head">
-  <h1 class="page-title">Аналитика</h1>
+<div class="analytics" data-analytics>
+  <div class="page-head analytics__head">
+    <div>
+      <h1 class="page-title">Аналитика</h1>
+      <p class="page-meta">{{ analytics.period.range }}</p>
+    </div>
+    <nav class="period" aria-label="Период">
+      {% for option in analytics.period.options %}
+        <a class="period__option" href="?period={{ option.days }}"{% if option.days == analytics.period.days %} aria-current="page"{% endif %}>{{ option.label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+
+  <section class="kpi-row analytics__kpis" aria-label="Показатели за период">
+    {% for kpi in analytics.kpis %}
+      <article class="kpi kpi--plain" data-kpi="{{ kpi.key }}">
+        <span class="kpi__label">{{ kpi.label }}</span>
+        <span class="kpi__line"><span class="kpi__value">{{ kpi.display }}</span>{% if kpi.value is not None %}<span class="kpi__unit">{{ kpi.unit }}</span>{% endif %}</span>
+        <span class="kpi__note">{% if kpi.delta is not None %}<span class="kpi__delta">{{ kpi.delta_display }}</span> {{ kpi.compare }}{% else %}{{ kpi.delta_display }}{% endif %}</span>
+      </article>
+    {% endfor %}
+  </section>
+
+  <div class="chart-grid">
+    {% for chart in analytics.charts %}
+      <section class="panel chart-card" aria-labelledby="chart-{{ chart.id }}-title" data-chart-card="{{ chart.id }}">
+        <div class="chart-card__head">
+          <h2 class="panel__title" id="chart-{{ chart.id }}-title">{{ chart.title }}</h2>
+          {% if chart.id == "stock" %}<span class="chart-card__caption">сейчас</span>{% endif %}
+        </div>
+        {% if chart.empty %}
+          <p class="chart-card__empty">Нет данных за период</p>
+        {% else %}
+          {% if chart.series|length > 1 %}
+            <ul class="chart-legend">
+              {% for series in chart.series %}
+                <li><span class="chart-legend__swatch chart-legend__swatch--{{ series.color }}" aria-hidden="true"></span>{{ series.label }}</li>
+              {% endfor %}
+            </ul>
+          {% elif chart.id == "fill" %}
+            <ul class="chart-legend">
+              <li><span class="chart-legend__swatch chart-legend__swatch--black" aria-hidden="true"></span>Рейс</li>
+              {% if True in chart.low %}<li><span class="chart-legend__swatch chart-legend__swatch--age-a" aria-hidden="true"></span>Ниже {{ chart.threshold }} %</li>{% endif %}
+              <li><span class="chart-legend__rule" aria-hidden="true"></span>100 %</li>
+            </ul>
+          {% endif %}
+          <div class="chart-card__plot chart-card__plot--{{ chart.type }}" role="img" aria-label="{{ chart.title }}. Данные — в таблице под графиком.">
+            <canvas data-chart="{{ chart.id }}"></canvas>
+          </div>
+          <details class="chart-card__table" data-chart-table>
+            <summary>Показать таблицей</summary>
+            <div class="table-scroll">
+              <table class="chart-table">
+                <caption class="visually-hidden">{{ chart.title }}</caption>
+                <thead>
+                  <tr>{% for column in chart.table.columns %}<th scope="col"{% if column.num %} class="num"{% endif %}>{{ column.label }}</th>{% endfor %}</tr>
+                </thead>
+                <tbody>
+                  {% for row in chart.table.rows %}
+                    <tr>{% for cell in row %}<td{% if forloop.counter0 in chart.table.num %} class="num"{% endif %}>{{ cell }}</td>{% endfor %}</tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        {% endif %}
+      </section>
+    {% endfor %}
+  </div>
 </div>
-{# Stub: period filter, KPI tiles and charts (DESIGN «Графики») replace this block. #}
-<section class="panel empty-state">
-  <p class="strong">Аналитика появится здесь</p>
-  <p class="muted">Графики потока мест, обзвона и загрузки рейсов.</p>
-</section>
+{{ chart_json|json_script:"analytics-data" }}
+{% endblock %}
+{% block scripts %}{{ block.super }}
+<script src="{% static 'vendor/chart.umd.min.js' %}" defer></script>
+<script src="{% static 'js/analytics.js' %}" defer></script>
 {% endblock %}

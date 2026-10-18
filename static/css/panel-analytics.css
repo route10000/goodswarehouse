@@ -1,0 +1,288 @@
+/* «Аналитика» (DESIGN v1.0-final «Графики»). Light panel only.
+   Colors, fonts and spacing come from tokens.css variables; chart colours are read by
+   static/js/analytics.js from the same variables. */
+
+.analytics > * + * {
+  margin-top: var(--s-4);
+}
+
+/* ---------- Head: title, then the period filter in one left-aligned row ---------- */
+.analytics__head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+}
+
+.analytics__head .page-title {
+  margin: 0;
+}
+
+.analytics__head .page-meta {
+  margin-top: var(--s-1);
+}
+
+.period {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--s-1);
+  padding: var(--s-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.period__option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 var(--s-4);
+  border-radius: calc(var(--r-sm) - 2px);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.period__option:hover {
+  color: var(--text);
+}
+
+.period__option[aria-current="page"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.period__option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- KPI tiles (no icon) ---------- */
+.kpi--plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.analytics .kpi__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--s-1);
+}
+
+.analytics .kpi__unit {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.analytics .kpi__note .kpi__delta {
+  margin-left: 0;
+}
+
+/* ---------- Chart grid ---------- */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+  align-items: start;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.chart-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.chart-card__caption {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.chart-card__plot {
+  position: relative;
+  height: 280px;
+  min-width: 0;
+}
+
+.chart-card__empty {
+  display: grid;
+  place-items: center;
+  height: 280px;
+  margin: 0;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ---------- Legend ---------- */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.chart-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.chart-legend__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.chart-legend__swatch--chart-1 {
+  background: var(--chart-1);
+}
+
+.chart-legend__swatch--chart-2 {
+  background: var(--chart-2);
+}
+
+.chart-legend__swatch--black {
+  background: var(--black);
+}
+
+.chart-legend__swatch--age-a {
+  background: var(--age-a);
+}
+
+.chart-legend__rule {
+  width: 16px;
+  border-top: 2px dashed var(--l-muted);
+}
+
+/* ---------- «Показать таблицей» ---------- */
+.chart-card__table summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+}
+
+.chart-card__table summary::-webkit-details-marker {
+  display: none;
+}
+
+.chart-card__table summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+.chart-card__table[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.chart-card__table summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Wide tables scroll inside the card, never the page. */
+.table-scroll {
+  max-height: 360px;
+  margin-top: var(--s-3);
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+
+.chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.chart-table th,
+.chart-table td {
+  height: 36px;
+  padding: 0 var(--s-3);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.chart-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.chart-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.chart-table .num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* ---------- Narrow screens ---------- */
+@media (max-width: 899px) {
+  .chart-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 599px) {
+  .analytics__head {
+    align-items: stretch;
+  }
+
+  .period {
+    display: grid;
+  }
+
+  .period__option {
+    padding: 0 var(--s-2);
+  }
+
+  .chart-card__plot,
+  .chart-card__empty {
+    height: 220px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .period__option,
+  .chart-card__table summary::before {
+    transition: none;
+  }
+}
