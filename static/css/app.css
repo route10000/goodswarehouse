@@ -1,17 +1,28 @@
 /* GoodsWarehouse base styles and components. Colors, fonts, spacing: only tokens.css vars. */
 
 /* ---------- Theme variables ---------- */
-.theme-dark {
-  --bg: var(--d-bg);
-  --surface: var(--d-panel);
-  --surface-2: var(--d-panel-2);
-  --line: var(--d-line);
-  --text: var(--d-text);
-  --muted: var(--d-muted);
-  --field-bg: var(--d-panel-2);
-  --accent: var(--ivory);
-  --accent-fg: var(--black);
-  --accent-hover: var(--ivory-2);
+/* Staff panel: light only (DESIGN v1.0-final «Светлая панель»). The sidebar stays black. */
+.theme-panel {
+  --bg: var(--l-bg);
+  --surface: var(--l-card);
+  --surface-2: var(--l-soft);
+  --line: var(--l-line);
+  --line-strong: color-mix(in srgb, var(--l-muted) 55%, var(--l-line)); /* field edges, road */
+  --text: var(--l-text);
+  --muted: var(--l-muted);
+  --field-bg: var(--l-soft);
+  --accent: var(--black);
+  --accent-fg: var(--ivory);
+  --accent-hover: var(--d-panel-2);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--black) 12%, transparent);
+  /* Status text on light: a dark shade of the same hue (AA on the 18% tint and on l-soft). */
+  --st-loading-ink: color-mix(in srgb, var(--st-loading) 55%, var(--black));
+  --st-transit-ink: color-mix(in srgb, var(--st-transit) 45%, var(--black));
+  --st-ready-ink: color-mix(in srgb, var(--st-ready) 55%, var(--black));
+  --st-done-ink: color-mix(in srgb, var(--st-done) 45%, var(--black));
+  --st-error-ink: color-mix(in srgb, var(--st-error) 60%, var(--black));
+  /* «В пути» is ivory-3, nearly the page colour: dots and bars use a darker shade. */
+  --st-transit-mark: color-mix(in srgb, var(--st-transit) 60%, var(--black));
 }
 
 .theme-light {
@@ -35,6 +46,13 @@
   --accent: var(--ivory);
   --accent-fg: var(--black);
   --accent-hover: var(--ivory-2);
+}
+
+/* In the panel .page-head is a plain light header, not a black zone. */
+.theme-panel .page-head {
+  --accent: var(--black);
+  --accent-fg: var(--ivory);
+  --accent-hover: var(--d-panel-2);
 }
 
 /* ---------- Base ---------- */
@@ -162,6 +180,14 @@ svg {
   color: var(--ivory-3);
 }
 
+.theme-panel .logo {
+  color: var(--l-text);
+}
+
+.theme-panel .logo span {
+  color: var(--l-muted);
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;
@@ -257,29 +283,30 @@ svg {
   color: var(--text);
 }
 
-.theme-dark .pill.st-loading {
-  background: color-mix(in srgb, var(--st-loading) 16%, transparent);
-  color: var(--st-loading);
+/* Panel: 18% tint + dark text of the same hue (contrast >= 4.5:1, see --st-*-ink). */
+.theme-panel .pill.st-loading {
+  background: color-mix(in srgb, var(--st-loading) 18%, var(--l-card));
+  color: var(--st-loading-ink);
 }
 
-.theme-dark .pill.st-transit {
-  background: color-mix(in srgb, var(--st-transit) 16%, transparent);
-  color: var(--st-transit);
+.theme-panel .pill.st-transit {
+  background: color-mix(in srgb, var(--st-transit) 18%, var(--l-card));
+  color: var(--st-transit-ink);
 }
 
-.theme-dark .pill.st-ready {
-  background: color-mix(in srgb, var(--st-ready) 16%, transparent);
-  color: var(--st-ready);
+.theme-panel .pill.st-ready {
+  background: color-mix(in srgb, var(--st-ready) 18%, var(--l-card));
+  color: var(--st-ready-ink);
 }
 
-.theme-dark .pill.st-done {
-  background: color-mix(in srgb, var(--st-done) 16%, transparent);
-  color: var(--st-done);
+.theme-panel .pill.st-done {
+  background: color-mix(in srgb, var(--st-done) 18%, var(--l-card));
+  color: var(--st-done-ink);
 }
 
-.theme-dark .pill.st-error {
-  background: color-mix(in srgb, var(--st-error) 16%, transparent);
-  color: var(--st-error);
+.theme-panel .pill.st-error {
+  background: color-mix(in srgb, var(--st-error) 18%, var(--l-card));
+  color: var(--st-error-ink);
 }
 
 .theme-light .pill.st-loading {
@@ -315,7 +342,7 @@ svg {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-text);
+  color: var(--text);
   white-space: nowrap;
 }
 
@@ -391,16 +418,36 @@ svg {
   border-color: var(--accent);
 }
 
+/* :where() keeps these at base specificity, so error borders (.field--invalid) still win. */
+:where(.theme-panel) .field input,
+:where(.theme-panel) .field select,
+:where(.theme-panel) .field textarea,
+:where(.theme-panel) .input {
+  border-color: var(--line-strong);
+}
+
+:where(.theme-panel) .field input:focus,
+:where(.theme-panel) .field select:focus,
+:where(.theme-panel) .field textarea:focus,
+:where(.theme-panel) .input:focus {
+  border-color: var(--black);
+  box-shadow: var(--focus-ring);
+}
+
 .field__error {
   font-size: 12px;
   font-weight: 600;
   color: var(--st-error);
 }
 
+.theme-panel .field__error {
+  color: var(--st-error-ink);
+}
+
 /* ---------- Panel ---------- */
 .panel {
-  background: var(--d-panel);
-  border: 1px solid var(--d-line);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
   padding: var(--s-4);
 }
@@ -431,8 +478,8 @@ svg {
   grid-template-columns: 36px 1fr;
   gap: var(--s-1) var(--s-3);
   align-items: start;
-  background: var(--d-panel);
-  border: 1px solid var(--d-line);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
   padding: var(--s-4);
 }
@@ -443,14 +490,14 @@ svg {
   width: 36px;
   height: 36px;
   border-radius: var(--r-sm);
-  background: var(--d-panel-2);
-  color: var(--ivory);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .kpi__label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .kpi__value {
@@ -463,13 +510,13 @@ svg {
   margin-left: var(--s-2);
   font-size: 12px;
   font-weight: 700;
-  color: var(--ivory-3);
+  color: var(--muted);
 }
 
 .kpi__note {
   grid-column: 1 / -1;
   font-size: 12px;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 @media (max-width: 900px) {
@@ -572,14 +619,14 @@ svg {
   min-width: 260px;
   max-width: 360px;
   padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-left: 3px solid var(--st-ready);
   border-radius: var(--r-sm);
-  background: var(--d-panel);
-  color: var(--d-text);
+  background: var(--surface);
+  color: var(--text);
   font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 40%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 16%, transparent);
 }
 
 .toast.st-loading {
@@ -603,7 +650,7 @@ dialog {
   border-radius: var(--r-md);
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 16px 48px color-mix(in srgb, var(--black) 50%, transparent);
+  box-shadow: 0 16px 48px color-mix(in srgb, var(--black) 24%, transparent);
 }
 
 /* ---------- Public site shell ---------- */
@@ -765,8 +812,8 @@ dialog {
   gap: var(--s-4);
   height: 56px;
   padding: 0 var(--s-4);
-  background: var(--black);
-  border-bottom: 1px solid var(--d-line);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
 }
 
 .badge {
@@ -774,11 +821,11 @@ dialog {
   align-items: center;
   height: 24px;
   padding: 0 var(--s-2);
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-radius: var(--r-sm);
   font-size: 12px;
   font-weight: 700;
-  color: var(--d-muted);
+  color: var(--muted);
   white-space: nowrap;
 }
 
@@ -792,21 +839,22 @@ dialog {
   width: 100%;
   height: 36px;
   padding: 0 36px 0 var(--s-3);
-  border: 1.5px solid var(--d-line);
+  border: 1.5px solid var(--line-strong);
   border-radius: var(--r-sm);
-  background: var(--d-panel);
-  color: var(--d-text);
+  background: var(--field-bg);
+  color: var(--text);
   font: inherit;
   font-size: 14px;
 }
 
 .cmd-search input::placeholder {
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .cmd-search input:focus {
   outline: none;
-  border-color: var(--ivory);
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
 }
 
 .cmd-search kbd {
@@ -815,11 +863,11 @@ dialog {
   top: 50%;
   transform: translateY(-50%);
   padding: 0 6px;
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .topbar__right {
@@ -848,6 +896,9 @@ dialog {
   height: calc(100vh - 56px);
   background: var(--black);
   border-right: 1px solid var(--d-line);
+  /* Black zone: focus rings and active items are ivory here. */
+  --accent: var(--ivory);
+  --accent-fg: var(--black);
 }
 
 .sidebar__list {
@@ -876,7 +927,64 @@ dialog {
   color: var(--d-text);
 }
 
-.sidebar__item[aria-current="page"] {
+.sidebar__item[aria-current="page"],
+.sidebar__item.is-active {
+  background: var(--ivory);
+  color: var(--black);
+}
+
+/* «Ещё»: only in the mobile bottom bar; holds the sections marked .sidebar__extra. */
+.sidebar__more-slot {
+  display: none;
+  position: relative;
+}
+
+.sidebar__more summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.sidebar__more summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar__more[open] summary:not(.is-active) {
+  background: var(--d-panel-2);
+  color: var(--d-text);
+}
+
+.sidebar__menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--s-2));
+  z-index: 31;
+  min-width: 200px;
+  margin: 0;
+  padding: var(--s-2);
+  list-style: none;
+  background: var(--black);
+  border: 1px solid var(--d-line);
+  border-radius: var(--r-md);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 24%, transparent);
+}
+
+.sidebar__menu-item {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 var(--s-3);
+  border-radius: var(--r-sm);
+  color: var(--d-text);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.sidebar__menu-item:hover {
+  background: var(--d-panel-2);
+}
+
+.sidebar__menu-item[aria-current="page"] {
   background: var(--ivory);
   color: var(--black);
 }
@@ -964,6 +1072,14 @@ dialog {
     padding: 0 var(--s-2);
   }
 
+  .sidebar__extra {
+    display: none;
+  }
+
+  .sidebar__more-slot {
+    display: block;
+  }
+
   .main {
     padding: var(--s-4) var(--s-4) calc(64px + var(--s-4));
   }
@@ -995,9 +1111,9 @@ dialog {
     place-items: center;
     width: 36px;
     height: 36px;
-    border: 1.5px solid var(--d-line);
+    border: 1.5px solid var(--line-strong);
     border-radius: var(--r-sm);
-    color: var(--d-text);
+    color: var(--text);
     cursor: pointer;
   }
 

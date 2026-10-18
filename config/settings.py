@@ -138,6 +138,8 @@ FREE_STORAGE_DAYS = env_int("FREE_STORAGE_DAYS", 7)
 CALL_AFTER_DAYS = env_int("CALL_AFTER_DAYS", 3)
 # Ops-центр: places one warehouse block (A/B/C/D) holds; the fill % is relative to it.
 WAREHOUSE_BLOCK_CAPACITY = env_int("WAREHOUSE_BLOCK_CAPACITY", 400)
+# Автопилот (SPEC §14.8): demo simulator; on by default only in DEBUG, hidden in prod.
+AUTOPILOT_ENABLED = env_bool("AUTOPILOT_ENABLED", default=DEBUG)
 
 # Sender and jobs log to stderr (journald under systemd); dry-run messages show up here.
 LOGGING = {

@@ -42,7 +42,7 @@
 
 .order-input[type="date"] {
   width: 150px;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .order-banner {
@@ -57,11 +57,11 @@
 
 /* Counter pills: the numbers carry the status color. */
 .order-counter--reached .mono {
-  color: var(--st-ready);
+  color: var(--st-ready-ink);
 }
 
 .order-counter--no_answer .mono {
-  color: var(--st-error);
+  color: var(--st-error-ink);
 }
 
 .order-counter--pending .mono {
@@ -157,7 +157,7 @@
 
 .btn--call {
   background: color-mix(in srgb, var(--st-ready) 18%, transparent);
-  color: var(--st-ready);
+  color: var(--st-ready-ink);
 }
 
 .btn--call:hover {
@@ -166,7 +166,7 @@
 
 .btn--miss {
   border-color: currentColor;
-  color: var(--st-error);
+  color: var(--st-error-ink);
 }
 
 .btn--miss:hover {
@@ -497,7 +497,7 @@
 }
 
 .pickup-card:has(.pickup-card__check:checked) {
-  border-color: var(--ivory);
+  border-color: var(--accent);
 }
 
 .pickup-card.is-off {
@@ -561,7 +561,7 @@
 
 .pickup-card__facts .is-overdue .mono,
 .pickup-card__facts .is-overdue .caption {
-  color: var(--st-error);
+  color: var(--st-error-ink);
 }
 
 .pickup-footer {
@@ -573,10 +573,10 @@
   flex-wrap: wrap;
   gap: var(--s-4);
   padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
-  background: var(--d-panel);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 40%, transparent);
+  background: var(--surface);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 16%, transparent);
 }
 
 .pickup-footer__totals {
@@ -622,7 +622,7 @@
 }
 
 .pickup-clients__item:hover {
-  border-color: var(--ivory);
+  border-color: var(--accent);
 }
 
 @media (max-width: 899px) {

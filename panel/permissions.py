@@ -6,6 +6,7 @@ wrapped in ``manager_required``; everyone else gets a panel-styled 403 page.
 
 from functools import wraps
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
@@ -31,6 +32,15 @@ def is_warehouse(user) -> bool:
     if not getattr(user, "is_authenticated", False) or not user.is_active:
         return False
     return WAREHOUSE_GROUP in _group_names(user) and not is_manager(user)
+
+
+def autopilot_enabled() -> bool:
+    return bool(getattr(settings, "AUTOPILOT_ENABLED", False))
+
+
+def can_use_autopilot(user) -> bool:
+    """«Автопилот» is shown and opens only for managers, and only while it is switched on."""
+    return autopilot_enabled() and is_manager(user)
 
 
 def forbidden(request):

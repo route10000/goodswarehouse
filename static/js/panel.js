@@ -1,4 +1,4 @@
-// Panel shell: live clock (Vladivostok), "/" search hotkey, dialogs, copy buttons, toasts.
+// Panel shell: live clock (Vladivostok), "/" search hotkey, dialogs, copy buttons, toasts, «Ещё» menu.
 document.addEventListener("DOMContentLoaded", () => {
   const clock = document.querySelector("[data-live-clock]");
   if (clock) {
@@ -77,4 +77,17 @@ document.addEventListener("DOMContentLoaded", () => {
     toast.addEventListener("click", hide);
     if (!toast.classList.contains("st-error")) setTimeout(hide, 6000 + index * 800);
   });
+});
+
+// Mobile «Ещё» menu (<details data-sidebar-more>): closes on an outside click and on Escape.
+document.addEventListener("click", (event) => {
+  const more = document.querySelector("[data-sidebar-more][open]");
+  if (more && !more.contains(event.target)) more.open = false;
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  const more = document.querySelector("[data-sidebar-more][open]");
+  if (!more) return;
+  more.open = false;
+  more.querySelector("summary")?.focus();
 });

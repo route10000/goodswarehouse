@@ -4,9 +4,14 @@
     {
       "name": "web",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["manage.py", "runserver", "127.0.0.1:8000", "--noreload"],
+      "runtimeArgs": ["manage.py", "runserver", "127.0.0.1:8000"],
       "port": 8000,
-      "env": {"DEBUG": "true"}
+      "env": {
+        "DEBUG": "true",
+        "WAREHOUSE_ADDRESS": "Владивосток, ул. Складская, 7",
+        "WAREHOUSE_HOURS": "Пн–Сб 9:00–18:00",
+        "WAREHOUSE_PHONE": "+7 (423) 200-00-00"
+      }
     }
   ]
 }

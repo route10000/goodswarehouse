@@ -1,9 +1,10 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from .views import cargo, clients, imports, lookup, ops, search, trucks
+from .views import analytics, autopilot, cargo, clients, imports, lookup, ops, search, trucks
 from .views import order as order_views
 from .views import pickup as pickup_views
+from .views import warehouse as warehouse_views
 from .views.auth import StaffLoginView
 
 app_name = "panel"
@@ -16,6 +17,7 @@ urlpatterns = [
     path("ops/truck/<int:pk>/", ops.ops_truck, name="ops_truck"),
     path("api/scene/", ops.scene_api, name="ops_scene"),
     path("search/", search.search, name="search"),
+    path("analytics/", analytics.analytics, name="analytics"),
     # trucks
     path("trucks/", trucks.truck_list, name="trucks"),
     path("trucks/new/", trucks.truck_create, name="truck_new"),
@@ -34,6 +36,8 @@ urlpatterns = [
     path("clients/lookup/", lookup.client_lookup, name="client_lookup"),
     path("clients/<int:pk>/", clients.client_detail, name="client"),
     path("clients/<int:pk>/edit/", clients.client_edit, name="client_edit"),
+    # «Склад»: pickup + daily call order (+ stock by block later)
+    path("warehouse/", warehouse_views.warehouse, name="warehouse"),
     # daily call order (T7)
     path("order/", order_views.order_today, name="order"),
     path("order/<str:day>/", order_views.order_day, name="order_day"),
@@ -50,4 +54,6 @@ urlpatterns = [
     # pickup (T7)
     path("pickup/", pickup_views.pickup, name="pickup"),
     path("pickup/issue/", pickup_views.pickup_issue, name="pickup_issue"),
+    # autopilot (demo simulator)
+    path("autopilot/", autopilot.autopilot, name="autopilot"),
 ]

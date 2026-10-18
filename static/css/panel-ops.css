@@ -18,9 +18,9 @@
 .ops__stage {
   position: relative;
   min-height: 400px;
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
-  background: var(--black);
+  background: var(--surface-2);
   overflow: hidden;
 }
 
@@ -66,12 +66,12 @@
 .ops__more {
   font-size: 12px;
   font-weight: 700;
-  color: var(--d-muted);
+  color: var(--muted);
   text-decoration: none;
 }
 
 .ops__more:hover {
-  color: var(--ivory);
+  color: var(--text);
 }
 
 /* ---------- KPI additions ---------- */
@@ -92,7 +92,7 @@
 .kpi__of {
   font-size: 14px;
   font-weight: 700;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .kpi__of {
@@ -105,13 +105,13 @@
 }
 
 .kpi__note a {
-  color: var(--d-text);
+  color: var(--text);
   font-weight: 700;
   text-decoration: none;
 }
 
 .kpi__note a:hover {
-  color: var(--ivory-3);
+  color: var(--muted);
 }
 
 .ops-icon {
@@ -143,7 +143,7 @@
   left: 17px;
   top: -10px;
   height: 20px;
-  border-left: 2px solid var(--d-line);
+  border-left: 2px solid var(--line);
 }
 
 .pipeline__icon {
@@ -154,28 +154,28 @@
   width: 36px;
   height: 36px;
   border-radius: var(--r-sm);
-  background: var(--d-panel-2);
-  border: 1px solid var(--d-line);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
 }
 
 .pipeline__stage--loading .pipeline__icon {
-  color: var(--st-loading);
+  color: var(--st-loading-ink);
 }
 
 .pipeline__stage--in_transit .pipeline__icon {
-  color: var(--st-transit);
+  color: var(--st-transit-ink);
 }
 
 .pipeline__stage--ready .pipeline__icon {
-  color: var(--st-ready);
+  color: var(--st-ready-ink);
 }
 
 .pipeline__stage--order .pipeline__icon {
-  color: var(--st-error);
+  color: var(--st-error-ink);
 }
 
 .pipeline__stage--picked_up .pipeline__icon {
-  color: var(--st-done);
+  color: var(--st-done-ink);
 }
 
 .pipeline__text {
@@ -193,7 +193,7 @@
 .pipeline__caption {
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .pipeline__value {
@@ -212,7 +212,7 @@
 .pipeline__unit {
   font-size: 11px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 /* ---------- Route map (fallback scene) ---------- */
@@ -233,37 +233,37 @@
 
 .route-map__noscript {
   padding: var(--s-4);
-  color: var(--d-muted);
+  color: var(--muted);
   font-size: 12px;
 }
 
 .route-map__road {
-  stroke: var(--d-line);
+  stroke: var(--line-strong);
   stroke-width: 6;
   stroke-linecap: round;
 }
 
 .route-map__city {
-  fill: var(--d-panel);
-  stroke: var(--d-text);
+  fill: var(--surface);
+  stroke: var(--text);
   stroke-width: 2;
 }
 
 .route-map__city-name {
-  fill: var(--d-text);
+  fill: var(--text);
   font-size: 13px;
   font-weight: 700;
 }
 
 .route-map__city-note,
 .route-map__empty {
-  fill: var(--d-muted);
+  fill: var(--muted);
   font-size: 12px;
   font-weight: 600;
 }
 
 .route-map__km {
-  fill: var(--d-muted);
+  fill: var(--muted);
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
@@ -279,31 +279,31 @@
 }
 
 .route-map__stem {
-  stroke: var(--d-line);
+  stroke: var(--line-strong);
   stroke-width: 1.5;
 }
 
 .route-map__point {
-  fill: var(--d-muted);
-  stroke: var(--black);
+  fill: var(--muted);
+  stroke: var(--surface-2);
   stroke-width: 2;
 }
 
 .route-map__capsule {
-  fill: var(--d-panel);
-  stroke: var(--d-line);
+  fill: var(--surface);
+  stroke: var(--line);
   stroke-width: 1;
 }
 
 .route-map__label {
-  fill: var(--d-text);
+  fill: var(--text);
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
 }
 
 .route-map__dot {
-  fill: var(--d-muted);
+  fill: var(--muted);
 }
 
 .route-map__truck--loading .route-map__dot,
@@ -313,7 +313,7 @@
 
 .route-map__truck--in_transit .route-map__dot,
 .route-map__truck--in_transit .route-map__point {
-  fill: var(--st-transit);
+  fill: var(--st-transit-mark);
 }
 
 .route-map__truck--arrived .route-map__dot,
@@ -327,31 +327,31 @@
 }
 
 .route-map__truck--closed .route-map__label {
-  fill: var(--d-muted);
+  fill: var(--muted);
 }
 
 .route-map__truck--more .route-map__dot,
 .route-map__truck--more .route-map__point {
-  fill: var(--d-muted);
+  fill: var(--muted);
 }
 
 .route-map__truck:hover .route-map__capsule,
 .route-map__truck:focus-visible .route-map__capsule {
-  fill: var(--d-panel-2);
-  stroke: var(--d-muted);
+  fill: var(--surface-2);
+  stroke: var(--muted);
 }
 
 .route-map__truck.is-selected .route-map__capsule {
-  stroke: var(--ivory);
+  stroke: var(--accent);
   stroke-width: 2;
 }
 
 .route-map__truck.is-selected .route-map__stem {
-  stroke: var(--ivory);
+  stroke: var(--accent);
 }
 
 .route-map__truck.is-selected .route-map__point {
-  fill: var(--ivory);
+  fill: var(--accent);
 }
 
 .route-map__blocks {
@@ -362,9 +362,9 @@
   display: flex;
   gap: var(--s-2);
   padding: 6px var(--s-2);
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-radius: var(--r-sm);
-  background: var(--d-panel);
+  background: var(--surface);
 }
 
 .route-map__block {
@@ -374,25 +374,25 @@
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .route-map__block-key {
-  color: var(--d-text);
+  color: var(--text);
 }
 
 .route-map__meter {
   width: 28px;
   height: 4px;
   border-radius: var(--r-pill);
-  background: var(--d-line);
+  background: var(--line);
   overflow: hidden;
 }
 
 .route-map__meter span {
   display: block;
   height: 100%;
-  background: var(--ivory);
+  background: var(--accent);
 }
 
 .route-map__block--d .route-map__meter span {
@@ -407,8 +407,8 @@
   width: 100%;
   padding: var(--s-4);
   overflow: auto;
-  background: var(--d-panel);
-  border: 1px solid var(--d-line);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
 }
 
@@ -428,7 +428,7 @@
 .drawer__type {
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .drawer__number {
@@ -445,10 +445,10 @@
   height: 36px;
   margin: -6px -6px 0 0;
   padding: 0;
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: transparent;
-  color: var(--d-text);
+  color: var(--text);
   cursor: pointer;
 }
 
@@ -474,7 +474,7 @@
 
 .kv {
   margin: 0;
-  border-top: 1px solid var(--d-line);
+  border-top: 1px solid var(--line);
 }
 
 .kv__row {
@@ -482,12 +482,12 @@
   justify-content: space-between;
   gap: var(--s-3);
   padding: 6px 0;
-  border-bottom: 1px solid var(--d-line);
+  border-bottom: 1px solid var(--line);
   font-size: 13px;
 }
 
 .kv dt {
-  color: var(--d-muted);
+  color: var(--muted);
   font-weight: 600;
 }
 
@@ -498,7 +498,7 @@
 }
 
 .is-late {
-  color: var(--st-error);
+  color: var(--st-error-ink);
 }
 
 /* Journey («Путь груза»): vertical timeline of steps. */
@@ -522,11 +522,11 @@
   left: 13px;
   top: 28px;
   bottom: 0;
-  border-left: 2px solid var(--d-line);
+  border-left: 2px solid var(--line);
 }
 
 .journey__step.is-done:not(:last-child)::before {
-  border-left-color: var(--ivory-3);
+  border-left-color: var(--accent);
 }
 
 .journey__dot {
@@ -535,24 +535,25 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1.5px solid var(--d-line);
-  background: var(--d-panel-2);
+  border: 1.5px solid var(--line);
+  background: var(--surface-2);
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .journey__step.is-done .journey__dot {
-  border-color: var(--ivory-3);
-  background: var(--ivory-3);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
 }
 
 .journey__step.is-current .journey__dot {
-  border-color: var(--ivory);
-  background: var(--ivory);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: var(--focus-ring);
 }
 
 .journey__body {
@@ -574,24 +575,24 @@
 }
 
 .journey__step.is-future .journey__label {
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .journey__time {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
   white-space: nowrap;
 }
 
 .journey__text {
   font-size: 12px;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .journey__step.is-current .journey__text {
-  color: var(--d-text);
+  color: var(--text);
 }
 
 /* ---------- Tabs ---------- */
@@ -599,7 +600,7 @@
   display: flex;
   gap: var(--s-4);
   margin: calc(-1 * var(--s-2)) 0 var(--s-3);
-  border-bottom: 1px solid var(--d-line);
+  border-bottom: 1px solid var(--line);
 }
 
 .tabs__tab {
@@ -609,7 +610,7 @@
   border: 0;
   border-bottom: 2px solid transparent;
   background: none;
-  color: var(--d-muted);
+  color: var(--muted);
   font: inherit;
   font-size: 14px;
   font-weight: 700;
@@ -617,12 +618,12 @@
 }
 
 .tabs__tab:hover {
-  color: var(--d-text);
+  color: var(--text);
 }
 
 .tabs__tab[aria-selected="true"] {
-  color: var(--d-text);
-  border-bottom-color: var(--ivory);
+  color: var(--text);
+  border-bottom-color: var(--accent);
 }
 
 .tabs__panel {
@@ -664,11 +665,11 @@
   top: 15px;
   right: calc(50% + 20px);
   width: calc(100% - 40px);
-  border-top: 2px solid var(--d-line);
+  border-top: 2px solid var(--line);
 }
 
 .tracker__step.is-done + .tracker__step::before {
-  border-top-color: var(--ivory-3);
+  border-top-color: var(--accent);
 }
 
 .tracker__dot {
@@ -678,12 +679,12 @@
   height: 32px;
   margin-bottom: var(--s-1);
   border-radius: 50%;
-  border: 2px solid var(--d-line);
-  background: var(--d-panel-2);
+  border: 2px solid var(--line);
+  background: var(--surface-2);
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .tracker__dot svg {
@@ -692,16 +693,16 @@
 }
 
 .tracker__step.is-done .tracker__dot {
-  border-color: var(--ivory-3);
-  background: var(--ivory-3);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
 }
 
 .tracker__step.is-current .tracker__dot {
-  border-color: var(--ivory);
-  background: var(--d-panel-2);
-  color: var(--ivory);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivory) 20%, transparent);
+  border-color: var(--accent);
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: var(--focus-ring);
 }
 
 .tracker__label {
@@ -710,14 +711,14 @@
 }
 
 .tracker__step.is-future .tracker__label {
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .tracker__caption {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
   white-space: nowrap;
 }
 
@@ -727,9 +728,9 @@
   align-items: flex-start;
   gap: 6px;
   padding: var(--s-3);
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--line);
   border-radius: var(--r-sm);
-  background: var(--d-panel-2);
+  background: var(--surface-2);
 }
 
 .tracker__number {
@@ -741,7 +742,7 @@
 .tracker__route {
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .tracker__left {
@@ -754,7 +755,7 @@
   margin: 0;
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 /* ---------- Timeline ---------- */
@@ -773,7 +774,7 @@
   list-style: none;
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .timeline__legend li {
@@ -795,7 +796,7 @@
 
 .timeline__swatch--transit,
 .timeline__bar--transit {
-  background: var(--st-transit);
+  background: var(--st-transit-mark);
 }
 
 .timeline__swatch--arrival {
@@ -816,7 +817,7 @@
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .timeline__hour {
@@ -854,7 +855,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  border-left: 1px solid var(--d-line);
+  border-left: 1px solid var(--line);
 }
 
 .timeline__now {
@@ -911,11 +912,11 @@
   height: 10px;
   border-radius: 50%;
   background: var(--st-ready);
-  border: 2px solid var(--d-panel);
+  border: 2px solid var(--surface);
 }
 
 .timeline__bar--arrival.is-planned::before {
-  background: var(--d-panel);
+  background: var(--surface);
   border-color: var(--st-ready);
 }
 
@@ -925,14 +926,14 @@
   top: 2px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--st-loading);
+  color: var(--st-loading-ink);
 }
 
 .timeline__empty {
   margin: var(--s-3) 0 0 var(--tl-label);
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 /* ---------- Fleet ---------- */
@@ -955,19 +956,19 @@
   gap: 6px var(--s-3);
   align-items: center;
   padding: var(--s-2) var(--s-4);
-  border-top: 1px solid var(--d-line);
+  border-top: 1px solid var(--line);
   border-left: 3px solid transparent;
   color: inherit;
   text-decoration: none;
 }
 
 .fleet__row:hover {
-  background: var(--d-panel-2);
+  background: var(--surface-2);
 }
 
 .fleet__row[aria-current="true"] {
-  background: var(--d-panel-2);
-  border-left-color: var(--ivory);
+  background: var(--surface-2);
+  border-left-color: var(--accent);
 }
 
 .fleet__id {
@@ -988,7 +989,7 @@
   overflow: hidden;
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1004,14 +1005,14 @@
   flex: 1;
   height: 4px;
   border-radius: var(--r-pill);
-  background: var(--d-line);
+  background: var(--line);
   overflow: hidden;
 }
 
 .meter__fill {
   display: block;
   height: 100%;
-  background: var(--ivory);
+  background: var(--accent);
 }
 
 .meter__fill--loading {
@@ -1026,7 +1027,7 @@
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
   white-space: nowrap;
 }
 
@@ -1041,11 +1042,11 @@
   margin: 0;
   padding: var(--s-3) var(--s-4);
   font-size: 13px;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .fleet__empty a {
-  color: var(--d-text);
+  color: var(--text);
   font-weight: 700;
 }
 
@@ -1091,9 +1092,9 @@
     order: 2;
     position: relative;
     height: 280px;
-    border: 1px solid var(--d-line);
+    border: 1px solid var(--line);
     border-radius: var(--r-md);
-    background: var(--black);
+    background: var(--surface-2);
     overflow: hidden;
   }
 
@@ -1155,7 +1156,7 @@
   .ops__drawer .drawer {
     border-radius: var(--r-md) var(--r-md) 0 0;
     border-bottom: 0;
-    box-shadow: 0 -16px 48px color-mix(in srgb, var(--black) 60%, transparent);
+    box-shadow: 0 -16px 48px color-mix(in srgb, var(--black) 24%, transparent);
   }
 
   .drawer__close {
@@ -1167,7 +1168,7 @@
     position: fixed;
     inset: 0;
     z-index: 40;
-    background: color-mix(in srgb, var(--black) 60%, transparent);
+    background: color-mix(in srgb, var(--black) 40%, transparent);
   }
 
   .ops-sheet-open,

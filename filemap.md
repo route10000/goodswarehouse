@@ -11,7 +11,7 @@
 - `.env.example` — all env keys from SPEC §11
 - `manage.py` — Django entry point
 - `conftest.py` — pytest fixtures: plain static storage in tests (no collectstatic manifest); `pinned_now` (stops `timezone.now()` for tests that compare «today» with the code's)
-- `config/` — Django project: `settings.py` (env via os.environ, domain constants), `urls.py` (admin, `/panel/`, public at root), `wsgi.py`, `asgi.py`
+- `config/` — Django project: `settings.py` (env via os.environ, domain constants, `AUTOPILOT_ENABLED` defaults to `DEBUG`), `urls.py` (admin, `/panel/`, public at root), `wsgi.py`, `asgi.py`
 - `logistics/` — app: domain models and services
 - `logistics/models.py` — Counter (race-safe code sequences), Client (`GW-NNNN`, E.164 phone, Telegram link token), Truck (`R-YYYY-NNN`, `capacity_places` default 60, `closed_at`), Cargo, DailyOrder, DailyOrderLine, ContactAttempt; status TextChoices
 - `logistics/phones.py` — `normalize_phone` (E.164, region RU, raises `InvalidPhone`), `phone_last4`
@@ -38,15 +38,15 @@
 - `templates/public/schedule.html`, `track.html`, `contacts.html` — public pages
 - `templates/public/includes/` — `track_form.html`, `truck_list.html`, `contacts_list.html`
 - `static/css/public.css` — public page styles (hero, route widget, header login menu, track card, steps, terms, FAQ, staff entry, truck list, cargo cards, contacts, footer)
-- `templates/panel/base.html` — panel shell: topbar, command search, live clock, three.js importmap
-- `templates/panel/includes/sidebar.html` — icon sidebar / mobile bottom tab bar
+- `templates/panel/base.html` — panel shell (body `theme-panel`, light only): topbar, command search, live clock, three.js importmap
+- `templates/panel/includes/sidebar.html` — black icon sidebar: Ops-центр · Аналитика · Машины · Грузы · Клиенты · Склад (order badge) · Автопилот (manager + `AUTOPILOT_ENABLED`); under 900px a bottom bar Ops · Машины · Грузы · Склад · «Ещё» (`<details>` menu with the rest)
 - `templates/panel/ops.html` — Ops-центр dashboard (`#ops-scene` mount point)
 - `templates/panel/login.html` — «Вход для сотрудников»: segment «Панель управления / Склад», form, «← На сайт»
-- `static/css/tokens.css` — design tokens (verbatim from DESIGN.md); the only place for hex colors
-- `static/css/app.css` — base styles, themes, components (btn, pill, live, field, panel, kpi, table, toast), public and panel shells
+- `static/css/tokens.css` — design tokens (verbatim from DESIGN.md, incl. `--l-card`, `--chart-1/2`, `--age-a..d`); the only place for hex colors
+- `static/css/app.css` — base styles, themes (`.theme-light` public, `.theme-panel` light panel with `--st-*-ink` status text shades), components (btn, pill, live, field, panel, kpi, table, toast), public and panel shells, sidebar «Ещё» menu
 - `static/js/public.js` — public header burger toggle and «Войти ▾» dropdown (Escape / outside click)
 - `static/js/login.js` — login segment switch: sets hidden `next` and the caption
-- `static/js/panel.js` — panel live clock (Vladivostok) and `/` search hotkey
+- `static/js/panel.js` — panel live clock (Vladivostok), `/` search hotkey, dialogs, copy buttons, toasts, «Ещё» menu close (outside click / Escape)
 - `static/vendor/htmx.min.js` — htmx 2.0.3
 - `static/vendor/three/three.module.min.js` — three.js r160 ES module
 - `static/vendor/three/addons/renderers/CSS2DRenderer.js` — three.js r160 CSS2DRenderer addon
@@ -64,16 +64,19 @@
 - `logistics/migrations/0003_client_unique_telegram_chat.py` — unique chat id when set (clears duplicates first)
 - `logistics/migrations/0004_truck_capacity_closed_at.py` — `Truck.capacity_places` (default 60, ≥ 1) and `Truck.closed_at`
 - `logistics/imports.py` — manifest import: `parse_manifest` → `ImportPreview`, atomic `apply_manifest`, `build_template`
-- `panel/permissions.py` — `is_manager`/`is_warehouse`, `manager_required` (403 page)
+- `panel/permissions.py` — `is_manager`/`is_warehouse`, `autopilot_enabled`/`can_use_autopilot`, `manager_required` (403 page)
 - `panel/forms.py` — TruckForm, CargoForm, ClientForm, ManifestUploadForm
 - `panel/views/` — ops, search, trucks (card, status actions, HTMX add cargo), cargo, clients, imports, lookup
 - `panel/views/auth.py` — `StaffLoginView`: Django LoginView (safe `next`), without `next` «Склад» → `/panel/pickup/`, others → `/panel/`
-- `panel/templatetags/panel_tags.py` — status pill classes, `phone`, `query`, `is_manager`
-- `panel/tests/` — panel view tests; `test_login.py` (group redirect, unsafe `next`, segment switch); `helpers.py` (`page_without_csrf` for `not in` checks)
+- `panel/templatetags/panel_tags.py` — status pill classes, `phone`, `query`, `is_manager`, `can_use_autopilot`
+- `panel/tests/` — panel view tests; `test_nav.py` (sidebar order/visibility, «Ещё» menu, stub routes and permissions, light theme class); `test_login.py` (group redirect, unsafe `next`, segment switch); `helpers.py` (`page_without_csrf` for `not in` checks)
 - `templates/panel/{trucks,cargo,clients}/`, `search.html`, `403.html`, `includes/*` — panel screens
-- `static/css/panel.css` — panel screen styles
+- `static/css/panel.css` — panel screen styles (light theme)
 - `panel/views/order.py` — Ордер на день: page, filters, HTMX marks (row + OOB counters/badge/toast), add/remove, print, xlsx
 - `panel/views/pickup.py` — Выдача: search by article/phone/code, client cards, atomic `cargo_pickup` of selected
+- `panel/views/analytics.py` — `/panel/analytics/` (login required), stub page `templates/panel/analytics/index.html`
+- `panel/views/warehouse.py` — `/panel/warehouse/` «Склад»: for now redirects to `/panel/pickup/`
+- `panel/views/autopilot.py` — `/panel/autopilot/`: 404 while `AUTOPILOT_ENABLED` is off, managers only, stub page `templates/panel/autopilot/index.html`
 - `panel/context_processors.py` — `order_badge`: remaining lines in today's order for the sidebar
 - `templates/panel/order/` — day, row partials, counters, badge, candidates, print (A4)
 - `templates/panel/pickup/` — `page.html`, `_results.html`
@@ -90,3 +93,6 @@
 - `logistics/tests/test_seed_demo.py` — seed_demo tests
 - `docs/DEPLOY.md` — VPS deployment (PostgreSQL, gunicorn, nginx, systemd units and timers)
 - `README.md` — project description (Russian): problem, features, stack, Windows quick start, tests, docs
+- `public/stats.py` — `platform_stats(now)`: home chapter «04 Цифры» (trips and places picked up over 30 days, average storage days, clients with Telegram)
+- `public/tests/test_stats.py` — platform_stats tests (empty DB, 30-day windows, rounding)
+- `templates/public/includes/presentation.html` — home presentation: first screen with animated route and four chapters with HTML mocks

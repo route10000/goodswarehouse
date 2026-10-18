@@ -1,5 +1,5 @@
 /* Staff panel screens (T6): trucks, cargo, clients, import, search.
-   Dark theme only. Colors, fonts and spacing come from tokens.css variables. */
+   Light panel theme only. Colors, fonts and spacing come from tokens.css variables. */
 
 /* ---------- Page layout ---------- */
 .main > * + * {
@@ -239,7 +239,7 @@
 .error-text {
   font-size: 12px;
   font-weight: 600;
-  color: var(--st-error);
+  color: var(--st-error-ink);
 }
 
 .row--fresh td {
@@ -248,7 +248,7 @@
 
 @keyframes row-fresh {
   from {
-    background: color-mix(in srgb, var(--ivory) 12%, transparent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
   }
   to {
     background: transparent;
@@ -279,11 +279,11 @@
 }
 
 .channel--tg {
-  color: var(--d-text);
+  color: var(--text);
 }
 
 .channel--call {
-  color: var(--st-loading);
+  color: var(--st-loading-ink);
 }
 
 /* ---------- Stepper ---------- */
@@ -293,8 +293,8 @@
   margin-bottom: 0;
   padding: var(--s-4);
   list-style: none;
-  background: var(--d-panel);
-  border: 1px solid var(--d-line);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
 }
 
@@ -305,7 +305,7 @@
   align-items: center;
   margin-right: var(--s-3);
   padding-top: var(--s-3);
-  border-top: 3px solid var(--d-line);
+  border-top: 3px solid var(--line);
 }
 
 .stepper__step:last-child {
@@ -313,47 +313,47 @@
 }
 
 .stepper__step.is-done {
-  border-top-color: var(--ivory-3);
+  border-top-color: var(--muted);
 }
 
 .stepper__step.is-current {
-  border-top-color: var(--ivory);
+  border-top-color: var(--accent);
 }
 
 .stepper__dot {
   grid-row: span 2;
   font-size: 20px;
   line-height: 1;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .stepper__label {
   font-size: 14px;
   font-weight: 700;
-  color: var(--d-muted);
+  color: var(--muted);
 }
 
 .stepper__caption {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--d-muted);
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .stepper__step.is-done .stepper__dot {
-  color: var(--ivory-3);
+  color: var(--muted);
 }
 
 .stepper__step.is-done .stepper__label {
-  color: var(--d-text);
+  color: var(--text);
 }
 
 .stepper__step.is-current .stepper__dot,
 .stepper__step.is-current .stepper__label {
-  color: var(--ivory);
+  color: var(--accent);
 }
 
 /* ---------- Action bar + confirm dialog ---------- */
@@ -367,8 +367,8 @@
   justify-content: space-between;
   gap: var(--s-4);
   padding: var(--s-4) var(--s-5);
-  background: var(--d-panel);
-  border: 1px solid var(--ivory-3);
+  background: var(--surface);
+  border: 1px solid var(--muted);
   border-radius: var(--r-md);
 }
 
@@ -391,7 +391,7 @@
 }
 
 .dialog::backdrop {
-  background: color-mix(in srgb, var(--black) 70%, transparent);
+  background: color-mix(in srgb, var(--black) 40%, transparent);
 }
 
 .dialog form {
@@ -425,8 +425,8 @@
   display: flex;
   flex-direction: column;
   padding: var(--s-3);
-  background: var(--d-panel-2);
-  border: 1px solid var(--d-line);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   border-radius: var(--r-sm);
 }
 
@@ -489,12 +489,12 @@
 
 .form-error {
   background: color-mix(in srgb, var(--st-error) 12%, transparent);
-  color: var(--st-error);
+  color: var(--st-error-ink);
 }
 
 .form-ok {
-  background: var(--d-panel-2);
-  color: var(--d-text);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .form-error--pad {
@@ -531,15 +531,15 @@
 }
 
 .lookup--found {
-  background: var(--d-panel-2);
-  color: var(--d-text);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .lookup__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--ivory);
+  background: var(--accent);
 }
 
 .htmx-indicator {
@@ -573,9 +573,9 @@
   height: 30px;
   margin-right: var(--s-3);
   padding: 0 var(--s-3);
-  border: 1.5px solid var(--line);
+  border: 1.5px solid var(--line-strong);
   border-radius: var(--r-sm);
-  background: var(--d-panel);
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   font-size: 13px;

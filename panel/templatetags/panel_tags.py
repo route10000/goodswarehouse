@@ -40,6 +40,11 @@ def is_manager(user) -> bool:
 
 
 @register.filter
+def can_use_autopilot(user) -> bool:
+    return permissions.can_use_autopilot(user)
+
+
+@register.filter
 def truck_pill(status) -> str:
     return TRUCK_PILL.get(status, "")
 

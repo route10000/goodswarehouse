@@ -1,42 +1,68 @@
-{# Icon sidebar; becomes a bottom tab bar under 900px. The order badge is updated out of band by order marks. #}
+{% load panel_tags %}
+{# Icon sidebar (DESIGN «Навигация сайдбара»). Under 900px it becomes a bottom tab bar: #}
+{# Ops · Машины · Грузы · Склад · «Ещё»; items marked sidebar__extra move into the «Ещё» menu. #}
+{# The order badge sits on «Склад» and is updated out of band by order marks. #}
+{% with autopilot=request.user|can_use_autopilot %}
 <nav class="sidebar" aria-label="Разделы панели">
   <ul class="sidebar__list">
     <li>
-      <a class="sidebar__item" href="{% url 'panel:ops' %}" title="Ops-центр"{% if nav_active == "ops" %} aria-current="page"{% endif %}>
+      <a class="sidebar__item" href="{% url 'panel:ops' %}" title="Ops-центр" data-nav="ops"{% if nav_active == "ops" %} aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
         <span class="sidebar__label">Ops-центр</span>
       </a>
     </li>
+    <li class="sidebar__extra">
+      <a class="sidebar__item" href="{% url 'panel:analytics' %}" title="Аналитика" data-nav="analytics"{% if nav_active == "analytics" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span class="sidebar__label">Аналитика</span>
+      </a>
+    </li>
     <li>
-      <a class="sidebar__item" href="{% url 'panel:trucks' %}" title="Машины"{% if nav_active == "trucks" %} aria-current="page"{% endif %}>
+      <a class="sidebar__item" href="{% url 'panel:trucks' %}" title="Машины" data-nav="trucks"{% if nav_active == "trucks" %} aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6h11v10H2z"/><path d="M13 9h4l4 4v3h-8z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
         <span class="sidebar__label">Машины</span>
       </a>
     </li>
     <li>
-      <a class="sidebar__item" href="{% url 'panel:cargo' %}" title="Грузы"{% if nav_active == "cargo" %} aria-current="page"{% endif %}>
+      <a class="sidebar__item" href="{% url 'panel:cargo' %}" title="Грузы" data-nav="cargo"{% if nav_active == "cargo" %} aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
         <span class="sidebar__label">Грузы</span>
       </a>
     </li>
-    <li>
-      <a class="sidebar__item" href="{% url 'panel:order' %}" title="Ордер на день"{% if nav_active == "order" %} aria-current="page"{% endif %}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6v3H9z"/><path d="M15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3"/><path d="M9 12h6M9 16h4"/></svg>
-        <span class="sidebar__label">Ордер на день</span>
-        {% include "panel/order/_badge.html" with remaining=order_remaining %}
-      </a>
-    </li>
-    <li>
-      <a class="sidebar__item" href="{% url 'panel:pickup' %}" title="Выдача"{% if nav_active == "pickup" %} aria-current="page"{% endif %}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
-        <span class="sidebar__label">Выдача</span>
-      </a>
-    </li>
-    <li>
-      <a class="sidebar__item" href="{% url 'panel:clients' %}" title="Клиенты"{% if nav_active == "clients" %} aria-current="page"{% endif %}>
+    <li class="sidebar__extra">
+      <a class="sidebar__item" href="{% url 'panel:clients' %}" title="Клиенты" data-nav="clients"{% if nav_active == "clients" %} aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/></svg>
         <span class="sidebar__label">Клиенты</span>
       </a>
     </li>
+    <li>
+      <a class="sidebar__item" href="{% url 'panel:warehouse' %}" title="Склад" data-nav="warehouse"{% if nav_active == "warehouse" or nav_active == "pickup" or nav_active == "order" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"/><path d="M7 21v-8h10v8"/><path d="M7 17h10"/></svg>
+        <span class="sidebar__label">Склад</span>
+        {% include "panel/order/_badge.html" with remaining=order_remaining %}
+      </a>
+    </li>
+    {% if autopilot %}
+    <li class="sidebar__extra">
+      <a class="sidebar__item" href="{% url 'panel:autopilot' %}" title="Автопилот" data-nav="autopilot"{% if nav_active == "autopilot" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/></svg>
+        <span class="sidebar__label">Автопилот</span>
+      </a>
+    </li>
+    {% endif %}
+    <li class="sidebar__more-slot">
+      <details class="sidebar__more" data-sidebar-more>
+        <summary class="sidebar__item{% if nav_active == "analytics" or nav_active == "clients" or nav_active == "autopilot" %} is-active{% endif %}" title="Ещё">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+          <span class="sidebar__label">Ещё</span>
+        </summary>
+        <ul class="sidebar__menu">
+          <li><a class="sidebar__menu-item" href="{% url 'panel:analytics' %}" data-nav-more="analytics"{% if nav_active == "analytics" %} aria-current="page"{% endif %}>Аналитика</a></li>
+          <li><a class="sidebar__menu-item" href="{% url 'panel:clients' %}" data-nav-more="clients"{% if nav_active == "clients" %} aria-current="page"{% endif %}>Клиенты</a></li>
+          {% if autopilot %}<li><a class="sidebar__menu-item" href="{% url 'panel:autopilot' %}" data-nav-more="autopilot"{% if nav_active == "autopilot" %} aria-current="page"{% endif %}>Автопилот</a></li>{% endif %}
+        </ul>
+      </details>
+    </li>
   </ul>
 </nav>
+{% endwith %}
