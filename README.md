@@ -3,6 +3,8 @@
 Учёт грузов из Китая для перевозчика, который возит их своими машинами
 из Уссурийска на склад во Владивостоке.
 
+Версия 1.0.0.
+
 ## Какую задачу решает
 
 Раньше телефоны клиентов хранились в бумажных тетрадях, и каждый день сотрудники
@@ -82,3 +84,9 @@ $env:DEBUG="true"
 - [docs/DEPLOY.md](docs/DEPLOY.md) — установка на VPS: PostgreSQL, gunicorn, nginx, systemd
 - [docs/SPEC.md](docs/SPEC.md) — требования, [docs/DESIGN.md](docs/DESIGN.md) — дизайн-система
 - [filemap.md](filemap.md) — карта файлов проекта
+
+## Релизы и вклад
+
+- [CHANGELOG.md](CHANGELOG.md) — что изменилось в каждой версии
+- [docs/GITHUB.md](docs/GITHUB.md) — публикация на GitHub, теги, релизы и выпуск новых версий
+- Изменения в `main` — через pull request; проверка tests в GitHub Actions должна быть зелёной

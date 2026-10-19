@@ -15,7 +15,7 @@
 - `logistics/` — app: domain models and services
 - `logistics/models.py` — Counter (race-safe code sequences), Client (`GW-NNNN`, E.164 phone, Telegram link token), Truck (`R-YYYY-NNN`, `capacity_places` default 60, `closed_at`), Cargo, DailyOrder, DailyOrderLine, ContactAttempt; status TextChoices
 - `logistics/phones.py` — `normalize_phone` (E.164, region RU, raises `InvalidPhone`), `phone_last4`
-- `logistics/services.py` — the only place statuses change: `get_or_create_client`, `create_truck`, `add_cargo`, `assign_to_truck`, `truck_depart`, `truck_arrive`, `truck_close`, `cargo_pickup`, `InvalidTransition`
+- `logistics/services.py` — the only place statuses change: `get_or_create_client`, `create_truck`, `add_cargo`, `assign_to_truck`, `truck_depart`, `truck_arrive`, `truck_close`, `cargo_pickup`, `update_cargo`, `unassign_from_truck`, `assign_many`, `unassign_many`, `InvalidTransition`
 - `logistics/admin.py` — admin for all logistics models; statuses and truck assignment read-only; phone search in any format
 - `logistics/migrations/0002_staff_groups.py` — data migration: groups «Менеджер» and «Склад» with permissions
 - `logistics/tests/` — tests: phones, models (codes, phone), services (transitions, cascade, auto-close), groups and admin
@@ -63,11 +63,11 @@
 - `bot/tests/` — handlers, links, polling client, run_bot
 - `logistics/migrations/0003_client_unique_telegram_chat.py` — unique chat id when set (clears duplicates first)
 - `logistics/migrations/0004_truck_capacity_closed_at.py` — `Truck.capacity_places` (default 60, ≥ 1) and `Truck.closed_at`
-- `logistics/imports.py` — manifest import: `parse_manifest` → `ImportPreview`, atomic `apply_manifest`, `build_template`
+- `logistics/imports.py` — manifest import: `parse_manifest` / `parse_rows` (editable grid) → `ImportPreview`, optional own columns, atomic `apply_manifest`, `build_template`
 - `panel/permissions.py` — `is_manager`/`is_warehouse`, `autopilot_enabled`/`can_use_autopilot`, `manager_required` (403 page)
 - `panel/forms.py` — TruckForm, CargoForm, ClientForm, ManifestUploadForm
 - `panel/views/` — ops, search, trucks (card, status actions, HTMX add cargo), cargo, clients, imports, lookup
-- `panel/views/auth.py` — `StaffLoginView`: Django LoginView (safe `next`), without `next` «Склад» → `/panel/pickup/`, others → `/panel/`
+- `panel/views/auth.py` — `StaffLoginView`: Django LoginView (safe `next`), without `next` «Склад» → `/panel/warehouse/`, others → `/panel/`
 - `panel/templatetags/panel_tags.py` — status pill classes, `phone`, `query`, `is_manager`, `can_use_autopilot`
 - `panel/tests/` — panel view tests; `test_nav.py` (sidebar order/visibility, «Ещё» menu, stub routes and permissions, light theme class); `test_login.py` (group redirect, unsafe `next`, segment switch); `helpers.py` (`page_without_csrf` for `not in` checks)
 - `templates/panel/{trucks,cargo,clients}/`, `search.html`, `403.html`, `includes/*` — panel screens
@@ -96,3 +96,24 @@
 - `public/stats.py` — `platform_stats(now)`: home chapter «04 Цифры» (trips and places picked up over 30 days, average storage days, clients with Telegram)
 - `public/tests/test_stats.py` — platform_stats tests (empty DB, 30-day windows, rounding)
 - `templates/public/includes/presentation.html` — home presentation: first screen with animated route and four chapters with HTML mocks
+- `logistics/migrations/0005_cargo_own_fields.py` — Cargo track_number, seller, packaging, fragile, note, photo
+- `logistics/tests/test_truck_contents.py` — own fields, update_cargo, unassign / assign_many / unassign_many
+- `panel/tests/test_truck_card.py`, `test_import_grid.py` — Кузов widget, remove/load HTMX, editable grid and manual entry
+- `templates/panel/trucks/` — `_body`, `_received_list`, `_contents_oob`, `_contents_response`, `_cargo_empty`, `_import_grid` partials
+- `static/css/panel-trucks.css`, `static/js/panel-trucks.js` — truck contents, bulk bar, import grid
+- `panel/views/warehouse.py` — «Склад»: tabs `?tab=pickup|order|stock` (last tab in session), `stock_blocks()`
+- `templates/panel/warehouse/` — `page.html` (tab bar), `_stock.html` (blocks A–D)
+- `static/css/panel-warehouse.css` — «Склад» tabs and age blocks
+- `panel/analytics_data.py` — Аналитика aggregations: period, KPI with deltas, 6 charts with table rows
+- `panel/views/analytics.py` — `/panel/analytics/?period=`; `templates/panel/analytics/index.html`; `static/js/analytics.js`; `static/css/panel-analytics.css`
+- `static/vendor/chart.umd.min.js` — Chart.js 4.4.1 UMD
+- `templates/panel/cargo/` — `list.html` (summary, filters, bulk bar), `detail.html` (cargo card), `form.html` (edit), `new.html`
+- `templates/panel/clients/new.html` — «Новый клиент»; client card has Telegram QR (segno)
+- `static/css/panel-cargo.css` — cargo/clients summary, sticky header, cargo card, history, QR
+- `autopilot/` — app: simulator; `models.py` (AutopilotState, AutopilotEvent), `engine.py` (exclusive tick, clock, rules via services), `templatetags/`, `tests/`
+- `autopilot/management/commands/autopilot.py` — `autopilot [--loop] [--interval] [--steps] [--speed]`
+- `panel/views/autopilot.py` — page + POST start/pause/step/speed/reset/sync/tick; `templates/panel/autopilot/`; `static/css/panel-autopilot.css`
+- `public/stats.py` — platform numbers for the home presentation; `templates/public/includes/presentation.html`
+- `CHANGELOG.md` — changes by version
+- `.github/workflows/tests.yml` — CI: ruff, migrations check, pytest
+- `docs/GITHUB.md` — publishing on GitHub: push, tag, release, next versions
