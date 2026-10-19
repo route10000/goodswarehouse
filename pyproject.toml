@@ -13,7 +13,7 @@ select = ["E", "F", "I", "UP", "B", "DJ"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
-testpaths = ["tests", "logistics", "notify", "bot", "public", "panel"]
+testpaths = ["tests", "logistics", "notify", "bot", "public", "panel", "autopilot"]
 python_files = ["test_*.py", "tests.py"]
 addopts = "-p tests.env"
 pythonpath = ["."]

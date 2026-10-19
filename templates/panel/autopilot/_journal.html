@@ -1,0 +1,14 @@
+{% load autopilot_tags %}
+<section class="panel ap-journal" id="ap-journal"{% if oob %} hx-swap-oob="true"{% endif %} aria-labelledby="ap-journal-title">
+  <div class="panel__head">
+    <h2 class="panel__title" id="ap-journal-title">Журнал</h2>
+    <span class="caption">Последние 50 действий</span>
+  </div>
+  {% if events %}
+  <ol class="ap-log">
+    {% for event in events %}<li class="ap-log__row ap-log__row--{{ event.kind }}"><time class="ap-log__time mono" datetime="{{ event.sim_at|date:'c' }}" title="{{ event.sim_at|date:'d.m.Y H:i' }}">{{ event.sim_at|date:"H:i" }}</time><span class="ap-log__sep" aria-hidden="true">·</span><span class="ap-log__text">{{ event.message|ap_codes }}</span></li>{% endfor %}
+  </ol>
+  {% else %}
+  <p class="muted ap-journal__empty">Журнал пуст. Нажмите «Один шаг» или «Запустить».</p>
+  {% endif %}
+</section>

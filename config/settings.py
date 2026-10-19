@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "bot",
     "public",
     "panel",
+    "autopilot",
 ]
 
 MIDDLEWARE = [

@@ -1,12 +1,38 @@
 {% extends "panel/base.html" %}
+{% load static %}
 {% block title %}Автопилот · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-autopilot.css' %}">
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <h1 class="page-title">Автопилот</h1>
 </div>
-{# Stub: warning, control card and the action log (DESIGN «Автопилот») replace this block. #}
-<section class="panel empty-state">
-  <p class="strong">Автопилот появится здесь</p>
-  <p class="muted">Автопилот меняет реальные данные. Для демо и тестов.</p>
+<p class="ap-warning" role="note">Автопилот меняет реальные данные. Для демо и тестов.</p>
+<section class="panel ap-control" aria-labelledby="ap-control-title">
+  <h2 class="visually-hidden" id="ap-control-title">Управление</h2>
+  <div class="ap-control__top">
+    {% include "panel/autopilot/_status.html" %}
+    <div class="ap-control__actions">
+      {% if state.running %}
+        <form method="post" action="{% url 'panel:autopilot_action' 'pause' %}">{% csrf_token %}<button class="btn btn--primary" type="submit">Пауза</button></form>
+      {% else %}
+        <form method="post" action="{% url 'panel:autopilot_action' 'start' %}">{% csrf_token %}<button class="btn btn--primary" type="submit">Запустить</button></form>
+      {% endif %}
+      <form method="post" action="{% url 'panel:autopilot_action' 'step' %}">{% csrf_token %}<button class="btn btn--outline" type="submit">Один шаг</button></form>
+      <form class="ap-speed" method="post" action="{% url 'panel:autopilot_action' 'speed' %}" aria-label="Скорость">
+        {% csrf_token %}
+        {% for speed in speeds %}<button class="ap-speed__option" type="submit" name="speed" value="{{ speed }}" aria-pressed="{% if speed == state.speed %}true{% else %}false{% endif %}">×{{ speed }}</button>{% endfor %}
+      </form>
+    </div>
+  </div>
+  {% include "panel/autopilot/_counters.html" %}
+  <div class="ap-control__reset">
+    <form method="post" action="{% url 'panel:autopilot_action' 'reset' %}">{% csrf_token %}<button class="btn btn--quiet btn--sm" type="submit" title="Обнулить счётчики и вернуть время симуляции к текущему">Сбросить</button></form>
+    <form method="post" action="{% url 'panel:autopilot_action' 'sync' %}">{% csrf_token %}<button class="btn btn--quiet btn--sm" type="submit">Синхронизировать время</button></form>
+  </div>
 </section>
+{% include "panel/autopilot/_journal.html" %}
+{# While running: one tick every 5 s; the response swaps status, counters and journal. #}
+<div id="ap-poll" hidden{% if state.running %} hx-post="{% url 'panel:autopilot_action' 'tick' %}" hx-trigger="every 5s" hx-swap="none"{% endif %}></div>
 {% endblock %}

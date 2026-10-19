@@ -1,0 +1,4 @@
+<div class="ap-status" id="ap-status"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <span class="ap-status__state{% if state.running %} ap-status__state--on{% endif %}"><span class="ap-status__dot" aria-hidden="true"></span>{% if state.running %}Работает{% else %}Пауза{% endif %}</span>
+  <span class="ap-status__clock"><span class="caption">Время симуляции</span> <span class="mono">{% if state.sim_clock %}{{ state.sim_clock|date:"d.m.Y H:i" }}{% else %}—{% endif %}</span>{% if ahead %} <span class="ap-status__ahead">{{ ahead }}</span>{% endif %}</span>
+</div>

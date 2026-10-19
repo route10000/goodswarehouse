@@ -1,0 +1,3 @@
+<dl class="ap-counters" id="ap-counters"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% for label, value in counters %}<div class="ap-counter"><dt class="ap-counter__label">{{ label }}</dt><dd class="ap-counter__value mono">{{ value }}</dd></div>{% endfor %}
+</dl>

@@ -1,0 +1,225 @@
+/* «Автопилот»: warning, control card (status, buttons, speed segment, counters), journal.
+   Colors, fonts and spacing come only from tokens.css variables. */
+
+.ap-warning {
+  margin: var(--s-4) 0;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid color-mix(in srgb, var(--st-loading) 45%, var(--l-line));
+  border-left: 3px solid var(--st-loading);
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--st-loading) 14%, var(--l-card));
+  color: var(--st-loading-ink);
+  font-weight: 700;
+}
+
+/* ---------- Control card ---------- */
+.ap-control {
+  display: grid;
+  gap: var(--s-4);
+  margin-bottom: var(--s-4);
+}
+
+.ap-control__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+}
+
+.ap-control__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.ap-control__actions form {
+  margin: 0;
+}
+
+.ap-control__reset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  justify-self: start;
+}
+
+.ap-control__reset form {
+  margin: 0;
+}
+
+/* Status: dot + «Работает / Пауза», then the simulated clock. */
+.ap-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+}
+
+.ap-status__state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.ap-status__state--on {
+  color: var(--text);
+}
+
+.ap-status__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--st-done);
+}
+
+.ap-status__state--on .ap-status__dot {
+  background: var(--st-ready);
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+.ap-status__clock {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-2);
+}
+
+.ap-status__ahead {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--l-muted);
+}
+
+/* Speed: three submit buttons styled as a segment. */
+.ap-speed {
+  display: inline-flex;
+  gap: var(--s-1);
+  padding: var(--s-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.ap-speed__option {
+  height: 36px;
+  min-width: 52px;
+  padding: 0 var(--s-3);
+  border: 0;
+  border-radius: calc(var(--r-sm) - 2px);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.ap-speed__option:hover {
+  color: var(--text);
+}
+
+.ap-speed__option[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.ap-speed__option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Session counters. */
+.ap-counters {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--s-2);
+  margin: 0;
+}
+
+.ap-counter {
+  padding: var(--s-3);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.ap-counter__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ap-counter__value {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+/* ---------- Journal ---------- */
+.ap-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ap-log__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: var(--s-2) 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.ap-log__row:first-child {
+  border-top: 0;
+}
+
+.ap-log__time {
+  flex: none;
+  color: var(--muted);
+}
+
+.ap-log__sep {
+  flex: none;
+  color: var(--muted);
+}
+
+.ap-log__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ap-log__row--error .ap-log__text {
+  color: var(--st-error-ink);
+}
+
+.ap-log__row--skipped .ap-log__text {
+  color: var(--muted);
+}
+
+.ap-journal__empty {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .ap-counters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .ap-counters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ap-status__state--on .ap-status__dot {
+    animation: none;
+  }
+}

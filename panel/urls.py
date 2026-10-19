@@ -65,4 +65,5 @@ urlpatterns = [
     path("pickup/issue/", pickup_views.pickup_issue, name="pickup_issue"),
     # autopilot (demo simulator)
     path("autopilot/", autopilot.autopilot, name="autopilot"),
+    path("autopilot/<slug:action>/", autopilot.autopilot_action, name="autopilot_action"),
 ]

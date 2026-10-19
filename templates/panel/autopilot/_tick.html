@@ -1,0 +1,6 @@
+{# Response of autopilot/tick/: out-of-band parts only (the poller swaps nothing itself). #}
+{% with oob=True %}
+{% include "panel/autopilot/_status.html" %}
+{% include "panel/autopilot/_counters.html" %}
+{% include "panel/autopilot/_journal.html" %}
+{% endwith %}
