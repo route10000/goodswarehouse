@@ -1,0 +1,14 @@
+{% load gw_format ops_tags %}
+{# «Кузов»: boxes filled in proportion to places / capacity, then places, weight and clients. #}
+<aside id="truck-body" class="truck-body{% if body.over %} is-over{% endif %}"{% if oob %} hx-swap-oob="true"{% endif %} aria-labelledby="truck-body-title">
+  <h2 id="truck-body-title" class="panel__title">Кузов</h2>
+  <div class="truck-body__box" role="img" aria-label="Загружено {{ body.places }} из {{ body.capacity }} мест">
+    {% for filled in body.cells %}<span class="truck-body__cell{% if filled %} is-filled{% endif %}"></span>{% endfor %}
+  </div>
+  <dl class="truck-body__stats">
+    <div><dt>Мест</dt><dd class="mono">{{ body.places }} / {{ body.capacity }}</dd></div>
+    <div><dt>Вес</dt><dd class="mono">{{ body.weight|ru_number }} кг</dd></div>
+    <div><dt>Клиентов</dt><dd class="mono">{{ body.clients }}</dd></div>
+  </dl>
+  {% if body.over %}<p class="truck-body__warn" role="status">Перегруз: на {{ body.over }} {{ body.over|ru_plural:"место,места,мест" }} больше вместимости</p>{% endif %}
+</aside>

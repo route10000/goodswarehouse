@@ -1,66 +1,39 @@
 {% extends "panel/base.html" %}
-{% load panel_tags gw_format %}
-{% block title %}Импорт манифеста · {{ truck.number }} · GoodsWarehouse{% endblock %}
+{% load static %}
+{% block title %}{% if mode == "manual" %}Ввод грузов{% else %}Импорт манифеста{% endif %} · {{ truck.number }} · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-trucks.css' %}">
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
     <a class="back-link" href="{% url 'panel:truck' truck.pk %}">← {{ truck.number }}</a>
-    <h1 class="page-title">Импорт манифеста</h1>
+    <h1 class="page-title">{% if mode == "manual" %}Ввод грузов вручную{% else %}Импорт манифеста{% endif %}</h1>
     <p class="page-meta">Машина <span class="mono">{{ truck.number }}</span> · {{ truck.route }}</p>
   </div>
-  <a class="btn btn--quiet" href="{% url 'panel:import_template' %}">Скачать шаблон</a>
-</div>
-
-<form class="panel upload" method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="upload__row">
-    {% include "panel/includes/field.html" with field=form.file %}
-    <button class="btn {% if preview and not preview.has_errors %}btn--quiet{% else %}btn--primary{% endif %}" type="submit">Проверить файл</button>
-  </div>
-  <p class="caption">Колонки: <span class="mono">артикул, телефон, имя, описание, мест, вес, объём, сумма</span>. Обязательны артикул и телефон. Файл .xlsx до 2 МБ. Новые телефоны создают клиентов.</p>
-</form>
-
-{% if preview %}
-<section class="panel panel--flush" aria-labelledby="preview-title">
-  <div class="panel__head panel__head--pad">
-    <div>
-      <h2 id="preview-title" class="panel__title">Предпросмотр</h2>
-      {% if summary %}<p class="caption">{{ summary }}</p>{% endif %}
-    </div>
-    {% if not preview.has_errors %}
-    <form method="post" action="{% url 'panel:truck_import_apply' truck.pk %}">
-      {% csrf_token %}
-      <button class="btn btn--primary" type="submit" name="confirm" value="apply">Импортировать</button>
-    </form>
+  <div class="panel__actions">
+    {% if mode == "manual" %}
+    <a class="btn btn--quiet" href="{% url 'panel:truck_import' truck.pk %}">Импорт Excel</a>
+    {% else %}
+    <a class="btn btn--quiet" href="{% url 'panel:truck_import' truck.pk %}?manual=1">Ввести вручную</a>
+    <a class="btn btn--quiet" href="{% url 'panel:import_template' %}">Скачать шаблон</a>
     {% endif %}
   </div>
+</div>
 
-  {% for error in preview.errors %}<p class="form-error form-error--pad">{{ error }}</p>{% endfor %}
-  {% if preview.has_errors and preview.rows %}<p class="form-error form-error--pad">Исправьте строки с ошибками в файле и загрузите его снова. Пока есть ошибки, ничего не импортируется.</p>{% endif %}
-
-  {% if preview.rows %}
-  <table class="table table--preview">
-    <thead>
-      <tr><th class="num">Строка</th><th>Артикул</th><th>Телефон</th><th>Имя</th><th>Описание</th><th class="num">Мест</th><th class="num">Вес</th><th class="num">Объём</th><th class="num">Сумма</th><th>Проверка</th></tr>
-    </thead>
-    <tbody>
-      {% for row in preview.rows %}
-      <tr class="{% if row.errors %}row--error{% endif %}">
-        <td data-label="Строка" class="num">{{ row.line }}</td>
-        <td data-label="Артикул" class="mono">{{ row.article|default:"—" }}</td>
-        <td data-label="Телефон" class="mono nowrap">{{ row.phone|phone|default:"—" }}</td>
-        <td data-label="Имя"><span class="cell-client">{{ row.name|default:"—" }}{% if row.new_client %} <span class="pill st-loading">новый</span>{% endif %}</span></td>
-        <td data-label="Описание">{{ row.description|default:"—" }}</td>
-        <td data-label="Мест" class="num">{{ row.places|default_if_none:"—" }}</td>
-        <td data-label="Вес" class="num">{{ row.weight_kg|ru_number|default:"—" }}</td>
-        <td data-label="Объём" class="num">{{ row.volume_m3|ru_number|default:"—" }}</td>
-        <td data-label="Сумма" class="num nowrap">{{ row.amount_due|rub|default:"—" }}</td>
-        <td data-label="Проверка">{% if row.errors %}<span class="row-errors">{{ row.errors|join:"; " }}</span>{% else %}<span class="pill st-ready">OK</span>{% endif %}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% endif %}
-</section>
+{% if mode != "manual" %}
+<form class="panel upload" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="upload" value="1">
+  <div class="upload__row">
+    {% include "panel/includes/field.html" with field=form.file %}
+    <button class="btn {% if grid %}btn--quiet{% else %}btn--primary{% endif %}" type="submit">Проверить файл</button>
+  </div>
+  <p class="caption">Колонки: <span class="mono">артикул, телефон, имя, описание, мест, вес, объём, сумма</span>; необязательные: <span class="mono">трек, продавец, упаковка, хрупкое, заметка</span>. Обязательны артикул и телефон, регистр в заголовках не важен. Файл .xlsx до 2 МБ. Новые телефоны создают клиентов. После проверки ячейки можно исправить прямо в таблице.</p>
+  {% for error in file_errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+</form>
 {% endif %}
+
+{% if grid %}{% include "panel/trucks/_import_grid.html" %}{% endif %}
 {% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/panel-trucks.js' %}" defer></script>{% endblock %}

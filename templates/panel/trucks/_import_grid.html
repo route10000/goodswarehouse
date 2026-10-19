@@ -1,0 +1,69 @@
+{% load gw_format ops_tags %}
+{# Editable entry grid (import preview and manual entry). Every row posts all 13 cells, so the column lists stay aligned. #}
+<form id="import-grid" class="panel panel--flush import-grid" method="post" action="{% url 'panel:truck_import' truck.pk %}"
+      hx-post="{% url 'panel:truck_import' truck.pk %}" hx-target="this" hx-swap="outerHTML" data-grid novalidate>
+  {% csrf_token %}
+  {# Enter in a cell presses the first submit button of the form: make it «Проверить», not ×. #}
+  <button class="visually-hidden" type="submit" name="check" value="1" tabindex="-1" aria-hidden="true">Проверить</button>
+  <input type="hidden" name="checked" value="{% if checked %}1{% endif %}">
+  <input type="hidden" name="mode" value="{{ mode }}">
+
+  <div class="panel__head panel__head--pad">
+    <div>
+      <h2 class="panel__title">{% if mode == "manual" %}Грузы для машины{% else %}Предпросмотр{% endif %}</h2>
+      {% if summary %}<p class="caption">{{ summary }}</p>{% else %}<p class="caption">Обязательны артикул и телефон. Пустые строки не сохраняются.</p>{% endif %}
+    </div>
+    <div class="panel__actions">
+      <button class="btn btn--quiet btn--sm" type="submit" name="check" value="1">Проверить</button>
+      <span class="caption htmx-indicator">Проверяем…</span>
+    </div>
+  </div>
+
+  {% for error in grid_errors %}<p class="form-error form-error--pad">{{ error }}</p>{% endfor %}
+  {% if grid_row_errors %}<p class="form-error form-error--pad">Исправьте ячейки с красной рамкой и нажмите «Проверить». Пока есть ошибки, ничего не сохраняется.</p>{% endif %}
+
+  <div class="grid-scroll">
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th class="g-n num">№</th>
+          {% for col in columns %}<th class="{{ col.css }}">{{ col.label }}{% if col.required %} <span class="muted" aria-hidden="true">*</span>{% endif %}</th>{% endfor %}
+          <th class="g-del"><span class="visually-hidden">Удалить строку</span></th>
+        </tr>
+      </thead>
+      {% for row in grid %}
+      <tbody class="grid-row{% if row.errors %} row--error{% endif %}" data-grid-row>
+        <tr>
+          <td class="g-n num"><span class="grid-row__n">{{ row.n }}</span></td>
+          {% for cell in row.cells %}
+          <td class="{{ cell.css }}" data-label="{{ cell.label }}">
+            {% if cell.kind == "select" %}
+            <select class="input grid-input{% if cell.invalid %} is-invalid{% endif %}" name="{{ cell.key }}" aria-label="{{ cell.label }}, строка {{ row.n }}"{% if cell.invalid %} aria-invalid="true"{% endif %}>
+              {% if cell.unknown %}<option value="{{ cell.unknown }}" selected>{{ cell.unknown }}</option>{% endif %}
+              {% for value, label in cell.options %}<option value="{{ value }}"{% if value == cell.value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+            {% else %}
+            <input class="input grid-input{% if cell.invalid %} is-invalid{% endif %}" name="{{ cell.key }}" value="{{ cell.value }}" type="text" autocomplete="off"{% if cell.kind == "num" %} inputmode="decimal"{% endif %}{% if cell.key == "phone" %} inputmode="tel"{% endif %} aria-label="{{ cell.label }}, строка {{ row.n }}"{% if cell.invalid %} aria-invalid="true"{% endif %}>
+            {% if cell.key == "name" and row.new_client %}<span class="grid-new">новый клиент</span>{% endif %}
+            {% endif %}
+          </td>
+          {% endfor %}
+          <td class="g-del"><button class="grid-del" type="submit" name="delete" value="{{ row.index }}" title="Удалить строку" aria-label="Удалить строку {{ row.n }}">×</button></td>
+        </tr>
+        {% if row.errors %}
+        <tr class="grid-row__errors">
+          <td class="g-n"></td>
+          <td colspan="14"><span class="row-errors">Строка {{ row.n }}: {{ row.errors|join:"; " }}</span></td>
+        </tr>
+        {% endif %}
+      </tbody>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="grid-foot">
+    <button class="btn btn--quiet btn--sm" type="submit" name="add_row" value="1">+ строка</button>
+    <p class="grid-total">Итого: <span class="mono">{{ totals.rows }}</span> {{ totals.rows|ru_plural:"строка,строки,строк" }} · мест <span class="mono">{{ totals.places }}</span> · вес <span class="mono">{{ totals.weight|ru_number|default:"0" }}</span> кг · сумма <span class="mono">{{ totals.amount|rub }}</span></p>
+    <button class="btn btn--primary" type="submit" name="save" value="1" data-grid-save>Сохранить {{ save_count }} {{ save_count|ru_plural:"груз,груза,грузов" }}</button>
+  </div>
+</form>

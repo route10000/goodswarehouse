@@ -1,0 +1,33 @@
+{% load gw_format %}
+{# Received cargo without a truck, for «Добавить из принятых». Checkboxes belong to #received-form. #}
+<div id="received-list" class="received-list"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% if received %}
+  <table class="table table--received">
+    <thead>
+      <tr><th class="cell-check"><span class="visually-hidden">Выбрать</span></th><th>Артикул</th><th>Клиент</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">Сумма</th></tr>
+    </thead>
+    <tbody>
+      {% for cargo in received %}
+      <tr class="received-row" data-check-row>
+        <td class="cell-check"><input id="received-{{ cargo.pk }}" type="checkbox" name="cargo" value="{{ cargo.pk }}" data-received-item data-places="{{ cargo.places }}"></td>
+        <td data-label="Артикул"><label class="mono strong" for="received-{{ cargo.pk }}">{{ cargo.article }}</label></td>
+        <td data-label="Клиент">
+          <span class="cargo-cell">
+            <span class="cargo-cell__client">{{ cargo.client.name|default:"Без имени" }} <span class="caption mono">{{ cargo.client.code }}</span></span>
+            <span class="cargo-cell__meta">{% if cargo.track_number %}<span class="mono">{{ cargo.track_number }}</span><span aria-hidden="true">·</span>{% endif %}<span>{{ cargo.get_packaging_display }}</span>{% if cargo.fragile %}<span class="tag-fragile">хрупкое</span>{% endif %}</span>
+          </span>
+        </td>
+        <td data-label="Мест" class="num">{{ cargo.places }}</td>
+        <td data-label="Вес, кг" class="num">{{ cargo.weight_kg|ru_number|default:"—" }}</td>
+        <td data-label="Сумма" class="num nowrap">{{ cargo.amount_due|rub }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if received_more %}<p class="caption received-list__more">Показаны первые {{ received|length }} из {{ received_found }}. Уточните поиск.</p>{% endif %}
+  {% elif received_q %}
+  <p class="muted received-list__empty">Ничего не нашли по «{{ received_q }}».</p>
+  {% else %}
+  <p class="muted received-list__empty">Принятых грузов без машины нет.</p>
+  {% endif %}
+</div>

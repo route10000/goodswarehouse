@@ -1,0 +1,586 @@
+/* Truck card contents («Кузов», cargo table, add from received) and the import / manual entry grid.
+   Light panel theme only: colours come from tokens.css through the .theme-panel variables. */
+
+/* ---------- Layout: table on the left, «Кузов» on the right ---------- */
+.truck-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--s-4);
+  align-items: start;
+}
+
+.truck-layout__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+/* ---------- «Кузов» ---------- */
+.truck-body {
+  position: sticky;
+  top: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.truck-body .panel__title {
+  margin: 0;
+}
+
+.truck-body__box {
+  display: grid;
+  grid-template-rows: repeat(4, 14px);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 3px;
+  padding: var(--s-1);
+  border: 2px solid var(--black);
+  border-radius: var(--r-sm);
+}
+
+.truck-body__cell {
+  border-radius: 2px;
+  background: var(--l-soft);
+}
+
+.truck-body__cell.is-filled {
+  background: var(--black);
+}
+
+.truck-body__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-2);
+  margin: 0;
+}
+
+.truck-body__stats div {
+  min-width: 0;
+}
+
+.truck-body__stats dt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.truck-body__stats dd {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.truck-body__warn {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--st-error-ink);
+}
+
+/* ---------- Cargo table ---------- */
+.cell-check {
+  width: 44px;
+}
+
+.cell-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--black);
+  vertical-align: middle;
+}
+
+.cell-action {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cargo-row {
+  cursor: pointer;
+}
+
+.table tbody tr.is-selected {
+  background: var(--surface-2);
+}
+
+.cargo-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--s-1) 0;
+}
+
+.cargo-cell__meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tag-fragile {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border: 1.5px solid var(--text);
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Selection bar: shows up when at least one row is ticked. */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+}
+
+.bulk-bar[hidden] {
+  display: none;
+}
+
+.bulk-bar__text {
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ---------- «+ Добавить из принятых», «+ Новый груз» ---------- */
+.contents-add {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.contents-drawer > summary {
+  width: fit-content;
+  list-style: none;
+  cursor: pointer;
+}
+
+.contents-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.contents-drawer[open] > summary {
+  background: var(--surface-2);
+}
+
+.contents-drawer__body {
+  margin-top: var(--s-3);
+}
+
+.contents-drawer__body > .caption {
+  margin: 0 0 var(--s-3);
+}
+
+.contents-drawer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.contents-drawer__search {
+  flex: 1 1 280px;
+}
+
+.contents-drawer__bar > .caption {
+  padding-bottom: 12px;
+}
+
+.received-list {
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+
+.received-row {
+  cursor: pointer;
+}
+
+.received-row label {
+  cursor: pointer;
+}
+
+.received-list__empty,
+.received-list__more {
+  margin: 0;
+  padding: var(--s-4);
+}
+
+.cargo-form input[type="file"] {
+  padding: 5px var(--s-2);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.cargo-form input[type="file"]::file-selector-button {
+  height: 30px;
+  margin-right: var(--s-3);
+  padding: 0 var(--s-3);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cargo-form__check {
+  align-self: end;
+  min-height: 44px;
+}
+
+/* ---------- Import / manual entry grid ---------- */
+.import-grid {
+  overflow: visible;
+}
+
+.grid-scroll {
+  overflow-x: auto;
+}
+
+.grid-table {
+  width: 100%;
+  min-width: 1500px;
+  border-collapse: collapse;
+}
+
+.grid-table th {
+  height: 36px;
+  padding: 0 var(--s-1);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.grid-table td {
+  padding: var(--s-1);
+  vertical-align: top;
+}
+
+.grid-row > tr:first-child td {
+  padding-top: var(--s-2);
+}
+
+.grid-row:not(:last-child) {
+  border-bottom: 1px solid var(--line);
+}
+
+.grid-table .grid-input {
+  height: 36px;
+  padding: 0 var(--s-2);
+  font-size: 14px;
+}
+
+.grid-table select.grid-input {
+  padding-right: var(--s-1);
+}
+
+.grid-table td.g-num .grid-input,
+.grid-table td.g-money .grid-input {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-align: right;
+}
+
+.grid-table td.g-article .grid-input,
+.grid-table td.g-phone .grid-input,
+.grid-table td.g-track .grid-input {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.grid-table .grid-input.is-invalid {
+  border-color: var(--st-error);
+}
+
+.g-n {
+  width: 40px;
+}
+
+.grid-row__n {
+  display: inline-block;
+  padding-top: 9px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.g-article { min-width: 130px; }
+.g-phone { min-width: 164px; }
+.g-name { min-width: 130px; }
+.g-wide { min-width: 190px; }
+.g-num { min-width: 72px; }
+.g-money { min-width: 100px; }
+.g-track { min-width: 150px; }
+.g-select { min-width: 120px; }
+.g-flag { min-width: 80px; }
+
+/* × stays in view while the wide grid scrolls sideways. */
+.grid-table .g-del {
+  position: sticky;
+  right: 0;
+  width: 44px;
+  background: var(--surface);
+}
+
+.grid-table .row--error .g-del {
+  background: color-mix(in srgb, var(--st-error) 10%, var(--surface));
+}
+
+.grid-del {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.grid-del:hover,
+.grid-del:focus-visible {
+  border-color: var(--line);
+  color: var(--st-error-ink);
+}
+
+.grid-new {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.grid-row__errors td {
+  padding-top: 0;
+  padding-bottom: var(--s-2);
+}
+
+.grid-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+
+.grid-total {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.grid-total .mono {
+  color: var(--text);
+}
+
+/* ---------- Narrow screens ---------- */
+@media (max-width: 1099px) {
+  .truck-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .truck-body {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 719px) {
+  .table--manage td.cell-check {
+    justify-content: flex-start;
+  }
+
+  .table--manage td.cell-action {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .cargo-cell {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .cargo-cell__meta {
+    justify-content: flex-end;
+  }
+
+  /* Sticks under the 56px topbar while the cargo cards scroll. */
+  .bulk-bar {
+    position: sticky;
+    top: calc(56px + var(--s-2));
+    z-index: 5;
+    flex-wrap: wrap;
+    margin-bottom: var(--s-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+  }
+
+  .bulk-bar__text {
+    flex: 1 1 100%;
+  }
+
+  .bulk-bar .btn {
+    flex: 1 1 0;
+  }
+
+  .contents-drawer > summary {
+    width: 100%;
+  }
+
+  .contents-drawer__bar .btn {
+    width: 100%;
+  }
+
+  .received-list {
+    max-height: none;
+    border: 0;
+  }
+
+  /* The grid turns into one card per row: labelled cells in two columns. */
+  .grid-table {
+    min-width: 0;
+  }
+
+  .grid-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .grid-table,
+  .grid-table tbody,
+  .grid-table tr {
+    display: block;
+  }
+
+  .grid-row {
+    margin: 0 0 var(--s-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+  }
+
+  .grid-row:not(:last-child) {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .grid-table .row--error {
+    border-color: var(--st-error);
+  }
+
+  .grid-table .row--error td {
+    background: transparent;
+  }
+
+  .grid-table .row--error td:first-child {
+    box-shadow: none;
+  }
+
+  .grid-row > tr:first-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-2) var(--s-3);
+    padding: var(--s-3);
+  }
+
+  .grid-row > tr:first-child td {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .grid-table td[data-label]::before {
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .grid-table td.g-n {
+    grid-column: 1;
+    width: auto;
+  }
+
+  .grid-row__n {
+    padding-top: 6px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .grid-row__n::before {
+    content: "Строка ";
+  }
+
+  .grid-table .grid-row td.g-del {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    align-items: flex-end;
+    width: auto;
+    background: transparent;
+  }
+
+  .grid-table td.g-article,
+  .grid-table td.g-phone,
+  .grid-table td.g-wide {
+    grid-column: 1 / -1;
+  }
+
+  .grid-row__errors {
+    padding: 0 var(--s-3) var(--s-3);
+  }
+
+  .grid-row__errors td {
+    display: block;
+    padding: 0;
+  }
+
+  .grid-row__errors td.g-n {
+    display: none;
+  }
+
+  .grid-foot {
+    padding: var(--s-3) 0;
+    border-top: 0;
+  }
+
+  .grid-foot .btn--primary {
+    width: 100%;
+  }
+}

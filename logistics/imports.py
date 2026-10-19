@@ -1,9 +1,10 @@
-"""Truck manifest import from ``.xlsx`` (SPEC §10).
+"""Truck manifest import from ``.xlsx`` and the editable entry grid (SPEC §10, §14.5).
 
 ``parse_manifest`` reads a workbook into an ``ImportPreview`` without writing anything;
-``apply_manifest`` loads a clean preview into a ``loading`` truck in one transaction.
-The preview is plain data (``to_dict`` / ``from_dict``) so the panel can keep it in
-the session between the preview and the confirmation instead of the file itself.
+``parse_rows`` validates the same columns typed into the panel's grid (one dict of cell
+texts per row); ``apply_manifest`` loads a clean preview into a ``loading`` truck in one
+transaction. The preview is plain data (``to_dict`` / ``from_dict``) so the panel can
+keep it in the session between the preview and the confirmation instead of the file.
 """
 
 import io
@@ -20,9 +21,24 @@ from logistics import services
 from logistics.models import Cargo, Client, Truck
 from logistics.phones import InvalidPhone, normalize_phone
 
-TEMPLATE_HEADERS = ["артикул", "телефон", "имя", "описание", "мест", "вес", "объём", "сумма"]
+TEMPLATE_HEADERS = [
+    "артикул",
+    "телефон",
+    "имя",
+    "описание",
+    "мест",
+    "вес",
+    "объём",
+    "сумма",
+    # optional
+    "трек",
+    "продавец",
+    "упаковка",
+    "хрупкое",
+    "заметка",
+]
 REQUIRED = ("артикул", "телефон")
-# Normalized header → row attribute. «объём» and «объем» both normalize to «объем».
+# Normalized header → cell key. «объём» and «объем» both normalize to «объем».
 COLUMNS = {
     "артикул": "article",
     "телефон": "phone",
@@ -32,7 +48,43 @@ COLUMNS = {
     "вес": "weight",
     "объем": "volume",
     "сумма": "amount",
+    "трек": "track_number",
+    "трек-номер": "track_number",
+    "трек номер": "track_number",
+    "продавец": "seller",
+    "упаковка": "packaging",
+    "хрупкое": "fragile",
+    "заметка": "note",
 }
+# Cell keys in grid order (the grid posts one list per key).
+CELL_KEYS = [
+    "article",
+    "phone",
+    "name",
+    "description",
+    "places",
+    "weight",
+    "volume",
+    "amount",
+    "track_number",
+    "seller",
+    "packaging",
+    "fragile",
+    "note",
+]
+# Select cells always carry a value, so they do not make a grid row «filled».
+SELECT_KEYS = ("packaging", "fragile")
+PACKAGING = {
+    "коробка": Cargo.Packaging.BOX,
+    "мешок": Cargo.Packaging.BAG,
+    "паллета": Cargo.Packaging.PALLET,
+    "палета": Cargo.Packaging.PALLET,
+    "другое": Cargo.Packaging.OTHER,
+    **{value: value for value in Cargo.Packaging.values},
+}
+FRAGILE_YES = {"да", "д", "+", "1", "true", "yes", "y", "x", "х", "хрупкое", "хрупкий"}
+FRAGILE_NO = {"", "нет", "н", "-", "0", "false", "no", "n"}
+MAX_ROWS = 1000
 DECIMALS = {
     # attribute: (label, model field)
     "weight": ("Вес", "weight_kg"),
@@ -42,6 +94,8 @@ DECIMALS = {
 NBSP = " "
 FILE_UNREADABLE = "Не удалось прочитать файл. Сохраните его как .xlsx"
 FILE_EMPTY = "В файле нет строк с грузами"
+ROWS_EMPTY = "Заполните хотя бы одну строку: артикул и телефон"
+TOO_MANY_ROWS = f"Не больше {MAX_ROWS} строк за раз. Разбейте манифест на части"
 
 
 @dataclass
@@ -55,8 +109,20 @@ class ManifestRow:
     weight_kg: Decimal | None = None
     volume_m3: Decimal | None = None
     amount_due: Decimal | None = Decimal("0")
+    track_number: str = ""
+    seller: str = ""
+    packaging: str = Cargo.Packaging.BOX
+    fragile: bool = False
+    note: str = ""
     new_client: bool = False
     errors: list[str] = field(default_factory=list)
+    invalid: list[str] = field(default_factory=list)  # cell keys with an error
+    raw: dict = field(default_factory=dict)  # cell texts as typed, for the grid
+
+    def fail(self, key: str, message: str) -> None:
+        self.errors.append(message)
+        if key not in self.invalid:
+            self.invalid.append(key)
 
 
 @dataclass
@@ -155,46 +221,113 @@ def _decimal(value, label: str, model_field: str) -> Decimal | None:
     return number
 
 
+def _packaging(text: str) -> str:
+    key = text.strip().lower().replace("ё", "е")
+    if not key:
+        return Cargo.Packaging.BOX
+    if key not in PACKAGING:
+        raise ValueError("Упаковка: коробка, мешок, паллета или другое")
+    return PACKAGING[key]
+
+
+def _fragile(text: str) -> bool:
+    key = text.strip().lower()
+    if key in FRAGILE_YES:
+        return True
+    if key in FRAGILE_NO:
+        return False
+    raise ValueError("Хрупкое: да или нет")
+
+
+def _max_length(model, name: str) -> int:
+    return model._meta.get_field(name).max_length
+
+
+def _is_empty(cells: dict) -> bool:
+    return not any(_text(v) for k, v in cells.items() if k not in SELECT_KEYS)
+
+
 def _parse_row(line: int, cells: dict) -> ManifestRow:
-    row = ManifestRow(line=line)
-    row.article = _text(cells.get("article"))
-    row.name = _text(cells.get("name"))
-    row.description = _text(cells.get("description"))
-    raw_phone = _text(cells.get("phone"))
+    raw = {key: _text(cells.get(key)) for key in CELL_KEYS}
+    row = ManifestRow(line=line, raw=raw)
+    row.article = raw["article"]
+    row.name = raw["name"]
+    row.description = raw["description"]
+    row.track_number = raw["track_number"]
+    row.seller = raw["seller"]
+    row.note = raw["note"]
+    raw_phone = raw["phone"]
 
     if not row.article:
-        row.errors.append("Нет артикула")
-    elif len(row.article) > Cargo._meta.get_field("article").max_length:
-        row.errors.append("Артикул длиннее 64 символов")
+        row.fail("article", "Нет артикула")
+    elif len(row.article) > _max_length(Cargo, "article"):
+        row.fail("article", "Артикул длиннее 64 символов")
     if not raw_phone:
-        row.errors.append("Нет телефона")
+        row.fail("phone", "Нет телефона")
     else:
         try:
             row.phone = normalize_phone(raw_phone)
         except InvalidPhone:
             row.phone = raw_phone
-            row.errors.append(f"Неверный телефон: {raw_phone}")
-    if len(row.name) > Client._meta.get_field("name").max_length:
-        row.errors.append("Имя длиннее 200 символов")
-    if len(row.description) > Cargo._meta.get_field("description").max_length:
-        row.errors.append("Описание длиннее 255 символов")
+            row.fail("phone", f"Неверный телефон: {raw_phone}")
+    if len(row.name) > _max_length(Client, "name"):
+        row.fail("name", "Имя длиннее 200 символов")
+    if len(row.description) > _max_length(Cargo, "description"):
+        row.fail("description", "Описание длиннее 255 символов")
+    if len(row.track_number) > _max_length(Cargo, "track_number"):
+        row.fail("track_number", "Трек-номер длиннее 64 символов")
+    if len(row.seller) > _max_length(Cargo, "seller"):
+        row.fail("seller", "Продавец длиннее 120 символов")
 
     try:
-        row.places = _places(cells.get("places"))
+        row.places = _places(raw["places"])
     except ValueError as exc:
         row.places = None
-        row.errors.append(str(exc))
+        row.fail("places", str(exc))
     for attr, (label, model_field) in DECIMALS.items():
         try:
-            value = _decimal(cells.get(attr), label, model_field)
+            value = _decimal(raw[attr], label, model_field)
         except ValueError as exc:
-            row.errors.append(str(exc))
+            row.fail(attr, str(exc))
             value = None
         else:
             if value is None and model_field == "amount_due":
                 value = Decimal("0")  # an empty amount means nothing to pay
         setattr(row, model_field, value)
+
+    # Select cells: the grid shows the parsed choice; a bad value stays as typed.
+    try:
+        row.packaging = _packaging(raw["packaging"])
+        raw["packaging"] = row.packaging
+    except ValueError as exc:
+        row.fail("packaging", str(exc))
+    try:
+        row.fragile = _fragile(raw["fragile"])
+        raw["fragile"] = "да" if row.fragile else ""
+    except ValueError as exc:
+        row.fail("fragile", str(exc))
     return row
+
+
+def _validate(entries) -> ImportPreview:
+    """Parse ``(line, cells)`` pairs: per-row checks, repeated articles, new clients."""
+    preview = ImportPreview()
+    seen: dict[str, int] = {}
+    for line, cells in entries:
+        row = _parse_row(line, cells)
+        if row.article:
+            key = row.article.casefold()
+            if key in seen:
+                row.fail("article", f"Артикул повторяется (строка {seen[key]})")
+            else:
+                seen[key] = row.line
+        preview.rows.append(row)
+
+    valid_phones = {row.phone for row in preview.rows if row.phone.startswith("+")}
+    known = set(Client.objects.filter(phone__in=valid_phones).values_list("phone", flat=True))
+    for row in preview.rows:
+        row.new_client = row.phone in valid_phones and row.phone not in known
+    return preview
 
 
 # ---------- public API ----------
@@ -224,8 +357,7 @@ def parse_manifest(file) -> ImportPreview:
     if missing:
         return ImportPreview(errors=[f"Нет колонки «{name}»" for name in missing])
 
-    preview = ImportPreview()
-    seen: dict[str, int] = {}
+    entries = []
     for offset, values in enumerate(rows[header_index + 1 :], start=header_index + 2):
         if not any(_text(c) for c in values):
             continue
@@ -233,23 +365,23 @@ def parse_manifest(file) -> ImportPreview:
             attr: (values[index] if index < len(values) else None)
             for attr, index in positions.items()
         }
-        row = _parse_row(offset, cells)
-        if row.article:
-            key = row.article.casefold()
-            if key in seen:
-                row.errors.append(f"Артикул повторяется (строка {seen[key]})")
-            else:
-                seen[key] = row.line
-        preview.rows.append(row)
-
-    if not preview.rows:
+        entries.append((offset, cells))
+    if not entries:
         return ImportPreview(errors=[FILE_EMPTY])
+    if len(entries) > MAX_ROWS:
+        return ImportPreview(errors=[TOO_MANY_ROWS])
+    return _validate(entries)
 
-    valid_phones = {row.phone for row in preview.rows if row.phone.startswith("+")}
-    known = set(Client.objects.filter(phone__in=valid_phones).values_list("phone", flat=True))
-    for row in preview.rows:
-        row.new_client = row.phone in valid_phones and row.phone not in known
-    return preview
+
+def parse_rows(rows: list[dict]) -> ImportPreview:
+    """Validate rows typed into the grid. ``line`` is the row's position (from 1);
+    rows with nothing typed are skipped. Never raises for bad content."""
+    entries = [(n, cells) for n, cells in enumerate(rows, start=1) if not _is_empty(cells)]
+    if not entries:
+        return ImportPreview(errors=[ROWS_EMPTY])
+    if len(entries) > MAX_ROWS:
+        return ImportPreview(errors=[TOO_MANY_ROWS])
+    return _validate(entries)
 
 
 def apply_manifest(preview: ImportPreview, truck: Truck) -> int:
@@ -270,6 +402,11 @@ def apply_manifest(preview: ImportPreview, truck: Truck) -> int:
                 weight_kg=row.weight_kg,
                 volume_m3=row.volume_m3,
                 amount_due=row.amount_due if row.amount_due is not None else Decimal("0"),
+                track_number=row.track_number,
+                seller=row.seller,
+                packaging=row.packaging,
+                fragile=row.fragile,
+                note=row.note,
                 truck=truck,
             )
     return len(preview.rows)
@@ -283,7 +420,8 @@ def build_template() -> bytes:
     sheet.append(TEMPLATE_HEADERS)
     for cell in sheet[1]:
         cell.font = Font(bold=True)
-    for letter, width in zip("ABCDEFGH", (18, 18, 22, 32, 8, 10, 10, 12), strict=True):
+    widths = (18, 18, 22, 32, 8, 10, 10, 12, 20, 20, 12, 10, 32)
+    for letter, width in zip("ABCDEFGHIJKLM", widths, strict=True):
         sheet.column_dimensions[letter].width = width
     buffer = io.BytesIO()
     workbook.save(buffer)

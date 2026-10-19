@@ -1,6 +1,9 @@
 {% extends "panel/base.html" %}
-{% load panel_tags gw_format %}
+{% load static panel_tags gw_format %}
 {% block title %}{{ truck.number }} · Машины · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-trucks.css' %}">
+{% endblock %}
 {% block content %}
 {% with manager=request.user|is_manager %}
 <div class="page-head">
@@ -24,41 +27,82 @@
 
 {% if manager %}{% include "panel/trucks/_action.html" %}{% endif %}
 
-<section class="panel panel--flush" aria-labelledby="cargo-title">
-  <div class="panel__head panel__head--pad">
-    <h2 id="cargo-title" class="panel__title">Грузы в машине</h2>
-    {% if manager and can_add %}
-    <div class="panel__actions">
-      <a class="btn btn--quiet btn--sm" href="{% url 'panel:truck_import' truck.pk %}">Импорт из Excel</a>
+<div class="truck-layout">
+  <div class="truck-layout__main">
+    <section class="panel panel--flush" aria-labelledby="cargo-title" data-contents>
+      <div class="panel__head panel__head--pad">
+        <h2 id="cargo-title" class="panel__title">Грузы в машине</h2>
+        {% if manage %}
+        <div class="panel__actions">
+          <a class="btn btn--quiet btn--sm" href="{% url 'panel:truck_import' truck.pk %}">Импорт Excel</a>
+          <a class="btn btn--quiet btn--sm" href="{% url 'panel:truck_import' truck.pk %}?manual=1">Ввести вручную</a>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if manage %}
+      <form id="cargo-bulk" class="bulk-bar" method="post" action="{% url 'panel:truck_cargo_remove' truck.pk %}"
+            hx-post="{% url 'panel:truck_cargo_remove' truck.pk %}" hx-include="#received-q" hx-swap="none" hidden data-bulk-bar>
+        {% csrf_token %}
+        <span class="bulk-bar__text">Выбрано: <span class="mono" data-bulk-count>0</span></span>
+        <button class="btn btn--quiet btn--sm" type="button" data-bulk-clear>Снять выбор</button>
+        <button class="btn btn--outline btn--sm" type="submit"><span>Убрать из машины (<span data-bulk-count>0</span>)</span></button>
+      </form>
+      {% endif %}
+
+      <table class="table table--cargo{% if manage %} table--manage{% endif %}">
+        <thead>
+          <tr>
+            {% if manage %}<th class="cell-check"><input type="checkbox" aria-label="Выбрать все грузы" data-bulk-all></th>{% endif %}
+            <th>Артикул</th><th>Клиент · трек, упаковка</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">Сумма</th>
+            {% if manage %}<th><span class="visually-hidden">Действие</span></th>{% else %}<th>Статус</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody id="cargo-rows">
+          {% for cargo in cargos %}
+            {% include "panel/trucks/_cargo_row.html" %}
+          {% empty %}
+            {% include "panel/trucks/_cargo_empty.html" %}
+          {% endfor %}
+        </tbody>
+        {% include "panel/trucks/_cargo_totals.html" %}
+      </table>
+    </section>
+
+    {% if manage %}
+    <div class="contents-add">
+      <details class="contents-drawer" id="received-panel">
+        <summary class="btn btn--quiet"><span>+ Добавить из принятых (<span id="received-count">{{ received_all }}</span>)</span></summary>
+        <form id="received-form" class="panel contents-drawer__body" method="post" action="{% url 'panel:truck_cargo_load' truck.pk %}"
+              hx-post="{% url 'panel:truck_cargo_load' truck.pk %}" hx-swap="none" data-received-form>
+          {% csrf_token %}
+          <div class="contents-drawer__bar">
+            <div class="field contents-drawer__search">
+              <label for="received-q">Поиск по артикулу, телефону или треку</label>
+              <input id="received-q" type="search" name="q" value="{{ received_q }}" autocomplete="off" placeholder="YT1234… или 914 123"
+                     hx-get="{% url 'panel:truck_received' truck.pk %}" hx-trigger="input changed delay:300ms, search"
+                     hx-target="#received-list" hx-swap="outerHTML" hx-sync="this:replace">
+            </div>
+            <span class="caption" data-received-summary>Выбрано: <span class="mono" data-received-count>0</span> · мест <span class="mono" data-received-places>0</span></span>
+            <button class="btn btn--outline" type="submit" data-received-submit disabled>Погрузить выбранные</button>
+          </div>
+          {% include "panel/trucks/_received_list.html" %}
+        </form>
+      </details>
+
+      <details class="contents-drawer" id="new-cargo-panel">
+        <summary class="btn btn--quiet">+ Новый груз</summary>
+        <div class="panel contents-drawer__body">
+          <p class="caption">Клиент ищется по телефону; если номера нет, создадим нового. Фото необязательно.</p>
+          {% include "panel/trucks/_cargo_form.html" %}
+        </div>
+      </details>
     </div>
     {% endif %}
   </div>
-  <table class="table table--cargo">
-    <thead>
-      <tr>
-        <th>Артикул</th><th>Клиент</th><th>Телефон</th><th>Описание</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">К оплате</th><th>Статус</th><th>Канал</th>
-      </tr>
-    </thead>
-    <tbody id="cargo-rows">
-      {% for cargo in cargos %}
-        {% include "panel/trucks/_cargo_row.html" %}
-      {% empty %}
-        <tr id="cargo-empty" class="row--empty"><td colspan="9" class="muted">В машине пока нет грузов.</td></tr>
-      {% endfor %}
-    </tbody>
-    {% include "panel/trucks/_cargo_totals.html" %}
-  </table>
-</section>
 
-{% if manager and can_add %}
-<section class="panel" aria-labelledby="add-title">
-  <div class="panel__head">
-    <h2 id="add-title" class="panel__title">Добавить груз</h2>
-    <span class="caption">Клиент ищется по телефону; если номера нет, создадим нового</span>
-  </div>
-  {% include "panel/trucks/_cargo_form.html" %}
-</section>
-{% endif %}
+  {% include "panel/trucks/_body.html" %}
+</div>
 
 {% if truck.comment %}
 <section class="panel">
@@ -68,3 +112,4 @@
 {% endif %}
 {% endwith %}
 {% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/panel-trucks.js' %}" defer></script>{% endblock %}

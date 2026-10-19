@@ -48,6 +48,7 @@ class TruckAdmin(admin.ModelAdmin):
 class CargoAdmin(admin.ModelAdmin):
     list_display = [
         "article",
+        "track_number",
         "client",
         "truck",
         "status",
@@ -57,8 +58,16 @@ class CargoAdmin(admin.ModelAdmin):
         "paid",
         "free_storage_until",
     ]
-    list_filter = ["status", "paid"]
-    search_fields = ["article", "client__phone", "client__code", "client__name", "truck__number"]
+    list_filter = ["status", "paid", "packaging", "fragile"]
+    search_fields = [
+        "article",
+        "track_number",
+        "seller",
+        "client__phone",
+        "client__code",
+        "client__name",
+        "truck__number",
+    ]
     list_select_related = ["client", "truck"]
     autocomplete_fields = ["client"]
     # truck is read-only too: assigning it must go through services.assign_to_truck.

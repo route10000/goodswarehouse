@@ -1,0 +1,12 @@
+{# HTMX response to «Убрать» / «Погрузить выбранные»: only out-of-band swaps and a toast. #}
+{% if changed %}
+{% for pk in removed %}<template><tr id="cargo-row-{{ pk }}" hx-swap-oob="delete"></tr></template>{% endfor %}
+{% if added_rows %}
+<template><tr id="cargo-empty" hx-swap-oob="delete"></tr></template>
+<template><tbody hx-swap-oob="beforeend:#cargo-rows">{% for cargo in added_rows %}{% include "panel/trucks/_cargo_row.html" with fresh=True %}{% endfor %}</tbody></template>
+{% elif not totals.count %}
+<template><tbody hx-swap-oob="innerHTML:#cargo-rows">{% include "panel/trucks/_cargo_empty.html" %}</tbody></template>
+{% endif %}
+{% include "panel/trucks/_contents_oob.html" %}
+{% endif %}
+{% if toast %}<template><div hx-swap-oob="beforeend:#toasts"><div class="toast{% if error %} st-error{% endif %}" data-toast>{{ toast }}</div></div></template>{% endif %}

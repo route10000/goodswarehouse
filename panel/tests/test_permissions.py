@@ -19,6 +19,10 @@ def mutating(truck, client):
         ("post", f"/panel/trucks/{truck.pk}/status/arrive/"),
         ("post", f"/panel/trucks/{truck.pk}/status/close/"),
         ("post", f"/panel/trucks/{truck.pk}/cargo/add/"),
+        ("post", f"/panel/trucks/{truck.pk}/cargo/remove/"),
+        ("post", f"/panel/trucks/{truck.pk}/cargo/load/"),
+        ("get", f"/panel/trucks/{truck.pk}/received/"),
+        ("get", f"/panel/trucks/{truck.pk}/import/?manual=1"),
         ("get", "/panel/cargo/new/"),
         ("post", "/panel/cargo/new/"),
         ("get", f"/panel/trucks/{truck.pk}/import/"),
@@ -91,4 +95,5 @@ def test_manager_sees_controls(mgr, loaded_truck):
 
     assert "Отправить машину" in page
     assert "Добавить груз" in page
-    assert "Импорт из Excel" in page
+    assert "Импорт Excel" in page
+    assert "Ввести вручную" in page

@@ -116,7 +116,8 @@ def test_card_shows_cargo_totals_and_channels(mgr, loaded_truck):
     assert str(totals["weight"]) == "12.50"
     assert str(totals["amount"]) == "350.00"
     page = response.content.decode()
-    assert "Telegram" in page and "Звонок" in page
+    # Channels are summed up in the next-step bar; the rows show the cargo's own fields.
+    assert "1 клиент получит сообщение в Telegram, 1 груз попадёт в ордер на звонок" in page
     assert [s["state"] for s in response.context["steps"]] == [
         "current",
         "future",

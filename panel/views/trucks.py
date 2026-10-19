@@ -1,11 +1,12 @@
-"""Trucks: list, create/edit, card with status actions, adding cargo (HTMX)."""
+"""Trucks: list, create/edit, card with status actions and the truck contents (HTMX):
+the «Кузов» widget, removing cargo, loading received cargo, adding new cargo."""
 
 from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Count, Sum
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import Coalesce
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -16,10 +17,10 @@ from logistics import services
 from logistics.models import Cargo, Truck
 from logistics.services import InvalidTransition
 from panel.forms import CargoForm, TruckForm
-from panel.permissions import manager_required
+from panel.permissions import is_manager, manager_required
 from public.templatetags.gw_format import ru_date, ru_datetime
 
-from .common import count_phrase, paginate, plural
+from .common import any_of, count_phrase, paginate, phone_q, plural
 from .lookup import lookup_context
 
 STEPS = [
@@ -50,6 +51,10 @@ ACTIONS = {
     ),
 }
 NOT_LOADING = "Машина {number} уже не грузится. Груз можно добавить только в машину на погрузке"
+NOTHING_SELECTED = "Выберите грузы"
+# The «Кузов» widget always draws this many boxes; each stands for capacity / 60 places.
+BODY_CELLS = 60
+RECEIVED_LIMIT = 50
 
 
 def _active_cargos(truck):
@@ -135,6 +140,47 @@ def cargo_totals(truck) -> dict:
     }
 
 
+def truck_body(truck, totals) -> dict:
+    """«Кузов»: places against capacity, weight, clients and the boxes to fill."""
+    capacity = truck.capacity_places
+    places = totals["places"]
+    filled = 0
+    if places:
+        filled = min(BODY_CELLS, max(1, round(places * BODY_CELLS / capacity)))
+    return {
+        "places": places,
+        "capacity": capacity,
+        "weight": totals["weight"],
+        "clients": truck.cargos.values("client").distinct().count(),
+        "cells": [index < filled for index in range(BODY_CELLS)],
+        "over": max(0, places - capacity),
+    }
+
+
+def received_context(text: str = "") -> dict:
+    """Received cargo that waits for a truck, optionally filtered by article/track/phone."""
+    waiting = Cargo.objects.filter(status=Cargo.Status.RECEIVED, truck__isnull=True)
+    found = waiting.select_related("client").order_by("created_at", "id")
+    text = (text or "").strip()
+    if text:
+        found = found.filter(
+            any_of(
+                Q(article__icontains=text),
+                Q(track_number__icontains=text),
+                Q(client__code__iexact=text),
+                phone_q(text, "client__phone"),
+            )
+        )
+    total = found.count()
+    return {
+        "received": list(found[:RECEIVED_LIMIT]),
+        "received_found": total,
+        "received_more": max(0, total - RECEIVED_LIMIT),
+        "received_q": text,
+        "received_all": waiting.count(),
+    }
+
+
 # ---------- list ----------
 
 
@@ -207,19 +253,26 @@ def truck_edit(request, pk):
 def _card_context(request, truck, form=None):
     cargos = truck.cargos.select_related("client").order_by("created_at", "id")
     can_add = truck.status == Truck.Status.LOADING
+    manage = can_add and is_manager(request.user)
     if form is None and can_add:
         form = CargoForm()
-    return {
+    totals = cargo_totals(truck)
+    context = {
         "nav_active": "trucks",
         "truck": truck,
         "steps": steps(truck),
         "action": next_action(truck),
         "cargos": cargos,
-        "totals": cargo_totals(truck),
+        "totals": totals,
+        "body": truck_body(truck, totals),
         "can_add": can_add,
+        "manage": manage,
         "form": form,
         "lookup": lookup_context(""),
     }
+    if manage:
+        context.update(received_context())
+    return context
 
 
 @login_required
@@ -260,6 +313,12 @@ def create_cargo(form: CargoForm, truck: Truck | None) -> Cargo:
             weight_kg=data.get("weight_kg"),
             volume_m3=data.get("volume_m3"),
             amount_due=data["amount_due"],
+            track_number=data.get("track_number", ""),
+            seller=data.get("seller", ""),
+            packaging=data.get("packaging") or Cargo.Packaging.BOX,
+            fragile=data.get("fragile", False),
+            note=data.get("note", ""),
+            photo=data.get("photo"),
             truck=truck,
         )
 
@@ -268,7 +327,7 @@ def create_cargo(form: CargoForm, truck: Truck | None) -> Cargo:
 @manager_required
 def truck_cargo_add(request, pk):
     truck = get_object_or_404(Truck, pk=pk)
-    form = CargoForm(request.POST)
+    form = CargoForm(request.POST, request.FILES)
     added = None
     if truck.status != Truck.Status.LOADING:
         form.is_valid()
@@ -291,11 +350,9 @@ def truck_cargo_add(request, pk):
         added = Cargo.objects.select_related("client").get(pk=added.pk)
         form = CargoForm()
     context = {
-        "truck": truck,
+        **_contents_context(request, truck),
         "form": form,
         "added": added,
-        "totals": cargo_totals(truck),
-        "action": next_action(truck),
         "lookup": lookup_context(
             "" if added else request.POST.get("phone", ""),
             "" if added else request.POST.get("name", ""),
@@ -303,3 +360,81 @@ def truck_cargo_add(request, pk):
         "cargo": added,
     }
     return render(request, "panel/trucks/_cargo_add.html", context)
+
+
+# ---------- truck contents: remove, load from received ----------
+
+
+def _contents_context(request, truck) -> dict:
+    """Everything the out-of-band refresh of the card needs after the contents change."""
+    totals = cargo_totals(truck)
+    return {
+        "truck": truck,
+        "manage": True,
+        "totals": totals,
+        "body": truck_body(truck, totals),
+        "action": next_action(truck),
+        **received_context(request.POST.get("q", "")),
+    }
+
+
+def _selected_ids(request) -> list[str]:
+    return [value for value in request.POST.getlist("cargo") if value.isdigit()]
+
+
+def _contents_response(request, truck, *, toast, error, removed=(), added=()):
+    if not request.headers.get("HX-Request"):
+        (messages.error if error else messages.success)(request, toast)
+        return redirect("panel:truck", pk=truck.pk)
+    context = {"toast": toast, "error": error, "changed": not error}
+    if not error:
+        context.update(_contents_context(request, truck))
+        context["removed"] = list(removed)
+        context["added_rows"] = list(
+            Cargo.objects.filter(pk__in=list(added))
+            .select_related("client")
+            .order_by("created_at", "id")
+        )
+    return render(request, "panel/trucks/_contents_response.html", context)
+
+
+@require_POST
+@manager_required
+def truck_cargo_remove(request, pk):
+    """Take the selected (or one) cargo out of a loading truck: all or nothing."""
+    truck = get_object_or_404(Truck, pk=pk)
+    selected = _selected_ids(request)
+    if not selected:
+        return _contents_response(request, truck, toast=NOTHING_SELECTED, error=True)
+    try:
+        count = services.unassign_many(selected, truck)
+    except InvalidTransition as exc:
+        return _contents_response(request, truck, toast=f"{exc}. Ничего не убрано", error=True)
+    verb = plural(count, "Убран", "Убрано", "Убрано")
+    toast = f"{verb} {count_phrase(count, 'груз', 'груза', 'грузов')}. Они снова в принятых"
+    return _contents_response(request, truck, toast=toast, error=False, removed=selected)
+
+
+@require_POST
+@manager_required
+def truck_cargo_load(request, pk):
+    """Load the selected received cargo into the truck: all or nothing."""
+    truck = get_object_or_404(Truck, pk=pk)
+    selected = _selected_ids(request)
+    if not selected:
+        return _contents_response(request, truck, toast=NOTHING_SELECTED, error=True)
+    try:
+        count = services.assign_many(selected, truck)
+    except InvalidTransition as exc:
+        return _contents_response(request, truck, toast=f"{exc}. Ничего не погружено", error=True)
+    verb = plural(count, "Погружен", "Погружено", "Погружено")
+    toast = f"{verb} {count_phrase(count, 'груз', 'груза', 'грузов')} в {truck.number}"
+    return _contents_response(request, truck, toast=toast, error=False, added=selected)
+
+
+@manager_required
+def truck_received(request, pk):
+    """HTMX: the list of received cargo for «Добавить из принятых», with search."""
+    truck = get_object_or_404(Truck, pk=pk)
+    context = {"truck": truck, **received_context(request.GET.get("q", ""))}
+    return render(request, "panel/trucks/_received_list.html", context)

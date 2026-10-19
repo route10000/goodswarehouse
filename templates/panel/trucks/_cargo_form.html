@@ -1,5 +1,5 @@
 {# Add-cargo form inside the truck card; HTMX swaps the whole form (outerHTML) on submit. #}
-<form id="cargo-add" class="cargo-form" method="post" action="{% url 'panel:truck_cargo_add' truck.pk %}"
+<form id="cargo-add" class="cargo-form" method="post" action="{% url 'panel:truck_cargo_add' truck.pk %}" enctype="multipart/form-data"
       hx-post="{% url 'panel:truck_cargo_add' truck.pk %}" hx-target="this" hx-swap="outerHTML" novalidate>
   {% csrf_token %}
   {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors|join:" " }}</p>{% endif %}
@@ -12,6 +12,12 @@
     {% include "panel/includes/field.html" with field=form.weight_kg %}
     {% include "panel/includes/field.html" with field=form.volume_m3 %}
     {% include "panel/includes/field.html" with field=form.amount_due %}
+    {% include "panel/includes/field.html" with field=form.track_number %}
+    {% include "panel/includes/field.html" with field=form.seller %}
+    {% include "panel/includes/field.html" with field=form.packaging %}
+    <label class="check cargo-form__check">{{ form.fragile }} <span>Хрупкое</span></label>
+    {% include "panel/includes/field.html" with field=form.note wide=True %}
+    {% include "panel/includes/field.html" with field=form.photo wide=True %}
   </div>
   <div class="form-actions">
     <button class="btn btn--outline" type="submit">Добавить груз</button>

@@ -1,0 +1,6 @@
+{# Out-of-band refresh of the truck card after its contents change. #}
+{% include "panel/trucks/_body.html" with oob=True %}
+<template>{% include "panel/trucks/_cargo_totals.html" with oob=True %}</template>
+{% include "panel/trucks/_action.html" with oob=True manager=True %}
+<span id="received-count" hx-swap-oob="true">{{ received_all }}</span>
+{% include "panel/trucks/_received_list.html" with oob=True %}

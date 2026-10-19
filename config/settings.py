@@ -119,6 +119,13 @@ STORAGES = {
     },
 }
 
+# Uploaded files (cargo photos). Served by Django only with DEBUG; nginx serves /media/ in prod.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# The import grid posts 13 fields per row; allow manifests of up to 1000 rows.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 15000
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "/panel/login/"

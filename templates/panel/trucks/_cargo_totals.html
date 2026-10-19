@@ -1,10 +1,10 @@
 {% load gw_format %}
 <tfoot id="cargo-totals"{% if oob %} hx-swap-oob="true"{% endif %}>
   <tr class="totals">
-    <td colspan="4" data-label="Итого, грузов"><span class="totals__word">Итого · </span><span class="mono">{{ totals.count }}</span></td>
+    <td colspan="{% if manage %}3{% else %}2{% endif %}" data-label="Итого, грузов"><span class="totals__word">Итого · </span><span class="mono">{{ totals.count }}</span></td>
     <td class="num" data-label="Мест">{{ totals.places }}</td>
     <td class="num" data-label="Вес, кг">{{ totals.weight|ru_number }}</td>
-    <td class="num nowrap" data-label="К оплате">{{ totals.amount|rub }}</td>
-    <td colspan="2" class="totals__pad"></td>
+    <td class="num nowrap" data-label="Сумма">{{ totals.amount|rub }}</td>
+    <td class="totals__pad"></td>
   </tr>
 </tfoot>

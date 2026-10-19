@@ -4,11 +4,12 @@ from decimal import Decimal
 
 from django import forms
 
-from logistics.models import Client, Truck
+from logistics.models import Cargo, Client, Truck
 from logistics.phones import InvalidPhone, normalize_phone
 
 PHONE_ERROR = "Неверный номер телефона. Проверьте цифры"
 MAX_MANIFEST_BYTES = 2 * 1024 * 1024
+MAX_PHOTO_BYTES = 5 * 1024 * 1024
 XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 
@@ -98,6 +99,23 @@ class CargoForm(forms.Form):
     weight_kg = _decimal_field("Вес, кг", max_digits=10, decimal_places=2)
     volume_m3 = _decimal_field("Объём, м³", max_digits=10, decimal_places=3)
     amount_due = _decimal_field("К оплате, ₽", max_digits=12, decimal_places=2)
+    track_number = forms.CharField(label="Трек-номер", max_length=64, required=False)
+    seller = forms.CharField(label="Продавец", max_length=120, required=False)
+    packaging = forms.ChoiceField(
+        label="Упаковка",
+        choices=Cargo.Packaging.choices,
+        initial=Cargo.Packaging.BOX,
+        required=False,  # empty means the default box
+    )
+    fragile = forms.BooleanField(label="Хрупкое", required=False)
+    note = forms.CharField(
+        label="Заметка", required=False, widget=forms.Textarea(attrs={"rows": 2})
+    )
+    photo = forms.ImageField(
+        label="Фото",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"accept": "image/*"}),
+    )
     truck = forms.ModelChoiceField(
         label="Машина",
         queryset=Truck.objects.none(),
@@ -123,6 +141,15 @@ class CargoForm(forms.Form):
     def clean_amount_due(self):
         value = self.cleaned_data.get("amount_due")
         return value if value is not None else Decimal("0")
+
+    def clean_packaging(self):
+        return self.cleaned_data.get("packaging") or Cargo.Packaging.BOX
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get("photo")
+        if photo and photo.size > MAX_PHOTO_BYTES:
+            raise forms.ValidationError("Фото должно быть не больше 5 МБ")
+        return photo
 
 
 class ClientForm(forms.ModelForm):

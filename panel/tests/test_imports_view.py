@@ -42,7 +42,7 @@ def test_upload_shows_preview_and_stores_rows_in_session(mgr, truck, ivan):
     assert response.status_code == 200
     page = response.content.decode()
     assert "2 строки, 0 с ошибками, 1 новый клиент" in page
-    assert "Импортировать" in page
+    assert "Сохранить 2 груза" in page
     stored = mgr.session[f"manifest:{truck.pk}"]
     assert [row["article"] for row in stored["rows"]] == ["A-1", "A-2"]
     assert Cargo.objects.count() == 0
@@ -132,7 +132,7 @@ def test_template_download(mgr):
     assert response["Content-Type"] == XLSX
     assert "attachment" in response["Content-Disposition"]
     wb = load_workbook(io.BytesIO(response.content))
-    assert [c.value for c in wb.active[1]] == HEADERS
+    assert [c.value for c in wb.active[1]][: len(HEADERS)] == HEADERS
 
 
 def test_preview_shows_invalid_phone_as_typed(mgr, truck):
@@ -141,4 +141,4 @@ def test_preview_shows_invalid_phone_as_typed(mgr, truck):
     page = mgr.post(f"/panel/trucks/{truck.pk}/import/", {"file": upload(rows)}).content.decode()
 
     assert "+7 12345" not in page
-    assert ">12345<" in page
+    assert 'name="phone" value="12345"' in page

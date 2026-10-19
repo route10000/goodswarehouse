@@ -152,6 +152,12 @@ class Cargo(models.Model):
         READY = "ready", "Готов к выдаче"
         PICKED_UP = "picked_up", "Выдан"
 
+    class Packaging(models.TextChoices):
+        BOX = "box", "Коробка"
+        BAG = "bag", "Мешок"
+        PALLET = "pallet", "Паллета"
+        OTHER = "other", "Другое"
+
     client = models.ForeignKey(
         Client, on_delete=models.PROTECT, related_name="cargos", verbose_name="клиент"
     )
@@ -179,6 +185,14 @@ class Cargo(models.Model):
         default=0,
         validators=[MinValueValidator(0)],
     )
+    track_number = models.CharField("трек-номер", max_length=64, blank=True, db_index=True)
+    seller = models.CharField("продавец", max_length=120, blank=True)
+    packaging = models.CharField(
+        "упаковка", max_length=16, choices=Packaging.choices, default=Packaging.BOX
+    )
+    fragile = models.BooleanField("хрупкое", default=False)
+    note = models.TextField("заметка", blank=True)
+    photo = models.ImageField("фото", upload_to="cargo/%Y/%m/", blank=True)
     status = models.CharField(
         "статус", max_length=16, choices=Status.choices, default=Status.RECEIVED, db_index=True
     )

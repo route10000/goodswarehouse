@@ -1,12 +1,24 @@
 {% load panel_tags gw_format %}
-<tr{% if fresh %} class="row--fresh"{% endif %}>
-  <td data-label="Артикул" class="mono">{{ cargo.article }}</td>
-  <td data-label="Клиент"><span class="cell-client"><a href="{% url 'panel:client' cargo.client.pk %}">{{ cargo.client.name|default:"Без имени" }}</a> <span class="caption mono">{{ cargo.client.code }}</span></span></td>
-  <td data-label="Телефон"><a class="mono nowrap" href="tel:{{ cargo.client.phone }}">{{ cargo.client.phone|phone }}</a></td>
-  <td data-label="Описание">{{ cargo.description|default:"—" }}</td>
+{# One cargo in the truck. ``manage`` adds the checkbox and «Убрать»; a click on the row (not on a control) opens the cargo card. #}
+<tr id="cargo-row-{{ cargo.pk }}" class="cargo-row{% if fresh %} row--fresh{% endif %}" data-href="/panel/cargo/{{ cargo.pk }}/">
+  {% if manage %}
+  <td class="cell-check"><input type="checkbox" name="cargo" value="{{ cargo.pk }}" form="cargo-bulk" aria-label="Выбрать {{ cargo.article }}" data-bulk-item></td>
+  {% endif %}
+  <td data-label="Артикул"><a class="mono strong" href="/panel/cargo/{{ cargo.pk }}/">{{ cargo.article }}</a></td>
+  <td data-label="Клиент">
+    <span class="cargo-cell">
+      <span class="cargo-cell__client"><a href="{% url 'panel:client' cargo.client.pk %}">{{ cargo.client.name|default:"Без имени" }}</a> <span class="caption mono">{{ cargo.client.code }}</span></span>
+      <span class="cargo-cell__meta">{% if cargo.track_number %}<span class="mono">{{ cargo.track_number }}</span><span aria-hidden="true">·</span>{% endif %}<span>{{ cargo.get_packaging_display }}</span>{% if cargo.fragile %}<span class="tag-fragile">хрупкое</span>{% endif %}</span>
+    </span>
+  </td>
   <td data-label="Мест" class="num">{{ cargo.places }}</td>
   <td data-label="Вес, кг" class="num">{{ cargo.weight_kg|ru_number|default:"—" }}</td>
-  <td data-label="К оплате" class="num nowrap">{{ cargo.amount_due|rub }}</td>
+  <td data-label="Сумма" class="num nowrap">{{ cargo.amount_due|rub }}</td>
+  {% if manage %}
+  <td class="cell-action"><button class="btn btn--quiet btn--sm" type="button" name="cargo" value="{{ cargo.pk }}"
+      hx-post="{% url 'panel:truck_cargo_remove' truck.pk %}" hx-include="#received-q" hx-swap="none"
+      aria-label="Убрать {{ cargo.article }} из машины">Убрать</button></td>
+  {% else %}
   <td data-label="Статус"><span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span></td>
-  <td data-label="Канал">{% if cargo.client.has_telegram %}<span class="channel channel--tg">Telegram</span>{% else %}<span class="channel channel--call">Звонок</span>{% endif %}</td>
+  {% endif %}
 </tr>

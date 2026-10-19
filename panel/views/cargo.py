@@ -66,7 +66,7 @@ def cargo_create(request):
     initial = {}
     if request.GET.get("truck", "").isdigit():
         initial["truck"] = int(request.GET["truck"])
-    form = CargoForm(request.POST or None, with_truck=True, initial=initial)
+    form = CargoForm(request.POST or None, request.FILES or None, with_truck=True, initial=initial)
     if request.method == "POST" and form.is_valid():
         try:
             cargo = create_cargo(form, form.cleaned_data.get("truck"))

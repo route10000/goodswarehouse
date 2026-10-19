@@ -14,6 +14,7 @@ from logistics.services import InvalidTransition
 pytestmark = pytest.mark.django_db
 
 HEADERS = ["артикул", "телефон", "имя", "описание", "мест", "вес", "объём", "сумма"]
+OPTIONAL_HEADERS = ["трек", "продавец", "упаковка", "хрупкое", "заметка"]
 
 
 def xlsx(rows, headers=HEADERS):
@@ -269,4 +270,159 @@ def test_apply_refuses_preview_with_errors(truck):
 def test_template_has_headers():
     wb = load_workbook(io.BytesIO(build_template()))
 
-    assert [cell.value for cell in wb.active[1]] == HEADERS
+    assert [cell.value for cell in wb.active[1]] == [*HEADERS, *OPTIONAL_HEADERS]
+
+
+# ---------- optional columns: трек, продавец, упаковка, хрупкое, заметка ----------
+
+
+def test_optional_columns_are_parsed():
+    headers = [*HEADERS, "Трек", "ПРОДАВЕЦ", "Упаковка", "хрупкое", "Заметка"]
+    rows = [
+        ["A-1", "89141234567", "", "", 1, None, None, None, "YT1", "1688", "Мешок", "да", "Стекло"],
+        ["A-2", "89141234567", "", "", 1, None, None, None, None, None, "pallet", True, None],
+        ["A-3", "89141234567", "", "", 1, None, None, None, None, None, None, None, None],
+    ]
+
+    preview = parse_manifest(xlsx(rows, headers=headers))
+
+    assert not preview.has_errors, [r.errors for r in preview.rows]
+    first, second, third = preview.rows
+    assert (first.track_number, first.seller, first.packaging, first.fragile, first.note) == (
+        "YT1",
+        "1688",
+        "bag",
+        True,
+        "Стекло",
+    )
+    assert (second.packaging, second.fragile) == ("pallet", True)
+    assert (third.track_number, third.packaging, third.fragile, third.note) == (
+        "",
+        "box",
+        False,
+        "",
+    )
+
+
+def test_file_without_optional_columns_uses_defaults():
+    preview = parse_manifest(xlsx([["A-1", "89141234567", "", "", 1, None, None, None]]))
+
+    row = preview.rows[0]
+    assert (row.track_number, row.seller, row.packaging, row.fragile, row.note) == (
+        "",
+        "",
+        "box",
+        False,
+        "",
+    )
+
+
+@pytest.mark.parametrize(
+    "cells, message, attr",
+    [
+        ({"packaging": "ящик"}, "Упаковка", "packaging"),
+        ({"fragile": "может быть"}, "Хрупкое", "fragile"),
+        ({"track_number": "Y" * 65}, "Трек-номер длиннее 64 символов", "track_number"),
+        ({"seller": "S" * 121}, "Продавец длиннее 120 символов", "seller"),
+    ],
+)
+def test_optional_column_errors(cells, message, attr):
+    preview = imports.parse_rows([{"article": "A", "phone": "89141234567", **cells}])
+
+    row = preview.rows[0]
+    assert any(message in error for error in row.errors), row.errors
+    assert attr in row.invalid
+
+
+def test_apply_saves_optional_fields(truck):
+    preview = imports.parse_rows(
+        [
+            {
+                "article": "A-1",
+                "phone": "89141234567",
+                "track_number": "YT1",
+                "seller": "1688",
+                "packaging": "other",
+                "fragile": "да",
+                "note": "Заметка",
+            }
+        ]
+    )
+
+    apply_manifest(preview, truck)
+
+    cargo = Cargo.objects.get(article="A-1")
+    assert (cargo.track_number, cargo.seller, cargo.packaging, cargo.fragile, cargo.note) == (
+        "YT1",
+        "1688",
+        "other",
+        True,
+        "Заметка",
+    )
+
+
+# ---------- editable grid rows ----------
+
+
+def test_parse_rows_numbers_rows_by_position_and_skips_empty_ones(ivan):
+    rows = [
+        {"article": "A-1", "phone": "8 914 123 45 67", "places": "2", "weight": "1,5"},
+        {"article": "", "phone": "", "packaging": "box", "fragile": ""},  # an empty grid row
+        {"article": "a-1", "phone": "89140000001", "amount": "abc"},
+    ]
+
+    preview = imports.parse_rows(rows)
+
+    assert [row.line for row in preview.rows] == [1, 3]
+    first, third = preview.rows
+    assert first.errors == []
+    assert first.places == 2 and first.weight_kg == Decimal("1.50")
+    assert first.new_client is False
+    assert "Артикул повторяется (строка 1)" in third.errors
+    assert "Сумма: не число" in third.errors
+    assert set(third.invalid) == {"article", "amount"}
+    assert third.new_client is True
+    assert preview.error_count == 1
+
+
+def test_parse_rows_keeps_what_was_typed():
+    preview = imports.parse_rows([{"article": " A-1 ", "phone": "12345", "places": "x"}])
+
+    row = preview.rows[0]
+    assert row.raw["phone"] == "12345"
+    assert row.raw["places"] == "x"
+    assert set(row.invalid) == {"phone", "places"}
+
+
+def test_parse_rows_all_empty_is_an_error():
+    preview = imports.parse_rows([{"article": " ", "packaging": "box"}, {}])
+
+    assert preview.rows == []
+    assert preview.errors == [imports.ROWS_EMPTY]
+    assert preview.has_errors
+
+
+def test_parse_rows_limits_row_count():
+    rows = [{"article": f"A{n}", "phone": "89141234567"} for n in range(imports.MAX_ROWS + 1)]
+
+    preview = imports.parse_rows(rows)
+
+    assert preview.has_errors
+    assert preview.errors and "1000" in preview.errors[0]
+
+
+def test_grid_rows_from_file_preview_match_the_file():
+    preview = parse_manifest(
+        xlsx(
+            [
+                ["A-1", 89141234567, "Иван", "", 2.0, 12.5, None, 1500],
+                ["A-2", "89140000001", "", "", 2.5, None, None, None],
+            ]
+        )
+    )
+
+    regrid = imports.parse_rows([row.raw for row in preview.rows])
+
+    assert [r.errors for r in regrid.rows] == [r.errors for r in preview.rows]
+    assert regrid.rows[0].weight_kg == Decimal("12.50")
+    assert regrid.rows[0].places == 2
