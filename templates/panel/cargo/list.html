@@ -1,17 +1,22 @@
 {% extends "panel/base.html" %}
-{% load panel_tags gw_format %}
+{% load static panel_tags gw_format %}
 {% block title %}Грузы · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-trucks.css' %}">
+  <link rel="stylesheet" href="{% static 'css/panel-cargo.css' %}">
+{% endblock %}
 {% block content %}
+{% with manager=request.user|is_manager %}
 <div class="page-head">
   <h1 class="page-title">Грузы</h1>
-  {% if request.user|is_manager %}<a class="btn btn--primary" href="{% url 'panel:cargo_new' %}">Добавить груз</a>{% endif %}
+  {% if manager and filters.0.count %}<a class="btn btn--primary" href="{% url 'panel:cargo_new' %}">Добавить груз</a>{% endif %}
 </div>
 {% include "panel/includes/status_filters.html" %}
-<form class="toolbar" method="get" role="search">
+<form class="toolbar cargo-toolbar" method="get" role="search">
   {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
   <div class="field toolbar__grow">
     <label for="cargo-q">Поиск</label>
-    <input id="cargo-q" type="search" name="q" value="{{ q }}" placeholder="Артикул, телефон или код клиента" autocomplete="off">
+    <input id="cargo-q" type="search" name="q" value="{{ q }}" placeholder="Артикул, трек, продавец, телефон или код" autocomplete="off">
   </div>
   <div class="field">
     <label for="cargo-truck">Машина</label>
@@ -20,22 +25,72 @@
       {% for t in trucks %}<option value="{{ t.pk }}"{% if t.pk == truck_id %} selected{% endif %}>{{ t.number }} · {{ t.get_status_display }}</option>{% endfor %}
     </select>
   </div>
+  <div class="field cargo-toolbar__narrow">
+    <label for="cargo-age">Срок на складе</label>
+    <select id="cargo-age" name="age">
+      <option value="">Любой</option>
+      {% for item in ages %}<option value="{{ item.value }}"{% if item.value == age %} selected{% endif %}>{{ item.label }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field cargo-toolbar__narrow">
+    <label for="cargo-pack">Упаковка</label>
+    <select id="cargo-pack" name="pack">
+      <option value="">Любая</option>
+      {% for value, label in packagings %}<option value="{{ value }}"{% if value == pack %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <label class="check cargo-toolbar__check"><input type="checkbox" name="fragile" value="1"{% if fragile %} checked{% endif %}> <span>Хрупкое</span></label>
   <button class="btn btn--quiet toolbar__btn" type="submit">Найти</button>
-  {% if q or truck_id %}<a class="btn btn--quiet toolbar__btn" href="{% query q=None truck=None %}">Сбросить</a>{% endif %}
+  {% if q or truck_id or age or pack or fragile %}<a class="btn btn--quiet toolbar__btn" href="{% query q=None truck=None age=None pack=None fragile=None %}">Сбросить</a>{% endif %}
 </form>
-<section class="panel panel--flush">
+
+<section class="cargo-summary" aria-label="Итого по фильтру">
+  <dl class="cargo-summary__list">
+    <div><dt>Грузов</dt><dd class="mono">{{ summary.count|ru_number }}</dd></div>
+    <div><dt>Мест</dt><dd class="mono">{{ summary.places|ru_number }}</dd></div>
+    <div><dt>Вес</dt><dd class="mono">{{ summary.weight|ru_number }} кг</dd></div>
+    <div><dt>К оплате</dt><dd class="mono">{{ summary.amount|rub }}</dd></div>
+  </dl>
+  {% if manager and summary.count %}<a class="btn btn--quiet btn--sm" href="{% url 'panel:cargo_export' %}{% query %}">Выгрузить в Excel</a>{% endif %}
+</section>
+
+<section class="panel panel--flush panel--sticky" aria-label="Список грузов">
   {% if page.object_list %}
-  <table class="table">
+  {% if manager %}
+  <form id="cargo-bulk" class="bulk-bar cargo-bulk" method="post" action="{% url 'panel:cargo_bulk_load' %}" hidden data-bulk-bar>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <span class="bulk-bar__text">Выбрано: <span class="mono" data-bulk-count>0</span></span>
+    <button class="btn btn--quiet btn--sm" type="button" data-bulk-clear>Снять выбор</button>
+    {% if loading_trucks %}
+    <label class="visually-hidden" for="bulk-truck">Машина на погрузке</label>
+    <select id="bulk-truck" class="input cargo-bulk__select" name="truck" required>
+      <option value="">Машина на погрузке…</option>
+      {% for t in loading_trucks %}<option value="{{ t.pk }}">{{ t.number }}{% if t.departure_date %} · {{ t.departure_date|ru_date }}{% endif %}</option>{% endfor %}
+    </select>
+    <button class="btn btn--outline btn--sm" type="submit"><span>Погрузить (<span data-bulk-count>0</span>)</span></button>
+    {% else %}
+    <span class="caption">Нет машин на погрузке</span>
+    {% endif %}
+    <button class="btn btn--quiet btn--sm" type="submit" formaction="{% url 'panel:cargo_export' %}" formnovalidate>Выгрузить выбранные в Excel</button>
+  </form>
+  {% endif %}
+  <table class="table table--cargo-list">
     <thead>
-      <tr><th>Артикул</th><th>Клиент</th><th>Телефон</th><th>Машина</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">К оплате</th><th>Статус</th></tr>
+      <tr>
+        {% if manager %}<th class="cell-check"><input type="checkbox" aria-label="Выбрать все грузы на странице" data-bulk-all></th>{% endif %}
+        <th>Артикул</th><th>Клиент</th><th>Телефон</th><th>Трек-номер</th><th>Машина</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">К оплате</th><th>Статус</th>
+      </tr>
     </thead>
     <tbody>
       {% for cargo in page.object_list %}
-      <tr>
-        <td data-label="Артикул" class="mono">{{ cargo.article }}</td>
+      <tr class="cargo-row" data-href="/panel/cargo/{{ cargo.pk }}/">
+        {% if manager %}<td class="cell-check"><input type="checkbox" name="cargo" value="{{ cargo.pk }}" form="cargo-bulk" aria-label="Выбрать {{ cargo.article }}" data-bulk-item></td>{% endif %}
+        <td data-label="Артикул"><a class="mono strong" href="{% url 'panel:cargo_card' cargo.pk %}">{{ cargo.article }}</a>{% if cargo.fragile %} <span class="tag-fragile">хрупкое</span>{% endif %}</td>
         <td data-label="Клиент"><span class="cell-client"><a href="{% url 'panel:client' cargo.client.pk %}">{{ cargo.client.name|default:"Без имени" }}</a> <span class="caption mono">{{ cargo.client.code }}</span></span></td>
         <td data-label="Телефон"><a class="mono nowrap" href="tel:{{ cargo.client.phone }}">{{ cargo.client.phone|phone }}</a></td>
-        <td data-label="Машина">{% if cargo.truck %}<a class="mono" href="{% url 'panel:truck' cargo.truck.pk %}">{{ cargo.truck.number }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td data-label="Трек-номер" class="mono cell-track">{{ cargo.track_number|default:"—" }}</td>
+        <td data-label="Машина">{% if cargo.truck %}<a class="mono nowrap" href="{% url 'panel:truck' cargo.truck.pk %}">{{ cargo.truck.number }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
         <td data-label="Мест" class="num">{{ cargo.places }}</td>
         <td data-label="Вес, кг" class="num">{{ cargo.weight_kg|ru_number|default:"—" }}</td>
         <td data-label="К оплате" class="num nowrap">{{ cargo.amount_due|rub }}</td>
@@ -44,10 +99,22 @@
       {% endfor %}
     </tbody>
   </table>
+  {% elif has_filters %}
+  <div class="empty-block">
+    <p class="empty-block__title">Ничего не нашли</p>
+    <p class="muted">Проверьте артикул, трек или телефон, или сбросьте фильтры.</p>
+    <a class="btn btn--outline" href="{% url 'panel:cargo' %}">Сбросить фильтры</a>
+  </div>
   {% else %}
-  <p class="empty muted">Ничего не нашли. Проверьте артикул или телефон, или сбросьте фильтры.</p>
+  <div class="empty-block">
+    <p class="empty-block__title">Грузов пока нет</p>
+    <p class="muted">Добавьте первый груз вручную или импортируйте манифест Excel в карточке машины.</p>
+    {% if manager %}<a class="btn btn--primary" href="{% url 'panel:cargo_new' %}">Добавить груз</a>{% endif %}
+  </div>
   {% endif %}
 </section>
-<p class="caption list-count">Найдено: <span class="mono">{{ page.paginator.count }}</span></p>
+{% if page.object_list %}<p class="caption list-count">Показано <span class="mono">{{ page.start_index }}–{{ page.end_index }}</span> из <span class="mono">{{ page.paginator.count }}</span></p>{% endif %}
 {% include "panel/includes/pagination.html" %}
+{% endwith %}
 {% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/panel-trucks.js' %}" defer></script>{% endblock %}

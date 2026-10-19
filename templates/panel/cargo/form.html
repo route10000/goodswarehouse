@@ -1,0 +1,46 @@
+{% extends "panel/base.html" %}
+{% load static panel_tags %}
+{% block title %}{{ cargo.article }} · редактирование · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-trucks.css' %}">
+  <link rel="stylesheet" href="{% static 'css/panel-cargo.css' %}">
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back-link" href="{% url 'panel:cargo_card' cargo.pk %}">← {{ cargo.article }}</a>
+    <h1 class="page-title">Изменить груз <span class="mono muted">{{ cargo.article }}</span></h1>
+    <p class="page-meta">{{ cargo.client.name|default:"Без имени" }} <span class="mono">{{ cargo.client.code }}</span> · <span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span> · статус и машина меняются только действиями в карточке машины</p>
+  </div>
+</div>
+<form class="panel form-panel cargo-form" method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+  <div class="form-grid form-grid--cargo">
+    {% include "panel/includes/field.html" with field=form.article %}
+    {% include "panel/includes/field.html" with field=form.track_number %}
+    {% include "panel/includes/field.html" with field=form.seller %}
+    {% include "panel/includes/field.html" with field=form.packaging %}
+    {% include "panel/includes/field.html" with field=form.description wide=True %}
+    {% include "panel/includes/field.html" with field=form.places %}
+    {% include "panel/includes/field.html" with field=form.weight_kg %}
+    {% include "panel/includes/field.html" with field=form.volume_m3 %}
+    {% include "panel/includes/field.html" with field=form.amount_due %}
+    <label class="check cargo-form__check">{{ form.fragile }} <span>Хрупкое</span></label>
+    {% include "panel/includes/field.html" with field=form.note wide=True %}
+    <div class="field--wide photo-edit">
+      {% if cargo.photo %}
+      <a class="photo-edit__thumb" href="{{ cargo.photo.url }}" target="_blank" rel="noopener"><img src="{{ cargo.photo.url }}" alt="Текущее фото груза"></a>
+      {% endif %}
+      <div class="photo-edit__controls">
+        {% include "panel/includes/field.html" with field=form.photo %}
+        {% if cargo.photo %}<label class="check">{{ form.remove_photo }} <span>Удалить фото</span></label>{% else %}<span class="caption">Фото пока нет. JPG или PNG до 5 МБ.</span>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="btn btn--primary" type="submit">Сохранить</button>
+    <a class="btn btn--quiet" href="{% url 'panel:cargo_card' cargo.pk %}">Отмена</a>
+  </div>
+</form>
+{% endblock %}

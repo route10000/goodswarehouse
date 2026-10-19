@@ -1,9 +1,13 @@
 {% extends "panel/base.html" %}
-{% load panel_tags %}
+{% load static panel_tags %}
 {% block title %}Клиенты · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-cargo.css' %}">
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <h1 class="page-title">Клиенты</h1>
+  {% if request.user|is_manager %}<a class="btn btn--primary" href="{% url 'panel:client_new' %}">Новый клиент</a>{% endif %}
 </div>
 <form class="toolbar" method="get" role="search">
   <div class="field toolbar__grow">
@@ -13,7 +17,7 @@
   <button class="btn btn--quiet toolbar__btn" type="submit">Найти</button>
   {% if q %}<a class="btn btn--quiet toolbar__btn" href="{% url 'panel:clients' %}">Сбросить</a>{% endif %}
 </form>
-<section class="panel panel--flush">
+<section class="panel panel--flush panel--sticky">
   {% if page.object_list %}
   <table class="table">
     <thead>
@@ -21,7 +25,7 @@
     </thead>
     <tbody>
       {% for client in page.object_list %}
-      <tr>
+      <tr class="row-link" data-href="{% url 'panel:client' client.pk %}">
         <td data-label="Код"><a class="mono strong" href="{% url 'panel:client' client.pk %}">{{ client.code }}</a></td>
         <td data-label="Имя">{{ client.name|default:"Без имени" }}</td>
         <td data-label="Телефон"><a class="mono nowrap" href="tel:{{ client.phone }}">{{ client.phone|phone }}</a></td>
@@ -32,10 +36,21 @@
       {% endfor %}
     </tbody>
   </table>
+  {% elif q %}
+  <div class="empty-block">
+    <p class="empty-block__title">Клиентов не нашли</p>
+    <p class="muted">Проверьте телефон или код GW-…, или сбросьте поиск.</p>
+    <a class="btn btn--outline" href="{% url 'panel:clients' %}">Сбросить поиск</a>
+  </div>
   {% else %}
-  <p class="empty muted">Клиентов не нашли. Проверьте телефон или код.</p>
+  <div class="empty-block">
+    <p class="empty-block__title">Клиентов пока нет</p>
+    <p class="muted">Клиент появляется вместе с первым грузом или его можно добавить вручную.</p>
+    {% if request.user|is_manager %}<a class="btn btn--outline" href="{% url 'panel:client_new' %}">Новый клиент</a>{% endif %}
+  </div>
   {% endif %}
 </section>
 <p class="caption list-count">Найдено: <span class="mono">{{ page.paginator.count }}</span></p>
 {% include "panel/includes/pagination.html" %}
 {% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/panel-trucks.js' %}" defer></script>{% endblock %}

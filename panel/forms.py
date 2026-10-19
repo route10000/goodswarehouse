@@ -152,6 +152,65 @@ class CargoForm(forms.Form):
         return photo
 
 
+class CargoEditForm(CargoForm):
+    """Plain fields of an existing cargo; the client, truck and status stay as they are."""
+
+    photo = forms.ImageField(
+        label="Новое фото",
+        required=False,
+        widget=forms.FileInput(attrs={"accept": "image/*"}),
+    )
+    remove_photo = forms.BooleanField(label="Удалить фото", required=False)
+
+    FIELDS = (
+        "article",
+        "description",
+        "places",
+        "weight_kg",
+        "volume_m3",
+        "amount_due",
+        "track_number",
+        "seller",
+        "packaging",
+        "fragile",
+        "note",
+    )
+
+    def __init__(self, *args, cargo: Cargo, **kwargs):
+        kwargs.setdefault("initial", {name: getattr(cargo, name) for name in self.FIELDS})
+        super().__init__(*args, **kwargs)
+        del self.fields["phone"]
+        del self.fields["name"]
+
+    def changes(self) -> dict:
+        """Keyword arguments for ``services.update_cargo`` (photo only when it changes)."""
+        data = self.cleaned_data
+        fields = {name: data[name] for name in self.FIELDS}
+        if data.get("photo"):
+            fields["photo"] = data["photo"]
+        elif data.get("remove_photo"):
+            fields["photo"] = ""
+        return fields
+
+
+class NewClientForm(forms.Form):
+    name = forms.CharField(label="Имя", max_length=200, required=False)
+    phone = forms.CharField(
+        label="Телефон",
+        max_length=32,
+        widget=forms.TextInput(attrs={"inputmode": "tel", "autocomplete": "off"}),
+    )
+    notes = forms.CharField(
+        label="Заметки", required=False, widget=forms.Textarea(attrs={"rows": 4})
+    )
+
+    def clean_phone(self):
+        try:
+            return normalize_phone(self.cleaned_data["phone"])
+        except InvalidPhone as exc:
+            raise forms.ValidationError(PHONE_ERROR) from exc
+
+
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client

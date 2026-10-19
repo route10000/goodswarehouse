@@ -1,0 +1,109 @@
+{% extends "panel/base.html" %}
+{% load static panel_tags gw_format %}
+{% block title %}{{ cargo.article }} · Грузы · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-trucks.css' %}">
+  <link rel="stylesheet" href="{% static 'css/panel-cargo.css' %}">
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back-link" href="{% url 'panel:cargo' %}">← Грузы</a>
+    <h1 class="page-title"><span class="mono">{{ cargo.article }}</span> <span class="pill {{ cargo.status|cargo_pill }}">{{ cargo.get_status_display }}</span>{% if cargo.fragile %} <span class="tag-fragile">хрупкое</span>{% endif %}</h1>
+    <p class="page-meta">
+      <a href="{% url 'panel:client' cargo.client.pk %}">{{ cargo.client.name|default:"Без имени" }} <span class="mono">{{ cargo.client.code }}</span></a>
+      <span aria-hidden="true">·</span>
+      <a class="mono nowrap" href="tel:{{ cargo.client.phone }}">{{ cargo.client.phone|phone }}</a>
+      {% if cargo.truck %}<span aria-hidden="true">·</span> машина <a class="mono" href="{% url 'panel:truck' cargo.truck.pk %}">{{ cargo.truck.number }}</a> <span class="pill {{ cargo.truck.status|truck_pill }}">{{ cargo.truck.get_status_display }}</span>{% else %}<span aria-hidden="true">·</span> <span class="muted">без машины</span>{% endif %}
+    </p>
+  </div>
+  {% if request.user|is_manager %}<a class="btn btn--quiet" href="{% url 'panel:cargo_edit' cargo.pk %}">Изменить</a>{% endif %}
+</div>
+
+<div class="cargo-layout">
+  <section class="panel" aria-labelledby="facts-title">
+    <div class="panel__head"><h2 id="facts-title" class="panel__title">Данные груза</h2></div>
+    <dl class="facts">
+      <div class="facts__wide"><dt>Описание</dt><dd>{{ cargo.description|default:"—" }}</dd></div>
+      <div><dt>Трек-номер</dt><dd class="mono">{{ cargo.track_number|default:"—" }}</dd></div>
+      <div><dt>Продавец</dt><dd>{{ cargo.seller|default:"—" }}</dd></div>
+      <div><dt>Упаковка</dt><dd>{{ cargo.get_packaging_display }}</dd></div>
+      <div><dt>Хрупкое</dt><dd>{% if cargo.fragile %}Да{% else %}Нет{% endif %}</dd></div>
+      <div><dt>Мест</dt><dd class="mono">{{ cargo.places }}</dd></div>
+      <div><dt>Вес</dt><dd class="mono">{% if cargo.weight_kg is not None %}{{ cargo.weight_kg|ru_number }} кг{% else %}—{% endif %}</dd></div>
+      <div><dt>Объём</dt><dd class="mono">{% if cargo.volume_m3 is not None %}{{ cargo.volume_m3|ru_number }} м³{% else %}—{% endif %}</dd></div>
+      <div><dt>К оплате</dt><dd class="mono">{{ cargo.amount_due|rub }}</dd></div>
+      <div><dt>Оплачен</dt><dd>{% if cargo.paid %}Да{% else %}Нет{% endif %}</dd></div>
+      <div><dt>Хранение бесплатно до</dt><dd{% if storage_overdue %} class="facts__alert"{% endif %}>{% if cargo.free_storage_until %}{{ cargo.free_storage_until|ru_date }}{% if storage_overdue %} · истекло{% endif %}{% else %}—{% endif %}</dd></div>
+      <div><dt>Принят</dt><dd>{{ cargo.created_at|ru_datetime }}</dd></div>
+      <div class="facts__wide"><dt>Заметка</dt><dd class="pre">{{ cargo.note|default:"—" }}</dd></div>
+    </dl>
+  </section>
+
+  <aside class="cargo-side">
+    <section class="panel" aria-labelledby="photo-title">
+      <div class="panel__head"><h2 id="photo-title" class="panel__title">Фото</h2></div>
+      {% if cargo.photo %}
+      <a class="cargo-photo" href="{{ cargo.photo.url }}" target="_blank" rel="noopener" title="Открыть фото целиком">
+        <img src="{{ cargo.photo.url }}" alt="Фото груза {{ cargo.article }}" loading="lazy">
+      </a>
+      {% else %}
+      <p class="muted cargo-photo__none">Фото нет.{% if request.user|is_manager %} Его можно добавить в «Изменить».{% endif %}</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" aria-labelledby="history-title">
+      <div class="panel__head"><h2 id="history-title" class="panel__title">История</h2></div>
+      <ol class="history">
+        {% for step in history %}
+        <li class="history__step{% if step.done %} is-done{% elif step.current %} is-current{% endif %}"{% if step.current %} aria-current="step"{% endif %}>
+          <span class="history__dot" aria-hidden="true"></span>
+          <span class="history__label">{{ step.label }}</span>
+          <span class="history__time mono">{% if step.done and step.at %}{{ step.at|ru_datetime }}{% elif not step.done %}—{% endif %}</span>
+          {% if step.done and step.text %}<span class="history__text">{% if step.truck %}<a class="mono" href="{% url 'panel:truck' step.truck.pk %}">{{ step.text }}</a>{% else %}{{ step.text }}{% endif %}</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+  </aside>
+</div>
+
+<div class="card-grid">
+  <section class="panel panel--flush" aria-labelledby="notif-title">
+    <div class="panel__head panel__head--pad"><h2 id="notif-title" class="panel__title">Уведомления клиенту</h2><span class="caption">по этой машине</span></div>
+    {% if notifications %}
+    <table class="table">
+      <thead><tr><th>Когда</th><th>Тип</th><th>Статус</th><th>Ошибка</th></tr></thead>
+      <tbody>
+        {% for n in notifications %}
+        <tr>
+          <td data-label="Когда" class="nowrap">{{ n.created_at|ru_datetime }}</td>
+          <td data-label="Тип">{{ n.get_kind_display }}{% if n.truck %} <span class="caption mono">{{ n.truck.number }}</span>{% endif %}</td>
+          <td data-label="Статус"><span class="pill {{ n.status|notification_pill }}">{{ n.get_status_display }}</span></td>
+          <td data-label="Ошибка" class="error-text">{{ n.last_error }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="empty muted">Уведомлений не было. Они появятся, когда машина выедет и прибудет.</p>{% endif %}
+  </section>
+  <section class="panel panel--flush" aria-labelledby="calls-title">
+    <div class="panel__head panel__head--pad"><h2 id="calls-title" class="panel__title">Звонки по грузу</h2></div>
+    {% if attempts %}
+    <table class="table">
+      <thead><tr><th>Когда</th><th>Результат</th><th>Сотрудник</th><th>Комментарий</th></tr></thead>
+      <tbody>
+        {% for a in attempts %}
+        <tr>
+          <td data-label="Когда" class="nowrap">{{ a.created_at|ru_datetime }}</td>
+          <td data-label="Результат"><span class="pill {{ a.outcome|attempt_pill }}">{{ a.get_outcome_display }}</span>{% if a.promised_date %} <span class="caption">приедет {{ a.promised_date|ru_date }}</span>{% endif %}</td>
+          <td data-label="Сотрудник">{{ a.staff.get_full_name|default:a.staff.get_username }}</td>
+          <td data-label="Комментарий">{{ a.comment|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="empty muted">Звонков не было. Отметки из ордера на звонок появятся здесь.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

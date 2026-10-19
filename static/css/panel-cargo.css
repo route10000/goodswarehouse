@@ -1,0 +1,462 @@
+/* «Грузы» and «Клиенты»: list summary and filters, sticky table header, empty states,
+   cargo card (facts, photo, history), photo edit, client summary tiles and bot QR.
+   Light panel theme only: colours come from tokens.css through the .theme-panel variables. */
+
+/* ---------- Toolbar ---------- */
+.toolbar .field.cargo-toolbar__narrow {
+  min-width: 150px;
+}
+
+.cargo-toolbar__check {
+  height: 44px;
+}
+
+/* ---------- Summary for the current filter ---------- */
+.cargo-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+  margin: var(--s-4) 0 var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.cargo-summary__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-6);
+  margin: 0 auto 0 0;
+}
+
+.cargo-summary__list dt,
+.stat-tile dt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.cargo-summary__list dd {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- Tables: sticky header, row links, bulk bar ---------- */
+/* ``clip`` instead of ``hidden`` keeps the rounded corners without making the panel a
+   scroll container, so the header can stick under the 56px topbar. */
+.panel--sticky {
+  overflow: clip;
+}
+
+.panel--sticky .table thead th {
+  position: sticky;
+  top: 56px;
+  z-index: 2;
+  background: var(--surface);
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+
+.row-link {
+  cursor: pointer;
+}
+
+.cell-track {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cargo-bulk {
+  position: sticky;
+  top: 56px;
+  z-index: 3;
+  flex-wrap: wrap;
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cargo-bulk__select {
+  width: auto;
+  min-width: 200px;
+  height: 32px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---------- Empty state inside a panel ---------- */
+.empty-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-6) var(--s-5);
+}
+
+.empty-block p {
+  margin: 0;
+}
+
+.empty-block__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.empty-block .btn {
+  margin-top: var(--s-2);
+}
+
+/* ---------- Cargo card ---------- */
+.cargo-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--s-4);
+  align-items: start;
+  margin-bottom: var(--s-4);
+}
+
+.cargo-layout > .panel,
+.cargo-side > .panel {
+  margin: 0;
+}
+
+.cargo-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4) var(--s-5);
+  margin: 0;
+}
+
+.facts > div {
+  min-width: 0;
+}
+
+.facts__wide {
+  grid-column: 1 / -1;
+}
+
+.facts dt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.facts dd.facts__alert {
+  color: var(--st-error-ink);
+}
+
+.cargo-photo {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.cargo-photo img {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+}
+
+.cargo-photo__none {
+  margin: 0;
+}
+
+/* History: a vertical line of dots, done steps filled black, the next one ringed. */
+.history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px var(--s-3);
+  padding: 0 0 var(--s-4) 28px;
+  color: var(--muted);
+}
+
+.history__step:last-child {
+  padding-bottom: 0;
+}
+
+.history__step::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  background: var(--line);
+}
+
+.history__step:last-child::before {
+  display: none;
+}
+
+.history__step.is-done::before {
+  background: var(--black);
+}
+
+.history__dot {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+}
+
+.history__step.is-done .history__dot {
+  border-color: var(--black);
+  background: var(--black);
+}
+
+.history__step.is-current .history__dot {
+  border-color: var(--black);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--black) 12%, transparent);
+}
+
+.history__label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.history__step.is-done,
+.history__step.is-current {
+  color: var(--text);
+}
+
+.history__time {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.history__text {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ---------- Edit form: photo ---------- */
+.photo-edit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+}
+
+.photo-edit__thumb {
+  flex: none;
+  display: block;
+  width: 120px;
+  height: 120px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.photo-edit__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-edit__controls {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+/* ---------- New client: «phone already taken» ---------- */
+.notice-existing {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+/* ---------- Client card: summary tiles and bot QR ---------- */
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-3);
+  margin: 0 0 var(--s-4);
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.stat-tile dd {
+  margin: 0;
+}
+
+.stat-tile__value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.stat-tile__value--sm {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.stat-tile__note {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.bot-qr {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+}
+
+.bot-qr__code {
+  flex: none;
+  width: 148px;
+  padding: var(--s-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--ivory);
+}
+
+.qr {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.qr__path {
+  stroke: var(--black);
+}
+
+.bot-qr__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.bot-qr__body .caption {
+  margin: 0;
+}
+
+.bot-qr__downloads {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+/* ---------- Narrow screens ---------- */
+@media (max-width: 1100px) {
+  .cargo-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cargo-side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .stat-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 719px) {
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cargo-side {
+    display: flex;
+  }
+
+  .cargo-summary__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: var(--s-3);
+  }
+
+  .cargo-summary .btn {
+    width: 100%;
+  }
+
+  /* Rows are cards here: the header is hidden, the bulk bar no longer needs to stick. */
+  .cargo-bulk {
+    position: static;
+  }
+
+  .cargo-bulk__select {
+    flex: 1 1 100%;
+  }
+
+  .table td.cell-check {
+    justify-content: flex-start;
+  }
+
+  .cell-track {
+    max-width: none;
+  }
+
+  .bot-qr {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bot-qr__code {
+    align-self: center;
+    width: 180px;
+  }
+
+  .photo-edit {
+    flex-direction: column;
+  }
+}

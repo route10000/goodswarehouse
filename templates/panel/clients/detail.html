@@ -1,6 +1,9 @@
 {% extends "panel/base.html" %}
-{% load panel_tags gw_format %}
+{% load static panel_tags gw_format %}
 {% block title %}{{ client.code }} · Клиенты · GoodsWarehouse{% endblock %}
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/panel-cargo.css' %}">
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
@@ -14,14 +17,31 @@
   {% if request.user|is_manager %}<a class="btn btn--quiet" href="{% url 'panel:client_edit' client.pk %}">Изменить</a>{% endif %}
 </div>
 
+<dl class="stat-tiles" aria-label="Сводка по клиенту">
+  <div class="stat-tile"><dt>Грузов всего</dt><dd class="stat-tile__value mono">{{ summary.total }}</dd></div>
+  <div class="stat-tile"><dt>На складе</dt><dd class="stat-tile__value mono">{{ summary.ready }}</dd><dd class="stat-tile__note">готовы к выдаче</dd></div>
+  <div class="stat-tile"><dt>К оплате</dt><dd class="stat-tile__value mono">{{ summary.amount|rub }}</dd><dd class="stat-tile__note">по невыданным грузам</dd></div>
+  <div class="stat-tile"><dt>Последний звонок</dt>{% if summary.last_call %}<dd class="stat-tile__value stat-tile__value--sm mono">{{ summary.last_call.created_at|ru_datetime }}</dd><dd class="stat-tile__note"><span class="pill {{ summary.last_call.outcome|attempt_pill }}">{{ summary.last_call.get_outcome_display }}</span></dd>{% else %}<dd class="stat-tile__value mono">—</dd><dd class="stat-tile__note">звонков не было</dd>{% endif %}</div>
+</dl>
+
 <div class="card-grid">
   <section class="panel" aria-labelledby="bot-title">
     <div class="panel__head"><h2 id="bot-title" class="panel__title">Привязка Telegram</h2></div>
     {% if bot_link %}
-      <p class="caption">Отправьте клиенту ссылку: после нажатия «Старт» бот привяжет его чат.</p>
-      <div class="copy-row">
-        <input class="input mono" type="text" value="{{ bot_link }}" readonly aria-label="Ссылка на бота" id="bot-link">
-        <button class="btn btn--outline" type="button" data-copy="#bot-link" data-copied-text="Скопировано">Копировать</button>
+      <div class="bot-qr">
+        <div class="bot-qr__code">{{ qr_svg }}</div>
+        <div class="bot-qr__body">
+          <p class="caption">Покажите клиенту QR-код или отправьте ссылку: после нажатия «Старт» бот привяжет его чат.</p>
+          <div class="copy-row">
+            <input class="input mono" type="text" value="{{ bot_link }}" readonly aria-label="Ссылка на бота" id="bot-link">
+            <button class="btn btn--outline" type="button" data-copy="#bot-link" data-copied-text="Скопировано">Копировать</button>
+          </div>
+          <div class="bot-qr__downloads">
+            <span class="caption">Скачать QR:</span>
+            <a class="btn btn--quiet btn--sm" href="{% url 'panel:client_qr' client.pk 'svg' %}" download>SVG</a>
+            <a class="btn btn--quiet btn--sm" href="{% url 'panel:client_qr' client.pk 'png' %}" download>PNG</a>
+          </div>
+        </div>
       </div>
     {% else %}
       <p class="muted">Бот ещё не настроен. Ссылка появится, когда администратор укажет имя бота.</p>
@@ -41,8 +61,8 @@
     <thead><tr><th>Артикул</th><th>Описание</th><th>Машина</th><th class="num">Мест</th><th class="num">Вес, кг</th><th class="num">К оплате</th><th>Статус</th><th>Принят</th></tr></thead>
     <tbody>
       {% for cargo in cargos %}
-      <tr>
-        <td data-label="Артикул" class="mono">{{ cargo.article }}</td>
+      <tr class="row-link" data-href="{% url 'panel:cargo_card' cargo.pk %}">
+        <td data-label="Артикул"><a class="mono strong" href="{% url 'panel:cargo_card' cargo.pk %}">{{ cargo.article }}</a></td>
         <td data-label="Описание">{{ cargo.description|default:"—" }}</td>
         <td data-label="Машина">{% if cargo.truck %}<a class="mono" href="{% url 'panel:truck' cargo.truck.pk %}">{{ cargo.truck.number }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
         <td data-label="Мест" class="num">{{ cargo.places }}</td>
@@ -54,7 +74,7 @@
       {% endfor %}
     </tbody>
   </table>
-  {% else %}<p class="empty muted">Грузов пока нет.</p>{% endif %}
+  {% else %}<p class="empty muted">Грузов пока нет. Новый груз оформляется в разделе «Грузы» по телефону клиента.</p>{% endif %}
 </section>
 
 <div class="card-grid">
@@ -97,3 +117,4 @@
   </section>
 </div>
 {% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/panel-trucks.js' %}" defer></script>{% endblock %}

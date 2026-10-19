@@ -34,6 +34,12 @@ urlpatterns = [
     # cargo
     path("cargo/", cargo.cargo_list, name="cargo"),
     path("cargo/new/", cargo.cargo_create, name="cargo_new"),
+    path("cargo/load/", cargo.cargo_bulk_load, name="cargo_bulk_load"),
+    path("cargo/export.xlsx", cargo.cargo_export, name="cargo_export"),
+    path("cargo/<int:pk>/", cargo.cargo_detail, name="cargo_card"),
+    path("cargo/<int:pk>/edit/", cargo.cargo_edit, name="cargo_edit"),
+    path("clients/new/", clients.client_create, name="client_new"),
+    path("clients/<int:pk>/qr.<str:fmt>", clients.client_qr, name="client_qr"),
     # clients
     path("clients/", clients.client_list, name="clients"),
     path("clients/lookup/", lookup.client_lookup, name="client_lookup"),
