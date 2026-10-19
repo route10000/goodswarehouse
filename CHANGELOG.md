@@ -52,4 +52,4 @@
 - Тесты pytest и линтер ruff; автоматическая проверка на GitHub Actions.
 - Инструкция по публикации на GitHub (`docs/GITHUB.md`).
 
-[1.0.0]: https://github.com/OWNER/goodswarehouse/releases/tag/v1.0.0
+[1.0.0]: https://github.com/route10000/goodswarehouse/releases/tag/v1.0.0

@@ -83,7 +83,7 @@ git grep -nE "TELEGRAM_BOT_TOKEN=|SECRET_KEY=" -- ':!*.example'
 2. Отправьте код:
 
 ```powershell
-git remote add origin https://github.com/OWNER/goodswarehouse.git
+git remote add origin https://github.com/route10000/goodswarehouse.git
 git push -u origin main
 ```
 
@@ -100,7 +100,7 @@ gh auth login
 Выберите GitHub.com → HTTPS → вход через браузер. Затем:
 
 ```powershell
-git remote add origin https://github.com/OWNER/goodswarehouse.git
+git remote add origin https://github.com/route10000/goodswarehouse.git
 git push -u origin main
 ```
 
